@@ -5,7 +5,64 @@ VisualStudioVersion = 16.0.31424.327
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FireDog", "FireDog\FireDog.vcxitems", "{07ECB430-E41B-4B28-ABAA-EA857B15E618}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestWindows", "TestWindows\TestWindows.vcxproj", "{7893AA14-D8F8-4AA8-9915-7F0341BB2520}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestLinux", "TestLinux\TestLinux.vcxproj", "{B771D282-D971-478D-9941-62356D8B096E}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		FireDog\FireDog.vcxitems*{07ecb430-e41b-4b28-abaa-ea857b15e618}*SharedItemsImports = 9
+		FireDog\FireDog.vcxitems*{7893aa14-d8f8-4aa8-9915-7f0341bb2520}*SharedItemsImports = 4
+		FireDog\FireDog.vcxitems*{b771d282-d971-478d-9941-62356d8b096e}*SharedItemsImports = 4
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
+		Debug|ARM64 = Debug|ARM64
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|ARM = Release|ARM
+		Release|ARM64 = Release|ARM64
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7893AA14-D8F8-4AA8-9915-7F0341BB2520}.Debug|ARM.ActiveCfg = Debug|Win32
+		{7893AA14-D8F8-4AA8-9915-7F0341BB2520}.Debug|ARM64.ActiveCfg = Debug|Win32
+		{7893AA14-D8F8-4AA8-9915-7F0341BB2520}.Debug|x64.ActiveCfg = Debug|x64
+		{7893AA14-D8F8-4AA8-9915-7F0341BB2520}.Debug|x64.Build.0 = Debug|x64
+		{7893AA14-D8F8-4AA8-9915-7F0341BB2520}.Debug|x86.ActiveCfg = Debug|Win32
+		{7893AA14-D8F8-4AA8-9915-7F0341BB2520}.Debug|x86.Build.0 = Debug|Win32
+		{7893AA14-D8F8-4AA8-9915-7F0341BB2520}.Release|ARM.ActiveCfg = Release|Win32
+		{7893AA14-D8F8-4AA8-9915-7F0341BB2520}.Release|ARM64.ActiveCfg = Release|Win32
+		{7893AA14-D8F8-4AA8-9915-7F0341BB2520}.Release|x64.ActiveCfg = Release|x64
+		{7893AA14-D8F8-4AA8-9915-7F0341BB2520}.Release|x64.Build.0 = Release|x64
+		{7893AA14-D8F8-4AA8-9915-7F0341BB2520}.Release|x86.ActiveCfg = Release|Win32
+		{7893AA14-D8F8-4AA8-9915-7F0341BB2520}.Release|x86.Build.0 = Release|Win32
+		{B771D282-D971-478D-9941-62356D8B096E}.Debug|ARM.ActiveCfg = Debug|ARM
+		{B771D282-D971-478D-9941-62356D8B096E}.Debug|ARM.Build.0 = Debug|ARM
+		{B771D282-D971-478D-9941-62356D8B096E}.Debug|ARM.Deploy.0 = Debug|ARM
+		{B771D282-D971-478D-9941-62356D8B096E}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{B771D282-D971-478D-9941-62356D8B096E}.Debug|ARM64.Build.0 = Debug|ARM64
+		{B771D282-D971-478D-9941-62356D8B096E}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{B771D282-D971-478D-9941-62356D8B096E}.Debug|x64.ActiveCfg = Debug|x64
+		{B771D282-D971-478D-9941-62356D8B096E}.Debug|x64.Build.0 = Debug|x64
+		{B771D282-D971-478D-9941-62356D8B096E}.Debug|x64.Deploy.0 = Debug|x64
+		{B771D282-D971-478D-9941-62356D8B096E}.Debug|x86.ActiveCfg = Debug|x86
+		{B771D282-D971-478D-9941-62356D8B096E}.Debug|x86.Build.0 = Debug|x86
+		{B771D282-D971-478D-9941-62356D8B096E}.Debug|x86.Deploy.0 = Debug|x86
+		{B771D282-D971-478D-9941-62356D8B096E}.Release|ARM.ActiveCfg = Release|ARM
+		{B771D282-D971-478D-9941-62356D8B096E}.Release|ARM.Build.0 = Release|ARM
+		{B771D282-D971-478D-9941-62356D8B096E}.Release|ARM.Deploy.0 = Release|ARM
+		{B771D282-D971-478D-9941-62356D8B096E}.Release|ARM64.ActiveCfg = Release|ARM64
+		{B771D282-D971-478D-9941-62356D8B096E}.Release|ARM64.Build.0 = Release|ARM64
+		{B771D282-D971-478D-9941-62356D8B096E}.Release|ARM64.Deploy.0 = Release|ARM64
+		{B771D282-D971-478D-9941-62356D8B096E}.Release|x64.ActiveCfg = Release|x64
+		{B771D282-D971-478D-9941-62356D8B096E}.Release|x64.Build.0 = Release|x64
+		{B771D282-D971-478D-9941-62356D8B096E}.Release|x64.Deploy.0 = Release|x64
+		{B771D282-D971-478D-9941-62356D8B096E}.Release|x86.ActiveCfg = Release|x86
+		{B771D282-D971-478D-9941-62356D8B096E}.Release|x86.Build.0 = Release|x86
+		{B771D282-D971-478D-9941-62356D8B096E}.Release|x86.Deploy.0 = Release|x86
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

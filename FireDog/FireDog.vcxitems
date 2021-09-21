@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="Globals">
     <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
@@ -12,5 +12,31 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)avlmap.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)errorcode.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)featurelibrary.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)firedog.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)json\allocator.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)json\assertions.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)json\config.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)json\forwards.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)json\json.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)json\json_features.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)json\json_tool.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)json\reader.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)json\value.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)json\version.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)json\writer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)featurelibrary.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)json\json_reader.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)json\json_value.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)json\json_writer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)json\json_valueiterator.inl" />
   </ItemGroup>
 </Project>
