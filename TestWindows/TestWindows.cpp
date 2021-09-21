@@ -2,10 +2,26 @@
 //
 
 #include <iostream>
+#include <string>
+#include "avlmap.h"
+
+using namespace std;
 
 int main()
 {
     std::cout << "Hello World!\n";
+
+    AvlMap<int, string> map;
+
+    map.insert(1, "123123");
+    map.insert(2, "5666");
+    map.insert(123, "65156123321");
+    map.insert(23, "521231");
+    AvlMap<int, string>::Iterator findi =  map.find(3);
+    string temp = map[123];
+    
+    std::cout << temp;
+
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
