@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)avlmap.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)config.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)errorcode.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)featurelibrary.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)firedog.h" />
@@ -29,12 +30,18 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)json\value.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)json\version.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)json\writer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)map\avlmap.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)map\hashmap.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)matcher.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)stringutil.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)featurelibrary.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)firedog.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)json\json_reader.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)json\json_value.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)json\json_writer.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)matcher.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)json\json_valueiterator.inl" />

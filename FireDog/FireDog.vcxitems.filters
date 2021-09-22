@@ -4,6 +4,9 @@
     <Filter Include="json">
       <UniqueIdentifier>{3938345f-8144-43c1-8863-899c9f8cdfbe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="map">
+      <UniqueIdentifier>{9a79579a-1486-4928-a1c5-8593cc37f186}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)json\allocator.h">
@@ -43,6 +46,15 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)featurelibrary.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)firedog.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)avlmap.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)config.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)matcher.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)map\hashmap.h">
+      <Filter>map</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)map\avlmap.h">
+      <Filter>map</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)stringutil.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)json\json_reader.cpp">
@@ -55,6 +67,8 @@
       <Filter>json</Filter>
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)featurelibrary.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)firedog.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)matcher.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)json\json_valueiterator.inl">
