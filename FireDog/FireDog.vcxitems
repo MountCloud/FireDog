@@ -14,7 +14,6 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(MSBuildThisFileDirectory)avlmap.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)config.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)errorcode.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)featurelibrary.h" />
@@ -31,7 +30,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)json\version.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)json\writer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)map\avlmap.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)map\hashmap.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)matcher.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)stringutil.h" />
   </ItemGroup>
