@@ -5,3 +5,9 @@
 正在开发中，使用的是：Visual Studio 2019
 
 Under development, using: Visual Studio 2019
+
+# LICENSE
+
+是你们喜欢的：MTI License.
+
+It's what you like:MTI License.
