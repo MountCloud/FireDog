@@ -40,10 +40,15 @@ namespace firedog {
 	class FeatureLibrary {
 	public:
 		/// <summary>
+		/// create by json
+		/// </summary>
+		static FeatureLibrary createByJson(std::string json, int* errorcode);
+
+		/// <summary>
 		/// library version
 		/// Used to check whether it matches the current data version.
 		/// </summary>
-		int version;
+		std::string version;
 
 		/// <summary>
 		/// library author
@@ -54,13 +59,6 @@ namespace firedog {
 		/// create time utc str
 		/// </summary>
 		std::string createTime;
-
-		/// <summary>
-		/// load by json
-		/// </summary>
-		/// <param name="json">json string</param>
-		/// <returns>errorcode</returns>
-		int loadByJson(std::string json);
 		
 		/// <summary>
 		/// Binary Feature
@@ -78,6 +76,13 @@ namespace firedog {
 		std::vector<FeatureLibraryItem> textItems;
 
 	private:
+		/// <summary>
+		/// load by json
+		/// </summary>
+		/// <param name="json">json string</param>
+		/// <returns>errorcode</returns>
+		int loadByJson(std::string json);
+
 		/// <summary>
 		/// parse json to library item
 		/// </summary>

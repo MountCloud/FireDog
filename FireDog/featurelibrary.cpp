@@ -22,7 +22,7 @@ int FeatureLibrary::loadByJson(string json) {
 	}
 
 	//check content
-	if (!root.isMember("version") || !root["version"].isInt()
+	if (!root.isMember("version") || !root["version"].isString()
 		|| !root.isMember("author") || !root["author"].isString()
 		|| !root.isMember("createTime") || !root["createTime"].isString()
 		|| !root.isMember("hexItems") || !root["hexItems"].isArray()
@@ -32,13 +32,16 @@ int FeatureLibrary::loadByJson(string json) {
 	}
 
 	//get version
-	int version = root["version"].asInt();
+	string version = root["version"].asString();
 
 	//check version
-	if (version != FEATURE_LIBRARY_VERSION) {
+	if (version != FIREDOG_FEATURE_LIBRARY_VERSION) {
 		return FL_CONTENT_VERSION_ERROR;
 	}
+
 	
+	this->version = version;
+
 	this->author = root["author"].asString();
 	this->createTime = root["createTime"].asString();
 
@@ -53,6 +56,12 @@ int FeatureLibrary::loadByJson(string json) {
 
 
 	return NO_ERROR;
+}
+
+FeatureLibrary FeatureLibrary::createByJson(string json, int* errorcode) {
+	FeatureLibrary result;
+	*errorcode = result.loadByJson(json);
+	return result;
 }
 
 

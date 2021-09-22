@@ -4,8 +4,8 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
-#include "map/hashmap.h"
 #include "map/avlmap.h"
 
 /// <summary>
@@ -48,7 +48,7 @@ namespace firedog {
 
 	class MatcherMd5Data {
 	public:
-		HashMap<std::string, MatcherFeature*>* data = NULL;
+		std::unordered_map<std::string, MatcherFeature*>* data = NULL;
 		~MatcherMd5Data();
 	};
 
@@ -84,19 +84,19 @@ namespace firedog {
 
 		MatcherFeature* matchMd5(std::string md5);
 
-		MatcherFeature* matchBytes(char* bytes, int length);
+		MatcherFeature* matchBytes(const char* bytes, int length);
 
-		MatcherFeature* matchByte(char byte);
+		MatcherFeature* matchByte(const char byte);
 	private:
 		/// <summary>
 		/// data source,
 		/// </summary>
-		MatcherDataSource* dataSource;
+		MatcherDataSource* dataSource = NULL;
 
 		/// <summary>
 		/// this is bytes match cache
 		/// </summary>
-		std::vector<MatcherByteData*>* matchBytesCache;
+		std::vector<MatcherByteData*>* matchBytesCache = NULL;
 	};
 
 }

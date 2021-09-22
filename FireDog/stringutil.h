@@ -3,7 +3,7 @@
 
 #include <string> 
 #include <vector>
-#include <algorithm>
+#include <algorithm>  
 #include <functional> 
 #include <sstream>
 
@@ -13,13 +13,13 @@
 class StringUtil {
 public:
 	static std::string ltrim(std::string str) {
-		std::string::iterator p = find_if(str.begin(), str.end(), not1(ptr_fun<int, int>(isspace)));
+		std::string::iterator p = find_if(str.begin(), str.end(), not1(std::ptr_fun<int, int>(isspace)));
 		str.erase(str.begin(), p);
 		return str;
 	};
 
 	static std::string rtrim(std::string str) {
-		std::string::reverse_iterator p = find_if(str.rbegin(), str.rend(), not1(ptr_fun<int, int>(isspace)));
+		std::string::reverse_iterator p = find_if(str.rbegin(), str.rend(), not1(std::ptr_fun<int, int>(isspace)));
 		str.erase(p.base(), str.end());
 		return str;
 	};

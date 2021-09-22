@@ -15,8 +15,8 @@ MatcherFeature::~MatcherFeature() {
 
 MatcherMd5Data::~MatcherMd5Data() {
 	if (data != NULL) {
-		HashMap<std::string, MatcherFeature*>::iterator iter = data->begin();
-		for (; iter != data->end(); ++iter) {
+		std::unordered_map<std::string, MatcherFeature*>::iterator iter;
+		for (iter = data->begin(); iter != data->end(); ++iter) {
 			MatcherFeature* td = iter->second;
 			if (td != NULL) {
 				delete td;
@@ -69,7 +69,7 @@ MatcherDataSource::~MatcherDataSource() {
 
 MatcherDataSource::MatcherDataSource() {
 	md5Data = new MatcherMd5Data();
-	md5Data->data = new HashMap<std::string, MatcherFeature*>(16,"");
+	md5Data->data = new std::unordered_map<std::string, MatcherFeature*>();
 
 	byteData = new MatcherByteData();
 	byteData->data = new AvlMap<char, MatcherByteData*>();
@@ -171,7 +171,6 @@ MatcherFeature* MatcherDataSource::toMatcherFeature(FeatureLibrary lib, FeatureL
 
 Matcher::Matcher(MatcherDataSource* dataSource) {
 	this->dataSource = dataSource;
-	this->matchBytesCache = new std::vector<MatcherByteData*>();
 }
 
 Matcher::~Matcher() {
@@ -196,14 +195,54 @@ MatcherFeature* Matcher::matchMd5(string md5) {
 	return mf;
 }
 
-MatcherFeature* Matcher::matchBytes(char* bytes, int length) {
+MatcherFeature* Matcher::matchBytes(const char* bytes, int length) {
 	MatcherFeature* mf = NULL;
-
+	for (int i = 0; i < length; i++) {
+		char byte = bytes[i];
+		mf = this->matchByte(byte);
+		if (mf != NULL) {
+			break;
+		}
+	}
 	return mf;
 }
 
-MatcherFeature* Matcher::matchByte(char byte) {
+MatcherFeature* Matcher::matchByte(const char byte) {
 	MatcherFeature* mf = NULL;
+
+	if (matchBytesCache == NULL) {
+		matchBytesCache = new std::vector<MatcherByteData*>();
+	}
+	//step1: find by cache 先从cache里读取
+	if (matchBytesCache->size() > 0) {
+		std::vector<MatcherByteData*>* tempMatchBytesCache = new std::vector<MatcherByteData*>();
+		for (int i = 0; i < this->matchBytesCache->size(); i++) {
+			MatcherByteData* mbd = matchBytesCache->at(i);
+			AvlMap<char, MatcherByteData*>::Iterator mbditer = mbd->data->find(byte);
+			if (mbditer != NULL&& mbditer->mapped_value!=NULL) {
+				MatcherByteData* iterMbd = mbditer->mapped_value;
+				//这里我在想是不是以后可以用多种模式控制，如果是fast模式直接return匹配到的特征？
+				if (iterMbd->feature != NULL) {
+					mf = iterMbd->feature;
+				}
+				tempMatchBytesCache->push_back(iterMbd);
+			}
+		}
+		this->matchBytesCache->clear();
+		delete this->matchBytesCache;
+		this->matchBytesCache = tempMatchBytesCache;
+	}
+
+	//step2:find by feature library 然后从特征库中拉取
+	AvlMap<char, MatcherByteData*>::Iterator iter = this->dataSource->byteData->data->find(byte);
+	MatcherByteData* findData = NULL;
+	if (iter != NULL) {
+		findData = iter->mapped_value;
+		if (findData->feature != NULL) {
+			mf = findData->feature;
+		}
+		this->matchBytesCache->push_back(findData);
+	}
 
 	return mf;
 }

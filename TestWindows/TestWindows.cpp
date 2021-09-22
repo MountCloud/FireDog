@@ -3,97 +3,117 @@
 
 #include <iostream>
 #include <string>
-#include "map/avlmap.h"
-#include "map/hashmap.h"
-#include "stringutil.h"
+
+#include "firedog.h"
+#include "featurelibrary.h"
 #include "matcher.h"
+
+#include "stringutil.h"
+
 using namespace std;
 using namespace firedog;
 
 
-void test() {
-    AvlMap<char, MatcherByteData*>* map = new AvlMap<char, MatcherByteData*>();
-    MatcherByteData* data = new MatcherByteData();
-    data->feature = new MatcherFeature();
-    data->feature->author = "123";
-    char c = 't';
-    map->insert(c, data);
-
-    AvlMap<char, MatcherByteData*>::Iterator iter = map->find(c);
-    AvlMap<char, MatcherByteData*>::Iterator iter1 = map->find('a');
-
-    int iii = 0;
+void testOutPut() {
+	string hexstr = "hello";
+	cout << StringUtil::textToHexText(hexstr) << endl;
 }
 
-void test1() {
-    MatcherFeature* mf = new MatcherFeature();
-    mf->name = "12123";
-    mf->author = "213";
-    mf->describe = "1231";
+void testMatcher() {
 
-    HashMap<string, MatcherFeature*>* hashmap = new HashMap<string, MatcherFeature*>(16,"");
-    hashmap->emplace("123", mf);
+    //test featureLibrary
+    const char* featureLibraryJson = R"(
+		{
+          "name":"Test Feature Library",
+          "version":"1.0.0",
+          "author":"MountCloud",
+          "createTime":"2021-09-23 00:58:00",
+          "hexItems":[
+            {
+              "name":"hello world hex",
+              "describe":"content is [hello] hex",
+              "content":"68656C6C6F"
+            }
+          ],
+          "md5Items":[
+            {
+              "name":"hello world md5",
+              "describe":"content is [hello] md5",
+              "content":"5d41402abc4b2a76b9719d911017c592"
+            }
+          ],
+          "textItems":[
+            {
+              "name":"hello world text",
+              "describe":"content is [world] md5",
+              "content":"world"
+            }
+          ]
+        }
+	)";
 
-    MatcherFeature* tmf = hashmap->at("123");
+    //bytes
+	const string bytes = "fire dog hello world.";
 
-    try {
-        MatcherFeature* tmf1 = hashmap->at("1231");
+    int ecode = NO_ERROR;
+
+	//step1: init feature library
+    FeatureLibrary featureLibrary = FeatureLibrary::createByJson(featureLibraryJson, &ecode);
+
+    if (ecode != NO_ERROR) {
+        cout << "feature library load faild";
+        return;
     }
-    catch (std::out_of_range ex) {
-        cout << "notfound" << endl;
+
+    //steap2: push to firedog datasource
+    FireDog* fireDog = new FireDog();
+    ecode = fireDog->pushFeatureLibrary(featureLibrary);
+    if (ecode != NO_ERROR) {
+        cout << "push feature library faild";
+        return;
     }
 
-    int iii = 0;
+    //step3: create match，One matcher per file!
+    Matcher* matcher = fireDog->createNewMatcher();
+    if (matcher == NULL) {
+        cout << "create matcher faild";
+        return;
+    }
+
+    //step4: matcher bytes
+
+    int length = bytes.length();
+    MatcherFeature* mf = NULL;
+
+    //test md5
+    //mf = matcher->matchMd5("5d41402abc4b2a76b9719d911017c592");//found it
+    //mf = matcher->matchMd5("11111111111111111111111111111111");//not found
+
+    //test match bytes
+    mf = matcher->matchBytes(bytes.c_str(), length);//found it
+    //mf = matcher->matchBytes("zzz", strlen("zzz"));//not found
+
+    //test match byte
+    //for (int i = 0; i < length; i++) {
+    //    char byte = bytes.at(i);
+    //    mf = matcher->matchByte(byte);
+    //    //found it
+    //    if (mf != NULL) {
+    //        break;
+    //    }
+    //}
+
+    if (mf != NULL) {
+        cout << "found it:" << mf->name << endl;
+    }
+    else {
+        cout << "not found." << endl;
+    }
 }
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    testMatcher();
 
-    test();
-    test1();
-
-    AvlMap<int, string> map;
-
-    map.insert(1, "123123");
-    map.insert(2, "5666");
-    map.insert(123, "65156123321");
-    map.insert(23, "521231");
-    AvlMap<int, string>::Iterator findi =  map.find(3);
-    string temp = map[123];
-    
-    std::cout << temp << endl;
-
-
-    HashMap<string, string> hashmap(16,"");
-    hashmap["test"] = "test";
-    hashmap["hello"] = "hello";
-    hashmap["world"] = "world";
-
-    string tv = hashmap["test"];
-    string abc = hashmap["abc"];
-
-    string sss = StringUtil::trim(" 12312 ");
-
-    cout << sss << endl;
-
-
-    string teststr = "test我";
-    string hexstr = StringUtil::textToHexText(teststr);
-
-    vector<char> bytes;
-    StringUtil::hexTextToBytes(hexstr,&bytes);
-
-    int iii = 0;
+    return 0;
 }
-
-// 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
-// 调试程序: F5 或调试 >“开始调试”菜单
-
-// 入门使用技巧: 
-//   1. 使用解决方案资源管理器窗口添加/管理文件
-//   2. 使用团队资源管理器窗口连接到源代码管理
-//   3. 使用输出窗口查看生成输出和其他消息
-//   4. 使用错误列表窗口查看错误
-//   5. 转到“项目”>“添加新项”以创建新的代码文件，或转到“项目”>“添加现有项”以将现有代码文件添加到项目
-//   6. 将来，若要再次打开此项目，请转到“文件”>“打开”>“项目”并选择 .sln 文件
