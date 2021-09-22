@@ -11,7 +11,14 @@
 ///---FEATURE LIBRARAY ÌØÕ÷¿â 501-1000 ---------------------------------
 
 ///content formate error,Failed to load or parse content
-#define CONTENT_FORMATE_ERROR 501
+#define FL_CONTENT_FORMATE_ERROR 501
+//content version check failed
+#define FL_CONTENT_VERSION_ERROR 502
+
+///---MATCHER Æ¥ÅäÆ÷ 1001-1500
+
+//Feature Library content is null
+#define M_FEATURE_LIBRARY_IS_EMPTY 1001
 
 
 

@@ -4,8 +4,15 @@
 #include <string>
 #include <vector>
 
-
 #include "errorcode.h"
+
+#define FEATURE_TYPE_HEX	1
+#define FEATURE_TYPE_MD5	2
+#define FEATURE_TYPE_TEXT	3
+
+namespace Json {
+	class Value;
+}
 
 /// <summary>
 /// Feature Library h
@@ -15,17 +22,19 @@ namespace firedog {
 	class FeatureLibraryItem {
 	public:
 		/// <summary>
-		/// content
-		/// </summary>
-		std::string content;
-		/// <summary>
 		/// name or title
 		/// </summary>
 		std::string name;
+
 		/// <summary>
 		/// describe
 		/// </summary>
 		std::string describe;
+
+		/// <summary>
+		/// feature content,hex or md5 or text
+		/// </summary>
+		std::string content;
 	};
 	
 	class FeatureLibrary {
@@ -35,6 +44,17 @@ namespace firedog {
 		/// Used to check whether it matches the current data version.
 		/// </summary>
 		int version;
+
+		/// <summary>
+		/// library author
+		/// </summary>
+		std::string author;
+
+		/// <summary>
+		/// create time utc str
+		/// </summary>
+		std::string createTime;
+
 		/// <summary>
 		/// load by json
 		/// </summary>
@@ -42,7 +62,6 @@ namespace firedog {
 		/// <returns>errorcode</returns>
 		int loadByJson(std::string json);
 		
-
 		/// <summary>
 		/// Binary Feature
 		/// </summary>
@@ -57,8 +76,16 @@ namespace firedog {
 		/// text Feature
 		/// </summary>
 		std::vector<FeatureLibraryItem> textItems;
-		
+
+	private:
+		/// <summary>
+		/// parse json to library item
+		/// </summary>
+		/// <param name="jsonValue">json value</param>
+		/// <returns>item</returns>
+		void parseJson(std::vector<FeatureLibraryItem> *items, Json::Value values);
 	};
+
 
 }
 
