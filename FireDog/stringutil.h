@@ -69,6 +69,14 @@ public:
 		return ss.str();
 	}
 
+	static char byteHigh(char byte) {
+		return byte >> 4;
+	}
+
+	static char byteLow(char byte) {
+		return byte & 0xf;
+	}
+
 	static void textToBytes(std::string text, std::vector<char>* results) {
 		std::string ttext = trim(text);
 		std::string hexstr = textToHexText(ttext);
