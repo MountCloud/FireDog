@@ -62,7 +62,7 @@ void testMatcher() {
         return;
     }
 
-    //steap2: push to firedog datasource
+    //step2: push to firedog datasource
     FireDog* fireDog = new FireDog();
     ecode = fireDog->pushFeatureLibrary(featureLibrary);
     if (ecode != NO_ERROR) {
@@ -78,7 +78,6 @@ void testMatcher() {
     }
 
     //step4: matcher bytes
-
     int length = bytes.length();
     MatcherFeature* mf = NULL;
 
