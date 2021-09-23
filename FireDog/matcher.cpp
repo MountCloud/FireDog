@@ -87,7 +87,7 @@ int MatcherDataSource::pushFeatureLibrary(FeatureLibrary lib) {
 	if (lib.md5Items.size() > 0) {
 		for (int i = 0; i < lib.md5Items.size(); i++) {
 			FeatureLibraryItem item = lib.md5Items[i];
-			MatcherFeature* mf = toMatcherFeature(lib, item, FEATURE_TYPE_MD5);
+			MatcherFeature* mf = toMatcherFeature(item, FEATURE_TYPE_MD5);
 			//md5 key 
 			string key = item.content;
 			md5Data->data->emplace(key, mf);
@@ -98,7 +98,7 @@ int MatcherDataSource::pushFeatureLibrary(FeatureLibrary lib) {
 	if (lib.hexItems.size() > 0) {
 		for (int i = 0; i < lib.hexItems.size(); i++) {
 			FeatureLibraryItem item = lib.hexItems[i];
-			MatcherFeature* mf = toMatcherFeature(lib, item, FEATURE_TYPE_MD5);
+			MatcherFeature* mf = toMatcherFeature(item, FEATURE_TYPE_MD5);
 			//hex str
 			string hexstr = item.content;
 			//bytes
@@ -112,7 +112,7 @@ int MatcherDataSource::pushFeatureLibrary(FeatureLibrary lib) {
 	if (lib.textItems.size() > 0) {
 		for (int i = 0; i < lib.textItems.size(); i++) {
 			FeatureLibraryItem item = lib.textItems[i];
-			MatcherFeature* mf = toMatcherFeature(lib, item, FEATURE_TYPE_TEXT);
+			MatcherFeature* mf = toMatcherFeature(item, FEATURE_TYPE_TEXT);
 			//text
 			string text = item.content;
 			//bytes
@@ -158,10 +158,10 @@ void MatcherDataSource::pushByteFeature(std::vector<char>* bytes, MatcherFeature
 	}
 }
 
-MatcherFeature* MatcherDataSource::toMatcherFeature(FeatureLibrary lib, FeatureLibraryItem item, int type) {
+MatcherFeature* MatcherDataSource::toMatcherFeature(FeatureLibraryItem item, int type) {
 	MatcherFeature* mf = new MatcherFeature();
 	mf->name = item.name;
-	mf->author = lib.author;
+	mf->author = item.author;
 	mf->describe = item.describe;
 	mf->content = item.content;
 	mf->type = type;

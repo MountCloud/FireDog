@@ -73,7 +73,7 @@ namespace firedog {
 		~MatcherDataSource();
 
 	private:
-		MatcherFeature* toMatcherFeature(FeatureLibrary lib, FeatureLibraryItem item,int type);
+		MatcherFeature* toMatcherFeature(FeatureLibraryItem item,int type);
 		void pushByteFeature(std::vector<char>* bytes, MatcherFeature* mf);
 	};
 

@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)config.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)converter.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)errorcode.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)featurelibrary.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)firedog.h" />
@@ -34,6 +35,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)stringutil.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)converter.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)featurelibrary.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)firedog.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)json\json_reader.cpp" />

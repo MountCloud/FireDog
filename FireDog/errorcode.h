@@ -20,6 +20,7 @@
 //Feature Library content is null
 #define M_FEATURE_LIBRARY_IS_EMPTY 1001
 
-
+///---CONVERTER ×ª»»Æ÷ 1501-2000
+#define C_CONTENT_FORMATE_ERROR 1501
 
 #endif

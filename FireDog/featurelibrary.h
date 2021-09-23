@@ -21,6 +21,17 @@ namespace firedog {
 
 	class FeatureLibraryItem {
 	public:
+
+		/// <summary>
+		/// library author
+		/// </summary>
+		std::string author;
+
+		/// <summary>
+		/// create time utc str
+		/// </summary>
+		std::string createTime;
+
 		/// <summary>
 		/// name or title
 		/// </summary>
@@ -49,16 +60,6 @@ namespace firedog {
 		/// Used to check whether it matches the current data version.
 		/// </summary>
 		std::string version;
-
-		/// <summary>
-		/// library author
-		/// </summary>
-		std::string author;
-
-		/// <summary>
-		/// create time utc str
-		/// </summary>
-		std::string createTime;
 		
 		/// <summary>
 		/// Binary Feature

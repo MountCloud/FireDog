@@ -23,8 +23,6 @@ int FeatureLibrary::loadByJson(string json) {
 
 	//check content
 	if (!root.isMember("version") || !root["version"].isString()
-		|| !root.isMember("author") || !root["author"].isString()
-		|| !root.isMember("createTime") || !root["createTime"].isString()
 		|| !root.isMember("hexItems") || !root["hexItems"].isArray()
 		|| !root.isMember("md5Items") || !root["md5Items"].isArray()
 		|| !root.isMember("textItems") || !root["textItems"].isArray()) {
@@ -41,9 +39,6 @@ int FeatureLibrary::loadByJson(string json) {
 
 	
 	this->version = version;
-
-	this->author = root["author"].asString();
-	this->createTime = root["createTime"].asString();
 
 	Json::Value hexItems = root["hexItems"];
 	this->parseJson(&this->hexItems, hexItems);
@@ -69,17 +64,24 @@ void FeatureLibrary::parseJson(std::vector<FeatureLibraryItem>* items, Json::Val
 
 	for (int i = 0; i < values.size(); i++) {
 		Json::Value value = values[i];
-		if (!value.isMember("content") || !value["content"].isString()
+		if (!value.isMember("author") || !value["author"].isString()
+			|| !value.isMember("createTime") || !value["createTime"].isString()
+			|| !value.isMember("content") || !value["content"].isString()
 			|| !value.isMember("name") || !value["name"].isString()
 			|| !value.isMember("describe") || !value["describe"].isString()) {
 			continue;
 		}
 
+
+		string author = value["author"].asString();
+		string createTime = value["createTime"].asString();
 		string name = value["name"].asString();
 		string describe = value["describe"].asString();
 		string content = value["content"].asString();
 
 		FeatureLibraryItem item;
+		item.author = author;
+		item.createTime = createTime;
 		item.name = name;
 		item.describe = describe;
 		item.content = content;

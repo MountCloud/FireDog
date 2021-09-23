@@ -7,6 +7,7 @@
 #include "firedog.h"
 #include "featurelibrary.h"
 #include "matcher.h"
+#include "converter.h"
 
 #include "stringutil.h"
 
@@ -110,9 +111,24 @@ void testMatcher() {
     }
 }
 
+void converter() {
+    string errormsg;
+    int errorcode;
+
+    //string hexstr = "68 65 6C 6C 6F";
+    //HexData* hexData = Converter::hexTextToBytes(hexstr, &errorcode, &errormsg);
+    //delete hexData;
+    //hexData = NULL;
+
+    string hexstr = "68 6? [6C-7C] 6C [01-05,07-10] ?? 6F ?7 65";
+    HexData* hexData = Converter::hexTextToBytes(hexstr, &errorcode, &errormsg);
+    delete hexData;
+    hexData = NULL;
+}
+
 int main()
 {
-    testMatcher();
-
+    //testMatcher();
+    converter();
     return 0;
 }
