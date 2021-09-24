@@ -7,41 +7,11 @@
     <Filter Include="map">
       <UniqueIdentifier>{9a79579a-1486-4928-a1c5-8593cc37f186}</UniqueIdentifier>
     </Filter>
+    <Filter Include="json\json-schema">
+      <UniqueIdentifier>{2d9aa7c3-bfb8-4eec-b6fb-0084bb78a08d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\allocator.h">
-      <Filter>json</Filter>
-    </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\assertions.h">
-      <Filter>json</Filter>
-    </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\config.h">
-      <Filter>json</Filter>
-    </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\forwards.h">
-      <Filter>json</Filter>
-    </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\json.h">
-      <Filter>json</Filter>
-    </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\json_features.h">
-      <Filter>json</Filter>
-    </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\json_tool.h">
-      <Filter>json</Filter>
-    </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\reader.h">
-      <Filter>json</Filter>
-    </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\value.h">
-      <Filter>json</Filter>
-    </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\version.h">
-      <Filter>json</Filter>
-    </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\writer.h">
-      <Filter>json</Filter>
-    </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)errorcode.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)featurelibrary.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)firedog.h" />
@@ -52,25 +22,35 @@
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)stringutil.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)converter.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)json\json.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)json\json-schema\json-patch.hpp">
+      <Filter>json\json-schema</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)json\json-schema\json-schema.hpp">
+      <Filter>json\json-schema</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(MSBuildThisFileDirectory)json\json_reader.cpp">
-      <Filter>json</Filter>
-    </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)json\json_value.cpp">
-      <Filter>json</Filter>
-    </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)json\json_writer.cpp">
-      <Filter>json</Filter>
-    </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)featurelibrary.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)firedog.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)matcher.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)converter.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)json\json_valueiterator.inl">
-      <Filter>json</Filter>
-    </None>
+    <ClCompile Include="$(MSBuildThisFileDirectory)json\json-schema\json-patch.cpp">
+      <Filter>json\json-schema</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)json\json-schema\json-schema-draft7.json.cpp">
+      <Filter>json\json-schema</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)json\json-schema\json-uri.cpp">
+      <Filter>json\json-schema</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)json\json-schema\json-validator.cpp">
+      <Filter>json\json-schema</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)json\json-schema\string-format-check.cpp">
+      <Filter>json\json-schema</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

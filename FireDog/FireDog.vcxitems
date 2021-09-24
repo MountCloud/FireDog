@@ -19,17 +19,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)errorcode.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)featurelibrary.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)firedog.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\allocator.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\assertions.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\config.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\forwards.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\json.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\json_features.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\json_tool.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\reader.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\value.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\version.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)json\writer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)json\json-schema\json-patch.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)json\json-schema\json-schema.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)json\json.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)map\avlmap.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)matcher.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)stringutil.h" />
@@ -38,12 +30,11 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)converter.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)featurelibrary.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)firedog.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)json\json_reader.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)json\json_value.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)json\json_writer.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)json\json-schema\json-patch.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)json\json-schema\json-schema-draft7.json.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)json\json-schema\json-uri.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)json\json-schema\json-validator.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)json\json-schema\string-format-check.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)matcher.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)json\json_valueiterator.inl" />
   </ItemGroup>
 </Project>

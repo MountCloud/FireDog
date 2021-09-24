@@ -4,15 +4,13 @@
 #include <string>
 #include <vector>
 
+#include "json/json.hpp"
 #include "errorcode.h"
 
 #define FEATURE_TYPE_HEX	1
 #define FEATURE_TYPE_MD5	2
 #define FEATURE_TYPE_TEXT	3
 
-namespace Json {
-	class Value;
-}
 
 /// <summary>
 /// Feature Library h
@@ -89,7 +87,7 @@ namespace firedog {
 		/// </summary>
 		/// <param name="jsonValue">json value</param>
 		/// <returns>item</returns>
-		void parseJson(std::vector<FeatureLibraryItem> *items, Json::Value values);
+		void parseJson(std::vector<FeatureLibraryItem> *items, nlohmann::json values);
 	};
 
 

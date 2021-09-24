@@ -1,36 +1,38 @@
 #include "featurelibrary.h"
 
-#include "json/json.h"
 #include "config.h"
+
+using namespace nlohmann;
 
 using namespace firedog;
 using namespace std;
 
 int FeatureLibrary::loadByJson(string json) {
-	Json::CharReaderBuilder rbuilder;
-	rbuilder["collectComments"] = false;
-
-	string errs;
-	stringstream ss;
-	ss << json;
-
-	Json::Value root;
-	bool ok = Json::parseFromStream(rbuilder, ss, &root, &errs);
-
-	if (!ok || errs.size() > 0 || !root.isObject()) {
+	
+	nlohmann::json root;
+	bool parseStatus = false;
+	try {
+		root = json::parse(json);
+		parseStatus = true;
+	}
+	catch (nlohmann::detail::parse_error er) {
+		parseStatus = false;
+		
+	}
+	if (!parseStatus || !root.is_object()) {
 		return FL_CONTENT_FORMATE_ERROR;
 	}
 
 	//check content
-	if (!root.isMember("version") || !root["version"].isString()
-		|| !root.isMember("hexItems") || !root["hexItems"].isArray()
-		|| !root.isMember("md5Items") || !root["md5Items"].isArray()
-		|| !root.isMember("textItems") || !root["textItems"].isArray()) {
+	if (!root.contains("version") || !root["version"].is_string()
+		|| !root.contains("hexItems") || !root["hexItems"].is_array()
+		|| !root.contains("md5Items") || !root["md5Items"].is_array()
+		|| !root.contains("textItems") || !root["textItems"].is_array()) {
 		return FL_CONTENT_FORMATE_ERROR;
 	}
 
 	//get version
-	string version = root["version"].asString();
+	string version = root["version"];
 
 	//check version
 	if (version != FIREDOG_FEATURE_LIBRARY_VERSION) {
@@ -40,13 +42,13 @@ int FeatureLibrary::loadByJson(string json) {
 	
 	this->version = version;
 
-	Json::Value hexItems = root["hexItems"];
+	nlohmann::json hexItems = root["hexItems"];
 	this->parseJson(&this->hexItems, hexItems);
 
-	Json::Value md5Items = root["md5Items"];
+	nlohmann::json md5Items = root["md5Items"];
 	this->parseJson(&this->md5Items, md5Items);
 
-	Json::Value textItems = root["textItems"];
+	nlohmann::json textItems = root["textItems"];
 	this->parseJson(&this->textItems, textItems);
 
 
@@ -60,24 +62,24 @@ FeatureLibrary FeatureLibrary::createByJson(string json, int* errorcode) {
 }
 
 
-void FeatureLibrary::parseJson(std::vector<FeatureLibraryItem>* items, Json::Value values){
+void FeatureLibrary::parseJson(std::vector<FeatureLibraryItem>* items, nlohmann::json values){
 
 	for (int i = 0; i < values.size(); i++) {
-		Json::Value value = values[i];
-		if (!value.isMember("author") || !value["author"].isString()
-			|| !value.isMember("createTime") || !value["createTime"].isString()
-			|| !value.isMember("content") || !value["content"].isString()
-			|| !value.isMember("name") || !value["name"].isString()
-			|| !value.isMember("describe") || !value["describe"].isString()) {
+		nlohmann::json value = values[i];
+		if (!value.contains("author") || !value["author"].is_string()
+			|| !value.contains("createTime") || !value["createTime"].is_string()
+			|| !value.contains("content") || !value["content"].is_string()
+			|| !value.contains("name") || !value["name"].is_string()
+			|| !value.contains("describe") || !value["describe"].is_string()) {
 			continue;
 		}
 
 
-		string author = value["author"].asString();
-		string createTime = value["createTime"].asString();
-		string name = value["name"].asString();
-		string describe = value["describe"].asString();
-		string content = value["content"].asString();
+		string author = value["author"];
+		string createTime = value["createTime"];
+		string name = value["name"];
+		string describe = value["describe"];
+		string content = value["content"];
 
 		FeatureLibraryItem item;
 		item.author = author;
