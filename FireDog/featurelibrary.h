@@ -12,6 +12,13 @@
 #define FEATURE_TYPE_TEXT	3
 
 
+static const char* FIREDOG_FEATURE_LIBRARAY_JSON_SCHEMA = R"(
+
+)";
+
+static const char* FIREDOG_FEATURE_LIBRARAY_HEX_REG = "";
+
+
 /// <summary>
 /// Feature Library h
 /// </summary>

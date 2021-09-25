@@ -8,5 +8,4 @@
 //feature library version
 #define FIREDOG_FEATURE_LIBRARY_VERSION "1.0.0"
 
-
 #endif

@@ -265,6 +265,9 @@ const std::string dotAtom{"(?:" + atext + R"(+(?:\.)" + atext + "+)*)"};
 const std::string stackoverflowMagicPart{R"((?:[[:alnum:]](?:[[:alnum:]-]*[[:alnum:]])?\.)+)"
                                          R"([[:alnum:]](?:[[:alnum:]-]*[[:alnum:]])?)"};
 const std::string email{"(?:" + dotAtom + "|" + quotedString + ")@(?:" + stackoverflowMagicPart + "|" + domainLiteral + ")"};
+
+const std::string hex{ "^(([a-fA-F0-9?]{2}[ ]?)|(\\[([0-9a-fA-F]{2}[ ]?-[ ]?[a-fA-F0-9]{2}[ ]?[,]?){1,}\\][ ]?)){0,}$" };
+
 } // namespace
 
 namespace nlohmann
@@ -317,11 +320,20 @@ void default_string_format_check(const std::string &format, const std::string &v
 		} catch (std::exception &exception) {
 			throw exception;
 		}
-	} else {
+	}
+	else if (format == "hex") {
+		try {
+			std::regex re(value, hex);
+		}
+		catch (std::exception& exception) {
+			throw exception;
+		}
+	}
+	else {
 		/* yet unsupported JSON schema draft 7 built-ins */
 		static const std::vector<std::string> jsonSchemaStringFormatBuiltIns{
 		    "date-time", "time", "date", "email", "idn-email", "hostname", "idn-hostname", "ipv4", "ipv6", "uri",
-		    "uri-reference", "iri", "iri-reference", "uri-template", "json-pointer", "relative-json-pointer", "regex"};
+		    "uri-reference", "iri", "iri-reference", "uri-template", "json-pointer", "relative-json-pointer", "regex","hex"};
 		if (std::find(jsonSchemaStringFormatBuiltIns.begin(), jsonSchemaStringFormatBuiltIns.end(), format) != jsonSchemaStringFormatBuiltIns.end()) {
 			throw std::logic_error("JSON schema string format built-in " + format + " not yet supported. " +
 			                       "Please open an issue or use a custom format checker.");
