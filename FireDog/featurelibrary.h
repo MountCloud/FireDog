@@ -16,26 +16,31 @@ static const char* FIREDOG_FEATURE_LIBRARAY_JSON_SCHEMA = R"(
 
 )";
 
-static const char* FIREDOG_FEATURE_LIBRARAY_HEX_REG = "";
-
+namespace mountcloud {
+	class Rule;
+}
 
 /// <summary>
 /// Feature Library h
 /// </summary>
 namespace firedog {
 
+
+	class Feature {
+	public:
+		int id;
+		std::string name;
+		std::string type;
+		std::string content;
+	};
+
 	class FeatureLibraryItem {
 	public:
-
+		int id;
 		/// <summary>
 		/// library author
 		/// </summary>
 		std::string author;
-
-		/// <summary>
-		/// create time utc str
-		/// </summary>
-		std::string createTime;
 
 		/// <summary>
 		/// name or title
@@ -48,9 +53,14 @@ namespace firedog {
 		std::string describe;
 
 		/// <summary>
-		/// feature content,hex or md5 or text
+		/// Feature
 		/// </summary>
-		std::string content;
+		std::vector<Feature*>* features = NULL;
+
+		mountcloud::Rule* rule;
+
+		FeatureLibraryItem();
+		~FeatureLibraryItem();
 	};
 	
 	class FeatureLibrary {
@@ -58,7 +68,7 @@ namespace firedog {
 		/// <summary>
 		/// create by json
 		/// </summary>
-		static FeatureLibrary createByJson(std::string json, int* errorcode);
+		static FeatureLibrary* createByJson(std::string json, int* errorcode);
 
 		/// <summary>
 		/// library version
@@ -69,32 +79,13 @@ namespace firedog {
 		/// <summary>
 		/// Binary Feature
 		/// </summary>
-		std::vector<FeatureLibraryItem> hexItems;
+		std::vector<FeatureLibraryItem*>* items = NULL;
 
-		/// <summary>
-		/// File MD5 Feature 
-		/// </summary>
-		std::vector<FeatureLibraryItem> md5Items;
-
-		/// <summary>
-		/// text Feature
-		/// </summary>
-		std::vector<FeatureLibraryItem> textItems;
+		FeatureLibrary();
+		~FeatureLibrary();
 
 	private:
-		/// <summary>
-		/// load by json
-		/// </summary>
-		/// <param name="json">json string</param>
-		/// <returns>errorcode</returns>
-		int loadByJson(std::string json);
-
-		/// <summary>
-		/// parse json to library item
-		/// </summary>
-		/// <param name="jsonValue">json value</param>
-		/// <returns>item</returns>
-		void parseJson(std::vector<FeatureLibraryItem> *items, nlohmann::json values);
+		static mountcloud::Rule* parseRule(nlohmann::json rulejson);
 	};
 
 
