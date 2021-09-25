@@ -79,48 +79,48 @@ MatcherDataSource::MatcherDataSource() {
 
 int MatcherDataSource::pushFeatureLibrary(FeatureLibrary lib) {
 
-	if (lib.hexItems.size() == 0 && lib.md5Items.size() == 0 && lib.textItems.size() == 0) {
-		return M_FEATURE_LIBRARY_IS_EMPTY;
-	}
+	//if (lib.hexItems.size() == 0 && lib.md5Items.size() == 0 && lib.textItems.size() == 0) {
+	//	return M_FEATURE_LIBRARY_IS_EMPTY;
+	//}
 
-	//push md5
-	if (lib.md5Items.size() > 0) {
-		for (int i = 0; i < lib.md5Items.size(); i++) {
-			FeatureLibraryItem item = lib.md5Items[i];
-			MatcherFeature* mf = toMatcherFeature(item, FEATURE_TYPE_MD5);
-			//md5 key 
-			string key = item.content;
-			md5Data->data->emplace(key, mf);
-		}
-	}
+	////push md5
+	//if (lib.md5Items.size() > 0) {
+	//	for (int i = 0; i < lib.md5Items.size(); i++) {
+	//		FeatureLibraryItem item = lib.md5Items[i];
+	//		MatcherFeature* mf = toMatcherFeature(item, FEATURE_TYPE_MD5);
+	//		//md5 key 
+	//		string key = item.content;
+	//		md5Data->data->emplace(key, mf);
+	//	}
+	//}
 
-	//push hex
-	if (lib.hexItems.size() > 0) {
-		for (int i = 0; i < lib.hexItems.size(); i++) {
-			FeatureLibraryItem item = lib.hexItems[i];
-			MatcherFeature* mf = toMatcherFeature(item, FEATURE_TYPE_MD5);
-			//hex str
-			string hexstr = item.content;
-			//bytes
-			vector<char> bytes;
-			StringUtil::hexTextToBytes(hexstr, &bytes);
-			pushByteFeature(&bytes, mf);
-		}
-	}
+	////push hex
+	//if (lib.hexItems.size() > 0) {
+	//	for (int i = 0; i < lib.hexItems.size(); i++) {
+	//		FeatureLibraryItem item = lib.hexItems[i];
+	//		MatcherFeature* mf = toMatcherFeature(item, FEATURE_TYPE_MD5);
+	//		//hex str
+	//		string hexstr = item.content;
+	//		//bytes
+	//		vector<char> bytes;
+	//		StringUtil::hexTextToBytes(hexstr, &bytes);
+	//		pushByteFeature(&bytes, mf);
+	//	}
+	//}
 
-	//push text
-	if (lib.textItems.size() > 0) {
-		for (int i = 0; i < lib.textItems.size(); i++) {
-			FeatureLibraryItem item = lib.textItems[i];
-			MatcherFeature* mf = toMatcherFeature(item, FEATURE_TYPE_TEXT);
-			//text
-			string text = item.content;
-			//bytes
-			vector<char> bytes;
-			StringUtil::textToBytes(text, &bytes);
-			pushByteFeature(&bytes, mf);
-		}
-	}
+	////push text
+	//if (lib.textItems.size() > 0) {
+	//	for (int i = 0; i < lib.textItems.size(); i++) {
+	//		FeatureLibraryItem item = lib.textItems[i];
+	//		MatcherFeature* mf = toMatcherFeature(item, FEATURE_TYPE_TEXT);
+	//		//text
+	//		string text = item.content;
+	//		//bytes
+	//		vector<char> bytes;
+	//		StringUtil::textToBytes(text, &bytes);
+	//		pushByteFeature(&bytes, mf);
+	//	}
+	//}
 
 	return NO_ERROR;
 }
@@ -163,7 +163,7 @@ MatcherFeature* MatcherDataSource::toMatcherFeature(FeatureLibraryItem item, int
 	mf->name = item.name;
 	mf->author = item.author;
 	mf->describe = item.describe;
-	mf->content = item.content;
+	//mf->content = item.content;
 	mf->type = type;
 
 	return mf;

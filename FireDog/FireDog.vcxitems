@@ -24,6 +24,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)json\json.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)map\avlmap.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)matcher.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)rule\rule.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)stringutil.h" />
   </ItemGroup>
   <ItemGroup>
@@ -36,5 +37,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)json\json-schema\json-validator.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)json\json-schema\string-format-check.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)matcher.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)rule\rule.cpp" />
   </ItemGroup>
 </Project>

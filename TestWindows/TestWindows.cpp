@@ -13,6 +13,7 @@
 #include "stringutil.h"
 
 #include "json/json-schema/json-schema.hpp"
+#include "rule/rule.h"
 
 using namespace std;
 using namespace firedog;
@@ -66,7 +67,7 @@ void testMatcher() {
     int ecode = NO_ERROR;
 
 	//step1: init feature library
-    FeatureLibrary featureLibrary = FeatureLibrary::createByJson(featureLibraryJson_error, &ecode);
+    FeatureLibrary featureLibrary = *FeatureLibrary::createByJson(featureLibraryJson_error, &ecode);
 
     if (ecode != NO_ERROR) {
         cout << "feature library load faild";
@@ -137,25 +138,31 @@ void converter() {
 void testJsonSchema() {
     const string person_schema_json = R"(
         {
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "title": "A person",
-            "properties": {
-                "name": {
-                    "description": "Name",
-                    "type": "string"
-                },
-                "age": {
-                    "description": "Age of the person",
-                    "type": "number",
-                    "minimum": 2,
-                    "maximum": 200
-                }
-            },
-            "required": [
-                         "name",
-                         "age"
-                         ],
-            "type": "object"
+	        "$schema": "http://json-schema.org/draft-07/schema#",
+	        "title": "A person",
+	        "properties": {
+		        "name": {
+			        "description": "Name",
+			        "type": "string"
+		        },
+		        "age": {
+			        "description": "Age of the person",
+			        "type": "number",
+			        "minimum": 2,
+			        "maximum": 200
+		        },
+		        "content": {
+			        "description": "hex content",
+			        "type": "string",
+                    "pattern":"^(([a-fA-F0-9?]{2}[ ]?)|(\\[([0-9a-fA-F]{2}[ ]?-[ ]?[a-fA-F0-9]{2}[ ]?[,]?){1,}\\][ ]?)){0,}$"
+		        }
+	        },
+	        "required": [
+		        "name",
+		        "age",
+		        "content"
+	        ],
+	        "type": "object"
         }
 
     )";
@@ -174,7 +181,17 @@ void testJsonSchema() {
     }
 
     json bad_person = { {"age", 42} };
-    json good_person = { {"name", "Albert"}, {"age", 42} };
+
+    string good_person_json = R"(
+        {
+	        "name": "Albert",
+	        "age": 42,
+	        "content": "A1 5C AE ?B [01-05] [0A-A0,07-0A] C? ?? BBb"
+        }
+    )";
+
+    json good_person = json::parse(good_person_json);
+    
 
     /* json-parse the people - API of 1.0.0, default throwing error handler */
 
@@ -216,10 +233,53 @@ void testJsonSchema() {
     }
 }
 
+void testRule() {
+    mountcloud::RuleData* data = new mountcloud::RuleData();
+    mountcloud::Rule* rule = new mountcloud::Rule();
+
+    //  ((a && b) || (c && d))
+    rule->ors = new std::vector<mountcloud::Rule*>();
+
+    mountcloud::Rule* a_and_b_rule = new mountcloud::Rule();
+    a_and_b_rule->ids = new vector<string>();
+    a_and_b_rule->ids->push_back("a");
+    a_and_b_rule->ids->push_back("b");
+
+    mountcloud::Rule* c_and_d_rule = new mountcloud::Rule();
+    c_and_d_rule->ids = new vector<string>();
+    c_and_d_rule->ids->push_back("c");
+    c_and_d_rule->ids->push_back("d");
+
+    rule->ors->push_back(a_and_b_rule);
+    rule->ors->push_back(c_and_d_rule);
+    
+    bool state = rule->check(data);
+    cout << state << endl;
+
+    data->set("a", true);
+    state = rule->check(data);
+    cout << state << endl;
+
+    data->set("b", true);
+    state = rule->check(data);
+    cout << state << endl;
+
+    data->set("a", false);
+    data->set("c", true);
+    state = rule->check(data);
+    cout << state << endl;
+
+    data->set("d", true);
+    state = rule->check(data);
+    cout << state << endl;
+}
+
 int main()
 {
     //testMatcher();
     //converter();
-    testJsonSchema();
+    //testJsonSchema();
+
+    testRule();
     return 0;
 }

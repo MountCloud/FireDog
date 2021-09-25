@@ -10,6 +10,9 @@
     <Filter Include="json\json-schema">
       <UniqueIdentifier>{2d9aa7c3-bfb8-4eec-b6fb-0084bb78a08d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="rule">
+      <UniqueIdentifier>{e756ca74-1d30-4cf7-a5df-4a73f2ab6d0d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)errorcode.h" />
@@ -31,6 +34,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)json\json-schema\json-schema.hpp">
       <Filter>json\json-schema</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)rule\rule.h">
+      <Filter>rule</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)featurelibrary.cpp" />
@@ -51,6 +57,9 @@
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)json\json-schema\string-format-check.cpp">
       <Filter>json\json-schema</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)rule\rule.cpp">
+      <Filter>rule</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

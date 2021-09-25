@@ -266,7 +266,7 @@ const std::string stackoverflowMagicPart{R"((?:[[:alnum:]](?:[[:alnum:]-]*[[:aln
                                          R"([[:alnum:]](?:[[:alnum:]-]*[[:alnum:]])?)"};
 const std::string email{"(?:" + dotAtom + "|" + quotedString + ")@(?:" + stackoverflowMagicPart + "|" + domainLiteral + ")"};
 
-const std::string hex{ "^(([a-fA-F0-9?]{2}[ ]?)|(\\[([0-9a-fA-F]{2}[ ]?-[ ]?[a-fA-F0-9]{2}[ ]?[,]?){1,}\\][ ]?)){0,}$" };
+const std::string hex{ R"(^(([a-fA-F0-9?]{2}[ ]?)|(\\[([0-9a-fA-F]{2}[ ]?-[ ]?[a-fA-F0-9]{2}[ ]?[,]?){1,}\\][ ]?)){0,}$)" };
 
 } // namespace
 
@@ -323,7 +323,10 @@ void default_string_format_check(const std::string &format, const std::string &v
 	}
 	else if (format == "hex") {
 		try {
-			std::regex re(value, hex);
+			static const std::regex hexRegex{ hex };
+			if (!std::regex_match(value, hexRegex)) {
+				throw std::invalid_argument(value + " is not an hex string.");
+			}
 		}
 		catch (std::exception& exception) {
 			throw exception;
