@@ -56,13 +56,6 @@ Rule::~Rule() {
 		delete ors;
 		ors = NULL;
 	}
-
-	if (ids != NULL) {
-		ids->clear();
-		delete ids;
-		ids = NULL;
-	}
-
 }
 
 bool Rule::check(RuleData* data) {
@@ -85,18 +78,13 @@ bool Rule::check(RuleData* data) {
 				return true;
 			}
 		}
-		return false;
 	}
 
 	//ids
-	if (ids != NULL && ids->size()>0) {
-		for (int i = 0; i < ids->size(); i++) {
-			std::string id = ids->at(i);
-			if (!data->get(id)) {
-				return false;
-			}
+	if (!id.empty()) {
+		if (data->get(id)) {
+			return true;
 		}
-		return true;
 	}
 
 	return false;

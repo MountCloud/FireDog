@@ -6,6 +6,7 @@
 #include "rule/rule.h"
 
 using namespace nlohmann;
+using nlohmann::json_schema::json_validator;
 
 using namespace mountcloud;
 using namespace firedog;
@@ -43,6 +44,23 @@ FeatureLibrary* FeatureLibrary::createByJson(string json, int* errorcode) {
 		return result;
 	}
 
+	bool validstate = false;
+	auto schema = json::parse(FIREDOG_FEATURE_LIBRARAY_JSON_SCHEMA);
+
+	json_validator validator; // create validator
+	validator.set_root_schema(schema);
+	try {
+		validator.validate(root);
+		validstate = true;
+	}
+	catch (const std::exception& e) {
+		validstate = false;
+	}
+	
+	if (!validstate) {
+		*errorcode = FL_CONTENT_FORMATE_ERROR;
+		return result;
+	}
 	
 	//get version
 	string version = root["version"];
@@ -66,7 +84,7 @@ FeatureLibrary* FeatureLibrary::createByJson(string json, int* errorcode) {
 				&& item.contains("name") && item["name"].is_string()
 				&& item.contains("describe") && item["describe"].is_string()
 				&& item.contains("features") && item["features"].is_array() && item["features"].size() > 0
-				&& item.contains("role") && item["role"].is_object()) {
+				&& item.contains("rule") && item["rule"].is_object()) {
 				
 				//先看规则
 				nlohmann::json rulejson = item["rule"];
@@ -83,21 +101,30 @@ FeatureLibrary* FeatureLibrary::createByJson(string json, int* errorcode) {
 				fitem->rule = rule;
 
 				nlohmann::json features = item["features"];
-				for (int i = 0; i < features.size(); i++) {
-					nlohmann::json feature = features[i];
-					if (feature.contains("name") && feature["name"].is_string()
-						&& feature.contains("type") && feature["type"].is_string()
-						&& feature.contains("content") && feature["content"].is_string()) {
-						string fname = feature["name"];
-						string ftype = feature["type"];
-						string fcontent = feature["content"];
+				for (int y = 0; y < features.size(); y++) {
+					nlohmann::json feature = features[y];
+					if (feature.contains("key") && feature["key"].is_string()
+						&& (feature.contains("hex") && feature["hex"].is_string()
+							|| feature.contains("text") && feature["text"].is_string())) {
+						string fkey = feature["key"];
+						string fhex = "";
+						string ftext = "";
+						if (feature.contains("hex")) {
+							fhex = feature["hex"];
+						}
+
+						if (feature.contains("text")) {
+							ftext = feature["text"];
+						}
+
 						Feature* feature = new Feature();
-						feature->name = fname;
-						feature->type = ftype;
-						feature->content = fcontent;
+						feature->key = fkey;
+						feature->hex = fhex;
+						feature->text = ftext;
 						fitem->features->push_back(feature);
 					}
 				}
+				result->items->push_back(fitem);
 			}
 		}
 	}
@@ -109,6 +136,8 @@ Rule* FeatureLibrary::parseRule(nlohmann::json rulejson) {
 	if (!rulejson.is_object()) {
 		return NULL;
 	}
+
+
 	Rule* rule = new Rule();
 
 	if (rulejson.contains("$and")&&rulejson["$and"].is_array()&& rulejson["$and"].size()>0) {
@@ -128,13 +157,13 @@ Rule* FeatureLibrary::parseRule(nlohmann::json rulejson) {
 		}
 		//说明是id咯
 		else {
-			Rule* andids = new Rule();
-			andids->ids = new vector<string>();
 			for (int i = 0; i < andr.size(); i++) {
 				nlohmann::json tandr = andr[i];
-				if (tandr.is_string()&& tandr.size()>0) {
+				if (tandr.is_string()) {
 					string tid = tandr;
-					andids->ids->push_back(tid);
+					Rule* andids = new Rule();
+					andids->id = tid;
+					rule->ands->push_back(andids);
 				}
 			}
 		}
@@ -143,7 +172,7 @@ Rule* FeatureLibrary::parseRule(nlohmann::json rulejson) {
 	if (rulejson.contains("$or") && rulejson["$or"].is_array() && rulejson["$or"].size() > 0) {
 		nlohmann::json orr = rulejson["$or"];
 		nlohmann::json orrone = orr[0];
-		rule->-> = new vector<Rule*>();
+		rule->ors = new vector<Rule*>();
 		//说明是组合
 		if (orrone.is_object()) {
 			for (int i = 0; i < orr.size(); i++) {
@@ -157,13 +186,14 @@ Rule* FeatureLibrary::parseRule(nlohmann::json rulejson) {
 		}
 		//说明是id咯
 		else {
-			Rule* andids = new Rule();
-			andids->ids = new vector<string>();
 			for (int i = 0; i < orr.size(); i++) {
 				nlohmann::json torr = orr[i];
-				if (orr.is_string() && torr.size() > 0) {
+				if (torr.is_string()) {
 					string tid = torr;
-					andids->ids->push_back(tid);
+
+					Rule* orids = new Rule();
+					orids->id = tid;
+					rule->ors->push_back(orids);
 				}
 			}
 		}
@@ -184,5 +214,9 @@ FeatureLibraryItem::~FeatureLibraryItem() {
 			delete content;
 			content = NULL;
 		}
+	}
+	if (rule != NULL) {
+		delete rule;
+		rule = NULL;
 	}
 }

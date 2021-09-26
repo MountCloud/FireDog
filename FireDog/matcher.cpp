@@ -2,247 +2,433 @@
 
 #include "featurelibrary.h"
 #include "stringutil.h"
+#include "rule/rule.h"
+#include "converter.h"
 
+using namespace mountcloud;
 using namespace firedog;
 using namespace std;
 
-MatcherFeature::~MatcherFeature() {
-	name.clear();
-	author.clear();
-	describe.clear();
-	content.clear();
-}
 
-MatcherMd5Data::~MatcherMd5Data() {
-	if (data != NULL) {
-		std::unordered_map<std::string, MatcherFeature*>::iterator iter;
-		for (iter = data->begin(); iter != data->end(); ++iter) {
-			MatcherFeature* td = iter->second;
+MatcherData::~MatcherData() {
+
+	if (features != NULL) {
+		for (int i = 0; i < features->size(); i++) {
+			MatcherFeature* mf = features->at(i);
+			delete mf;
+			mf = NULL;
+		}
+		delete features;
+		features = NULL;
+	}
+
+	if (fullData != NULL) {
+		AvlMap<char, MatcherData*>::Iterator iter = fullData->begin();
+		for (; iter != fullData->end(); iter++) {
+			MatcherData* td = iter->mapped_value;
 			if (td != NULL) {
 				delete td;
 				td = NULL;
 			}
 		}
-		data->clear();
-		delete data;
-		data = NULL;
-	}
-}
-
-MatcherByteData::~MatcherByteData() {
-
-	if (feature != NULL) {
-		delete feature;
-		feature = NULL;
+		fullData->clear();
+		delete fullData;
+		fullData = NULL;
 	}
 
-	if (data != NULL) {
-		AvlMap<char, MatcherByteData*>::Iterator iter = data->begin();
-		for (; iter != data->end(); iter++) {
-			MatcherByteData* td = iter->mapped_value;
+	if (highPosData != NULL) {
+		AvlMap<char, MatcherData*>::Iterator iter = highPosData->begin();
+		for (; iter != highPosData->end(); iter++) {
+			MatcherData* td = iter->mapped_value;
 			if (td != NULL) {
 				delete td;
 				td = NULL;
 			}
 		}
-		data->clear();
-		delete data;
-		data = NULL;
+		highPosData->clear();
+		delete highPosData;
+		highPosData = NULL;
+	}
+
+	if (lowPosData != NULL) {
+		AvlMap<char, MatcherData*>::Iterator iter = lowPosData->begin();
+		for (; iter != lowPosData->end(); iter++) {
+			MatcherData* td = iter->mapped_value;
+			if (td != NULL) {
+				delete td;
+				td = NULL;
+			}
+		}
+		lowPosData->clear();
+		delete lowPosData;
+		lowPosData = NULL;
+	}
+
+	if (anyData != NULL) {
+		delete anyData;
+		anyData = NULL;
 	}
 }
 
 MatcherDataSource::~MatcherDataSource() {
-	if (md5Data!=NULL) {
-		delete md5Data;
-		md5Data = NULL;
-	}
-	if (byteData != NULL) {
-		delete byteData;
-		byteData = NULL;
+	if (data != NULL) {
+		delete data;
+		data = NULL;
 	}
 	if (librarys != NULL) {
 		librarys->clear();
 		delete librarys;
 		librarys = NULL;
 	}
+	if (libraryItems != NULL) {
+		libraryItems->clear();
+		delete libraryItems;
+		libraryItems = NULL;
+	}
 }
 
 MatcherDataSource::MatcherDataSource() {
-	md5Data = new MatcherMd5Data();
-	md5Data->data = new std::unordered_map<std::string, MatcherFeature*>();
-
-	byteData = new MatcherByteData();
-	byteData->data = new AvlMap<char, MatcherByteData*>();
-
-	librarys = new vector<FeatureLibrary>();
+	librarys = new vector<FeatureLibrary*>();
+	libraryItems = new unordered_map<int, FeatureLibraryItem*>();
 }
 
-int MatcherDataSource::pushFeatureLibrary(FeatureLibrary lib) {
+int MatcherDataSource::pushFeatureLibrary(FeatureLibrary* lib) {
 
-	//if (lib.hexItems.size() == 0 && lib.md5Items.size() == 0 && lib.textItems.size() == 0) {
-	//	return M_FEATURE_LIBRARY_IS_EMPTY;
-	//}
+	if (lib->items == NULL || lib->items->size() == 0) {
+		return M_FEATURE_LIBRARY_IS_EMPTY;
+	}
 
-	////push md5
-	//if (lib.md5Items.size() > 0) {
-	//	for (int i = 0; i < lib.md5Items.size(); i++) {
-	//		FeatureLibraryItem item = lib.md5Items[i];
-	//		MatcherFeature* mf = toMatcherFeature(item, FEATURE_TYPE_MD5);
-	//		//md5 key 
-	//		string key = item.content;
-	//		md5Data->data->emplace(key, mf);
-	//	}
-	//}
+	librarys->push_back(lib);
 
-	////push hex
-	//if (lib.hexItems.size() > 0) {
-	//	for (int i = 0; i < lib.hexItems.size(); i++) {
-	//		FeatureLibraryItem item = lib.hexItems[i];
-	//		MatcherFeature* mf = toMatcherFeature(item, FEATURE_TYPE_MD5);
-	//		//hex str
-	//		string hexstr = item.content;
-	//		//bytes
-	//		vector<char> bytes;
-	//		StringUtil::hexTextToBytes(hexstr, &bytes);
-	//		pushByteFeature(&bytes, mf);
-	//	}
-	//}
+	for (int i = 0; i < lib->items->size();i++) {
+		FeatureLibraryItem* item = lib->items->at(i);
+		if (item->features==NULL || item->features->size()==0) {
+			continue;
+		}
 
-	////push text
-	//if (lib.textItems.size() > 0) {
-	//	for (int i = 0; i < lib.textItems.size(); i++) {
-	//		FeatureLibraryItem item = lib.textItems[i];
-	//		MatcherFeature* mf = toMatcherFeature(item, FEATURE_TYPE_TEXT);
-	//		//text
-	//		string text = item.content;
-	//		//bytes
-	//		vector<char> bytes;
-	//		StringUtil::textToBytes(text, &bytes);
-	//		pushByteFeature(&bytes, mf);
-	//	}
-	//}
+		int featureId = createLibraryId();
+		libraryItems->operator[](featureId) = item;
+		vector<Feature*>* features = item->features;
+		for (int y = 0; y < features->size(); y++) {
+			Feature* feature = features->at(y);
+			string key = feature->key;
 
+			string hex = feature->hex;
+			string text = feature->text;
+
+			key = StringUtil::trim(key);
+			hex = StringUtil::trim(hex);
+			text = StringUtil::trim(text);
+
+			if (key.size()==0|| (hex.size() == 0 && text.size() == 0)) {
+				continue;
+			}
+
+			int ec;
+			string em;
+			HexData* hexData = NULL;
+
+			MatcherFeature* mf = new MatcherFeature();
+			mf->featureId = featureId;
+			mf->featureKey = key;
+
+			if (text.size()>0) {
+				hexData = Converter::textToBytes(text, &ec, &em);
+				if (ec == NO_ERROR) {
+					if (this->data == NULL) {
+						this->data = new MatcherData();
+					}
+					pushFeature(hexData->hexs, 0, this->data, mf);
+					delete hexData;
+					hexData = NULL;
+				}
+			}
+			if(hex.size()>0){
+				hexData = Converter::hexTextToBytes(hex, &ec, &em);
+				if (ec == NO_ERROR) {
+					if (this->data == NULL) {
+						this->data = new MatcherData();
+					}
+					pushFeature(hexData->hexs, 0, this->data, mf);
+					delete hexData;
+					hexData = NULL;
+				}
+			}
+
+		}
+	}
 	return NO_ERROR;
 }
 
-void MatcherDataSource::pushByteFeature(std::vector<char>* bytes, MatcherFeature* mf) {
-	MatcherByteData* tempData = this->byteData;
-	for (int i = 0; i < bytes->size(); i++) {
-		char byte = bytes->at(i);
+FeatureLibraryItem* MatcherDataSource::getFeatureLibraryItem(int id) {
+	FeatureLibraryItem* item = NULL;
+	if (libraryItems != NULL && libraryItems->find(id) != libraryItems->end()) {
+		item = libraryItems->at(id);
+	}
+	return item;
+}
 
-		AvlMap<char, MatcherByteData*>::Iterator ti = tempData->data->find(byte);
+void MatcherDataSource::pushFeature(std::vector<std::vector<Hex*>*>* hexs,int index, MatcherData* data, MatcherFeature* mf) {
+	
+	//笛卡尔积 Cartesian product NxN
+	std::vector<Hex*>* shexs = hexs->at(index);
+	for (int i = 0; i < shexs->size(); i++) {
+		Hex* hex = shexs->at(i);
+		int type = hex->type;
+		char byte = hex->data;
 
-		//last byte 如果是最后字节，将特征给data
-		if (i == bytes->size() - 1) {
-			if (ti != NULL) {
-				MatcherByteData* td = ti->mapped_value;
-				td->feature = mf;
-			}else{
-				MatcherByteData* data = new MatcherByteData();
-				data->feature = mf;
-				tempData->data->insert(byte, data);
+		MatcherData* tempData = NULL;
+
+		if (type == HEX_DATA_TYPE_FULL) {
+			if (data->fullData == NULL) {
+				data->fullData = new AvlMap<char, MatcherData*>();
+				tempData = new MatcherData();
+				data->fullData->insert(byte, tempData);
+			}
+			else {
+				AvlMap<char, MatcherData*>::Iterator ti = data->fullData->find(byte);
+				if (ti != NULL) {
+					tempData = ti->mapped_value;
+				}
+				else {
+					tempData = new MatcherData();
+					data->fullData->insert(byte, tempData);
+				}
+			}
+
+		}
+		else if (type == HEX_DATA_TYPE_HIGH) {
+			if (data->highPosData == NULL) {
+				data->highPosData = new AvlMap<char, MatcherData*>();
+				tempData = new MatcherData();
+				data->highPosData->insert(byte, tempData);
+			}
+			else {
+				AvlMap<char, MatcherData*>::Iterator ti = data->highPosData->find(byte);
+				if (ti != NULL) {
+					tempData = ti->mapped_value;
+				}
+				else {
+					tempData = new MatcherData();
+					data->highPosData->insert(byte, tempData);
+				}
+			}
+
+		}
+		else if (type == HEX_DATA_TYPE_LOW) {
+			if (data->lowPosData == NULL) {
+				data->lowPosData = new AvlMap<char, MatcherData*>();
+				tempData = new MatcherData();
+				data->lowPosData->insert(byte, tempData);
+			}
+			else {
+				AvlMap<char, MatcherData*>::Iterator ti = data->lowPosData->find(byte);
+				if (ti != NULL) {
+					tempData = ti->mapped_value;
+				}
+				else {
+					tempData = new MatcherData();
+					data->lowPosData->insert(byte, tempData);
+				}
 			}
 		}
-		//not last byte不是最后的字节，构建多重树
-		else {
-			if (ti != NULL) {
-				tempData = ti->mapped_value;
-			}else{
-				MatcherByteData* data = new MatcherByteData();
-				data->data = new AvlMap<char, MatcherByteData*>();
-
-				tempData->data->insert(byte, data);
-				tempData = data;
+		else if (type == HEX_DATA_TYPE_ANY) {
+			tempData = data->anyData;
+			if (tempData == NULL) {
+				tempData = new MatcherData();
+				data->anyData = tempData;
 			}
+		}
+
+		if (index == hexs->size() - 1) {
+			if (tempData->features == NULL) {
+				tempData->features = new vector<MatcherFeature*>();
+			}
+			tempData->features->push_back(mf);
+		}
+		else {
+			pushFeature(hexs, index + 1, tempData, mf);
 		}
 	}
 }
 
-MatcherFeature* MatcherDataSource::toMatcherFeature(FeatureLibraryItem item, int type) {
-	MatcherFeature* mf = new MatcherFeature();
-	mf->name = item.name;
-	mf->author = item.author;
-	mf->describe = item.describe;
-	//mf->content = item.content;
-	mf->type = type;
-
-	return mf;
+int MatcherDataSource::createLibraryId() {
+	nowLibraryId = nowLibraryId + 1;
+	return nowLibraryId;
 }
+
 
 Matcher::Matcher(MatcherDataSource* dataSource) {
 	this->dataSource = dataSource;
 }
 
 Matcher::~Matcher() {
-	if (matchBytesCache != NULL) {
+	if (matchCache != NULL) {
 		//only clear,a MatcherDataSource is used by multiple Matchers.
 		//只清空，因为一个MatcherDataSource有多个Matchers在使用
-		matchBytesCache->clear();
+		matchCache->clear();
 	}
 }
 
-MatcherFeature* Matcher::matchMd5(string md5) {
-	MatcherFeature* mf = NULL;
 
-	try {
-		mf = this->dataSource->md5Data->data->at(md5);
-	}
-	catch (std::out_of_range ex) {
-		//not found
-		mf = NULL;
-	}
-
-	return mf;
-}
-
-MatcherFeature* Matcher::matchBytes(const char* bytes, int length) {
-	MatcherFeature* mf = NULL;
+MatcherResult* Matcher::matchBytes(const char* bytes, int length) {
+	MatcherResult* mr = NULL;
 	for (int i = 0; i < length; i++) {
 		char byte = bytes[i];
-		mf = this->matchByte(byte);
-		if (mf != NULL) {
+		mr = this->matchByte(byte);
+		if (mr != NULL) {
 			break;
 		}
 	}
-	return mf;
+	return mr;
 }
 
-MatcherFeature* Matcher::matchByte(const char byte) {
-	MatcherFeature* mf = NULL;
-
-	if (matchBytesCache == NULL) {
-		matchBytesCache = new std::vector<MatcherByteData*>();
+MatcherResult* Matcher::matchByte(const char byte) {
+	MatcherResult* result = NULL;
+	if (matchCache == NULL) {
+		matchCache = new std::vector<MatcherData*>();
 	}
+
 	//step1: find by cache 先从cache里读取
-	if (matchBytesCache->size() > 0) {
-		std::vector<MatcherByteData*>* tempMatchBytesCache = new std::vector<MatcherByteData*>();
-		for (int i = 0; i < this->matchBytesCache->size(); i++) {
-			MatcherByteData* mbd = matchBytesCache->at(i);
-			AvlMap<char, MatcherByteData*>::Iterator mbditer = mbd->data->find(byte);
-			if (mbditer != NULL&& mbditer->mapped_value!=NULL) {
-				MatcherByteData* iterMbd = mbditer->mapped_value;
-				//这里我在想是不是以后可以用多种模式控制，如果是fast模式直接return匹配到的特征？
-				if (iterMbd->feature != NULL) {
-					mf = iterMbd->feature;
-				}
-				tempMatchBytesCache->push_back(iterMbd);
+	if (matchCache->size() > 0) {
+		std::vector<MatcherData*>* tempMatchBytesCache = new std::vector<MatcherData*>();
+		for (int i = 0; i < this->matchCache->size(); i++) {
+			MatcherData* mbd = matchCache->at(i);
+
+			//校验完整字节
+			result = checkMatcherFeature(mbd, byte, tempMatchBytesCache);
+			if (result!=NULL) {
+				break;
 			}
 		}
-		this->matchBytesCache->clear();
-		delete this->matchBytesCache;
-		this->matchBytesCache = tempMatchBytesCache;
+		this->matchCache->clear();
+		delete this->matchCache;
+		this->matchCache = tempMatchBytesCache;
 	}
 
-	//step2:find by feature library 然后从特征库中拉取
-	AvlMap<char, MatcherByteData*>::Iterator iter = this->dataSource->byteData->data->find(byte);
-	MatcherByteData* findData = NULL;
-	if (iter != NULL) {
-		findData = iter->mapped_value;
-		if (findData->feature != NULL) {
-			mf = findData->feature;
+	if (result==NULL) {
+		//step2:find by feature library 然后从特征库中拉取
+		//校验完整字节
+		result = checkMatcherFeature(this->dataSource->getData(), byte, this->matchCache);
+	}
+
+	return result;
+}
+
+MatcherResult* Matcher::checkMatcherFeature(MatcherData* mbd, char byte, std::vector<MatcherData*>* tempMatchBytesCache) {
+	MatcherResult* result = NULL;
+	//高位
+	const char highPos = StringUtil::byteHigh(byte);
+	//低位
+	const char lowPos = StringUtil::byteLow(byte);
+	//校验完整字节
+	result = checkMatcherFeatureMap(mbd->fullData, byte, tempMatchBytesCache);
+	if (result != NULL) {
+		return result;
+	}
+	//校验高位
+	result = checkMatcherFeatureMap(mbd->highPosData, highPos, tempMatchBytesCache);
+	if (result != NULL) {
+		return result;
+	}
+	//校验低位
+	result = checkMatcherFeatureMap(mbd->lowPosData, lowPos, tempMatchBytesCache);
+	if (result != NULL) {
+		return result;
+	}
+
+	//校验any
+	if (mbd->anyData != NULL) {
+		//any 匹配到了
+		if (mbd->anyData->features != NULL) {
+			for (int i = 0; i < mbd->anyData->features->size(); i++) {
+				MatcherFeature* mf = mbd->anyData->features->at(i);
+				int featureId = mf->featureId;
+				string featureKey = mf->featureKey;
+
+				RuleData* ruleData = NULL;
+				if (featureRuleData == NULL) {
+					featureRuleData = new unordered_map<int, mountcloud::RuleData*>();
+				}
+				if (featureRuleData->find(featureId) == featureRuleData->end()) {
+					ruleData = new RuleData();
+				}
+				else {
+					ruleData = featureRuleData->at(featureId);
+				}
+
+				ruleData->set(featureKey, true);
+
+				FeatureLibraryItem* fitem = dataSource->getFeatureLibraryItem(featureId);
+				Rule* rule = fitem->rule;
+				if (rule != NULL && rule->check(ruleData)) {
+					MatcherResult* result = new MatcherResult();
+					result->author = fitem->author;
+					result->name = fitem->name;
+					result->describe = fitem->describe;
+					return result;
+				}
+			}
 		}
-		this->matchBytesCache->push_back(findData);
+		else {
+			//any没有匹配到
+			tempMatchBytesCache->push_back(mbd->anyData);
+		}
 	}
 
-	return mf;
+	return NULL;
+}
+
+MatcherResult* Matcher::checkMatcherFeatureMap(AvlMap<char, MatcherData*>* map, char byte, std::vector<MatcherData*>* tempMatchBytesCache) {
+
+	if (map==NULL) {
+		return NULL;
+	}
+
+	AvlMap<char, MatcherData*>::Iterator mbditer = map->find(byte);
+	if (mbditer != NULL && mbditer->mapped_value != NULL) {
+		MatcherData* iterMbd = mbditer->mapped_value;
+		//这里我在想是不是以后可以用多种模式控制，如果是fast模式直接return匹配到的特征？
+		if (iterMbd->features != NULL) {
+			for (int i = 0; i < iterMbd->features->size(); i++) {
+				MatcherFeature* mf = iterMbd->features->at(i);
+				int featureId = mf->featureId;
+				string featureKey = mf->featureKey;
+
+				RuleData* ruleData = NULL;
+				if (featureRuleData == NULL) {
+					featureRuleData = new unordered_map<int, mountcloud::RuleData*>();
+				}
+				if (featureRuleData->find(featureId) == featureRuleData->end()) {
+					ruleData = new RuleData();
+				}
+				else {
+					ruleData = featureRuleData->at(featureId);
+				}
+
+				ruleData->set(featureKey, true);
+
+				featureRuleData->operator[](featureId) = ruleData;
+
+				FeatureLibraryItem* fitem = dataSource->getFeatureLibraryItem(featureId);
+				Rule* rule = fitem->rule;
+				if (rule != NULL && rule->check(ruleData)) {
+					MatcherResult* result = new MatcherResult();
+					result->author = fitem->author;
+					result->name = fitem->name;
+					result->describe = fitem->describe;
+					return result;
+				}
+			}
+
+		}
+		tempMatchBytesCache->push_back(iterMbd);
+	}
+
+	
+	return NULL;
+}
+
+MatcherData* MatcherDataSource::getData() {
+	return data;
 }

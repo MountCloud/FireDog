@@ -11,70 +11,76 @@
 /// <summary>
 /// fire dog matcher
 /// </summary>
+
+namespace mountcloud {
+	class RuleData;
+}
+
 namespace firedog {
 	
 	class FeatureLibrary;
 	class FeatureLibraryItem;
 
+	class Hex;
+
 	class MatcherFeature {
 	public:
+		int featureId;
+		std::string featureKey;
+	};
+
+
+	class MatcherData {
+	public:
+		//
+		AvlMap<char, MatcherData*>* fullData = NULL;
+		//高位
+		AvlMap<char, MatcherData*>* highPosData = NULL;
+		//低位
+		AvlMap<char, MatcherData*>* lowPosData = NULL;
+		//任意
+		MatcherData* anyData = NULL;
+
+		std::vector<MatcherFeature*>* features = NULL;
+		~MatcherData();
+	};
+
+	class MatcherDataSource {
+	public:
+		MatcherDataSource();
+		~MatcherDataSource();
+
+		int pushFeatureLibrary(FeatureLibrary* lib);
+		MatcherData* getData();
+		FeatureLibraryItem* getFeatureLibraryItem(int id);
+	private:
+		//笛卡尔积 Cartesian product N x N push
+		void pushFeature(std::vector<std::vector<Hex*>*>* hexs, int index, MatcherData* data, MatcherFeature* mf);
+		MatcherData* data = NULL;
+
+		std::vector<FeatureLibrary*>* librarys = NULL;
+		std::unordered_map<int, FeatureLibraryItem*>* libraryItems = NULL;
+
+		int nowLibraryId = 0;
+		int createLibraryId();
+	};
+
+	class MatcherResult {
+	public:
+		/// <summary>
+		/// library author
+		/// </summary>
+		std::string author;
+
 		/// <summary>
 		/// name or title
 		/// </summary>
 		std::string name;
 
 		/// <summary>
-		/// author
-		/// </summary>
-		std::string author;
-
-		/// <summary>
 		/// describe
 		/// </summary>
 		std::string describe;
-
-		/// <summary>
-		/// feature content,hex or md5 or text
-		/// </summary>
-		std::string content;
-
-		/// <summary>
-		/// type,see featurelibrary.h #define FEATURE_TYPE_xxx
-		/// </summary>
-		int type;
-
-		~MatcherFeature();
-	};
-
-	class MatcherMd5Data {
-	public:
-		std::unordered_map<std::string, MatcherFeature*>* data = NULL;
-		~MatcherMd5Data();
-	};
-
-	class MatcherByteData {
-	public:
-		AvlMap<char, MatcherByteData*>* data = NULL;
-		MatcherFeature* feature = NULL;
-		~MatcherByteData();
-	};
-
-	class MatcherDataSource {
-	public:
-		MatcherDataSource();
-
-		MatcherMd5Data* md5Data = NULL;
-		MatcherByteData* byteData = NULL;
-
-		int pushFeatureLibrary(FeatureLibrary lib);
-
-		std::vector<FeatureLibrary>* librarys;
-
-		~MatcherDataSource();
-
-	private:
-		MatcherFeature* toMatcherFeature(FeatureLibraryItem item,int type);
-		void pushByteFeature(std::vector<char>* bytes, MatcherFeature* mf);
 	};
 
 	class Matcher {
@@ -82,11 +88,8 @@ namespace firedog {
 		Matcher(MatcherDataSource* dataSource);
 		~Matcher();
 
-		MatcherFeature* matchMd5(std::string md5);
-
-		MatcherFeature* matchBytes(const char* bytes, int length);
-
-		MatcherFeature* matchByte(const char byte);
+		MatcherResult* matchBytes(const char* bytes, int length);
+		MatcherResult* matchByte(const char byte);
 	private:
 		/// <summary>
 		/// data source,
@@ -96,7 +99,16 @@ namespace firedog {
 		/// <summary>
 		/// this is bytes match cache
 		/// </summary>
-		std::vector<MatcherByteData*>* matchBytesCache = NULL;
+		std::vector<MatcherData*>* matchCache = NULL;
+
+		/// <summary>
+		/// Feature Rule Data
+		/// </summary>
+		std::unordered_map<int, mountcloud::RuleData*>* featureRuleData = NULL;
+
+
+		MatcherResult* checkMatcherFeature(MatcherData* mbd, char byte, std::vector<MatcherData*>* tempMatchBytesCache);
+		MatcherResult* checkMatcherFeatureMap(AvlMap<char, MatcherData*>* map,char byte, std::vector<MatcherData*>* tempMatchBytesCache);
 	};
 
 }

@@ -9,6 +9,7 @@
 /// <summary>
 /// Lightweight rules engine
 /// 轻量级规则引擎
+/// 比如这样：{$ors:[$ands:["a","b"],$ands:["c","d"]]}
 /// </summary>
 namespace mountcloud {
 
@@ -27,7 +28,7 @@ namespace mountcloud {
 	public:
 		std::vector<Rule*>* ands = NULL;
 		std::vector<Rule*>* ors = NULL;
-		std::vector<std::string>* ids = NULL;
+		std::string id;
 		bool check(RuleData* data);
 		~Rule();
 	};

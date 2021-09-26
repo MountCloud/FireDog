@@ -24,7 +24,7 @@ namespace firedog {
 		/// </summary>
 		/// <param name="flib">Feature Library</param>
 		/// <returns>errorcode</returns>
-		int pushFeatureLibrary(FeatureLibrary flib);
+		int pushFeatureLibrary(FeatureLibrary* flib);
 
 		/// <summary>
 		/// create new matcher
@@ -34,11 +34,6 @@ namespace firedog {
 
 		~FireDog();
 	private:
-
-		/// <summary>
-		/// libs
-		/// </summary>
-		std::vector<FeatureLibrary> librarys;
 		
 		/// <summary>
 		/// matcher data source
