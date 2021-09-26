@@ -4,7 +4,7 @@
 
 using namespace firedog;
 
-int FireDog::pushFeatureLibrary(FeatureLibrary flib) {
+int FireDog::pushFeatureLibrary(FeatureLibrary* flib) {
 
 	if (this->matcherDataSource == NULL) {
 		this->matcherDataSource = new MatcherDataSource();
@@ -15,26 +15,15 @@ int FireDog::pushFeatureLibrary(FeatureLibrary flib) {
 		return pushresult;
 	}
 
-	this->librarys.push_back(flib);
-
 	return NO_ERROR;
 }
 
 Matcher* FireDog::createNewMatcher() {
-
-	//EMPTY Library
-	if (this->librarys.size()==0) {
-		return NULL;
-	}
-
 	Matcher* matcher = new Matcher(this->matcherDataSource);
 	return matcher;
 }
 
 FireDog::~FireDog() {
-	if (librarys.size() > 0) {
-		librarys.clear();
-	}
 	if (matcherDataSource != NULL) {
 		delete matcherDataSource;
 		matcherDataSource = NULL;

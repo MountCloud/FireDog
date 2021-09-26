@@ -172,13 +172,32 @@ HexData* Converter::hexTextToBytes(string hextext, int* errorcode, string* error
 			}
 		}
 	}
-
+	*errorcode = NO_ERROR;
 	return result;
 }
 
 
 HexData* Converter::textToBytes(string text, int* errorcode, string* errormessag) {
 	HexData* result = NULL;
+	vector<char> bytes;
+	StringUtil::textToBytes(text, &bytes);
+	if (bytes.size() > 0) {
+		result = new HexData();
+		for (int i = 0; i < bytes.size(); i++) {
+			char byte = bytes[i];
+			Hex* hex = new Hex();
+			hex->data = byte;
+			hex->type = HEX_DATA_TYPE_FULL;
+
+			vector<Hex*>* hexs = new vector<Hex*>();
+			hexs->push_back(hex);
+			result->hexs->push_back(hexs);
+		}
+		*errorcode = NO_ERROR;
+	}
+	else {
+		*errorcode = C_CONTENT_FORMATE_ERROR;
+	}
 	return result;
 }
 

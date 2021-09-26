@@ -1,0 +1,94 @@
+{
+    "version":"1.1.0",
+    "items":[
+        {
+            "name":"test simple",
+            "describe":"match hello world,hello hex:68 65 6C 6C 6F,world hex:77 6F 72 6C 64",
+            "author":"MountCloud",
+            "features":[
+                {
+                    "key":"str1",
+                    "text":"hello"
+                },
+                {
+                    "key":"str2",
+                    "text":"world"
+                }
+            ],
+            "rule":{
+                "$and":[
+                    "str1",
+                    "str2"
+                ]
+            }
+        },
+        {
+            "name":"test complex hex match",
+            "describe":"match mountcloud firedog,mountcloud hex:6D 6F 75 6E 74 63 6C 6F 75 64,firedog hex:66 69 72 65 64 6F 67",
+            "author":"MountCloud",
+            "features":[
+                {
+                    "key":"hex1",
+                    "hex":"6D ?? ?5 6? [73-75] [41-5A,61-7A] 6C 6F 75 64"
+                },
+                {
+                    "key":"hex2",
+                    "hex":"66 6? 72 ?? 64 [60-70] 67"
+                }
+            ],
+            "rule":{
+                "$and":[
+                    "hex1",
+                    "hex2"
+                ]
+            }
+        },
+        {
+            "name":"test complex rule match",
+            "describe":"match we can do it., if ((str1&&str2)|(str3&&str4))&&(str1&&str4)",
+            "author":"MountCloud",
+            "features":[
+                {
+                    "key":"str1",
+                    "text":"we"
+                },
+                {
+                    "key":"str2",
+                    "text":"can"
+                },
+                {
+                    "key":"str3",
+                    "text":"do"
+                },
+                {
+                    "key":"str4",
+                    "text":"it"
+                }
+            ],
+            "rule":{
+                "$and":[
+                    {
+                        "$or":[
+                            {
+                                "$and":[
+                                    "str1","str2"
+                                ]
+                            },
+                            {
+                                "$and":[
+                                    "str3","str4"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "$and":[
+                            "str1",
+                            "str4"
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}
