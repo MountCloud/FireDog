@@ -6,11 +6,11 @@ C++ 11
 
 # LICENSE
 
-是你们喜欢的：MTI License.
+是你们喜欢的：MIT License.
 
 让我们搞起来！
 
-It's what you like:MTI License.
+It's what you like:MIT License.
 
 Let's do it!
 
