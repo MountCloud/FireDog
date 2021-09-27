@@ -35,7 +35,7 @@ Provide a lightweight feature detection engine, support custom extended feature 
 3：加入轻量级规则引擎/rule/rule.h，所以特征库支持使用规则进行条件匹配，语法类似mongodb的查询。
 
 1: Refactor the format of the feature library to make the feature library more reasonable.
-2: Upgrade hex detection to support wildcards, for example: 6D ??? 5 6? [73-75] [41-5A,61-7A] 6C 6F 75 64
+2: Upgrade hex detection to support wildcards, for example: 6D ?? ?5 6? [73-75] [41-5A,61-7A] 6C 6F 75 64
 3: Add the lightweight rule engine /rule/rule.h, so the signature database supports the use of rules for condition matching, and the syntax is similar to mongodb query.
 ```
 
