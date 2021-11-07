@@ -87,11 +87,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bigdatatableitem.cpp" />
+    <ClCompile Include="bigdatatablemodel.cpp" />
+    <ClCompile Include="parsethread.cpp" />
     <QtRcc Include="FireDogEditor.qrc" />
     <QtUic Include="FireDogEditor.ui" />
     <QtMoc Include="FireDogEditor.h" />
     <ClCompile Include="FireDogEditor.cpp" />
+    <ClCompile Include="loadingdialog.cpp" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="loadingdialog.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="parsethread.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bigdatatableitem.h" />
+    <QtMoc Include="bigdatatablemodel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
