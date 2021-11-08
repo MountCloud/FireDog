@@ -174,7 +174,11 @@
             </widget>
            </item>
            <item row="9" column="0" colspan="2">
-            <widget class="QTreeView" name="treeView"/>
+            <widget class="QTreeView" name="treeViewLibraryInfoRules">
+             <property name="headerHidden">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="1" column="0" colspan="2">
             <widget class="QLineEdit" name="lineEditLibraryInfoName">
@@ -191,13 +195,13 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>100</height>
+               <height>50</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>16777215</width>
-               <height>100</height>
+               <height>50</height>
               </size>
              </property>
             </widget>

@@ -89,13 +89,17 @@
   <ItemGroup>
     <ClCompile Include="bigdatatableitem.cpp" />
     <ClCompile Include="bigdatatablemodel.cpp" />
+    <ClCompile Include="FireDogFeatureInfo.cpp" />
     <ClCompile Include="parsethread.cpp" />
+    <ClCompile Include="Qss\Qss.cpp" />
     <QtRcc Include="FireDogEditor.qrc" />
+    <QtRcc Include="Qss\qss.qrc" />
     <QtUic Include="FireDogEditor.ui" />
     <QtMoc Include="FireDogEditor.h" />
     <ClCompile Include="FireDogEditor.cpp" />
     <ClCompile Include="loadingdialog.cpp" />
     <ClCompile Include="main.cpp" />
+    <QtUic Include="FireDogFeatureInfo.ui" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="loadingdialog.h" />
@@ -105,6 +109,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bigdatatableitem.h" />
+    <QtMoc Include="Qss\Qss.h" />
+    <QtMoc Include="FireDogFeatureInfo.h" />
+    <ClInclude Include="resource.h" />
     <QtMoc Include="bigdatatablemodel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

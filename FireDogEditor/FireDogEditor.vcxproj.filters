@@ -33,6 +33,12 @@
     <Filter Include="Source Files\thread">
       <UniqueIdentifier>{d599ddda-9171-4c30-ba39-b76f215c8823}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\qss">
+      <UniqueIdentifier>{ad2928c3-ee10-4363-9499-026c4b78f45b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\qss">
+      <UniqueIdentifier>{c2f9f591-1c21-49ef-a753-7a3a4616bc13}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="FireDogEditor.qrc">
@@ -47,6 +53,9 @@
     <ClCompile Include="FireDogEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <QtRcc Include="Qss\qss.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -64,6 +73,12 @@
     <ClCompile Include="bigdatatableitem.cpp">
       <Filter>Source Files\components</Filter>
     </ClCompile>
+    <ClCompile Include="Qss\Qss.cpp">
+      <Filter>Source Files\qss</Filter>
+    </ClCompile>
+    <ClCompile Include="FireDogFeatureInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="loadingdialog.h">
@@ -75,10 +90,24 @@
     <QtMoc Include="bigdatatablemodel.h">
       <Filter>Header Files\components</Filter>
     </QtMoc>
+    <QtMoc Include="Qss\Qss.h">
+      <Filter>Header Files\qss</Filter>
+    </QtMoc>
+    <QtMoc Include="FireDogFeatureInfo.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bigdatatableitem.h">
       <Filter>Header Files\components</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="FireDogFeatureInfo.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
   </ItemGroup>
 </Project>
