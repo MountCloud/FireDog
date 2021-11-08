@@ -19,6 +19,14 @@ public:
     BigDataTableRow getRowData(int nRow);
     //清空数据
     void clear();
+    //删除一行
+    bool removeRow(int row, const QModelIndex& parent = QModelIndex());
+    //删除多行
+    bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex());
+    //追加一行
+    void addRow(BigDataTableRow row);
+    //插入一行
+    void insertRow(int index,BigDataTableRow row);
 public slots:
     //处理数据
     void handleData(const QVector<BigDataTableRow>& vecData);

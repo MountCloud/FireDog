@@ -521,6 +521,9 @@ void QssDialog::setWindowIcon( QIcon icon )
 /** dialog仅在阴影边框才能调节尺寸大小 */
 void QssDialog::onMouseMoveEvent( QMouseEvent * ev )
 {
+	if (!this->canResize) {
+		return;
+	}
 	if (m_mousePressedInBorder)
 	{
 		int x = ev->globalPos().x();

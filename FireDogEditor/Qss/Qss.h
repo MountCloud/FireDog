@@ -134,6 +134,9 @@ public:
 	void raise();
 	void activateWindow();
 
+	//是否允许拖动改变大小
+	void setCanResize(bool canResize);
+
 	int exec();
 
 	void setWindowTitle( QString title );
@@ -150,6 +153,8 @@ private:
 	void onMouseReleaseEvent(QMouseEvent * ev);
 
 private:
+	bool canResize = false;
+
 	QFrame* m_frame;
 	QssTtitleBar* m_titleBar;
 

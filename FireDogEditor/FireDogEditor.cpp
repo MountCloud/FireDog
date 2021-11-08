@@ -2,7 +2,6 @@
 #include <QLabel>
 
 #include <QFileDialog>
-#include <QMessageBox>
 
 #include "config.h"
 #include "featurelibrary.h"
@@ -64,8 +63,9 @@ void FireDogEditor::init() {
 
     ui.tableViewLibrary->setModel(this->featureLibraryTableModel);
 
-    //不可编辑
-    ui.tableViewLibrary->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	//不可编辑
+	ui.tableViewLibrary->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	ui.tableViewLibrary->setSelectionMode(QAbstractItemView::SingleSelection);
     ui.tableViewLibrary->setSelectionBehavior(QAbstractItemView::SelectRows);
     //一次滚动一个像素
     ui.tableViewLibrary->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
@@ -84,10 +84,6 @@ void FireDogEditor::init() {
     featureLibraryTableMenuAddAction->setText(QString("Add"));
     featureLibraryTableMenu->addAction(featureLibraryTableMenuAddAction);
 
-    featureLibraryTableMenuEditAction = new QAction();
-    featureLibraryTableMenuEditAction->setText(QString("Edit"));
-    featureLibraryTableMenu->addAction(featureLibraryTableMenuEditAction);
-
     featureLibraryTableMenuDelAction = new QAction();
     featureLibraryTableMenuDelAction->setText(QString("Delete"));
     featureLibraryTableMenu->addAction(featureLibraryTableMenuDelAction);
@@ -103,8 +99,24 @@ void FireDogEditor::init() {
 
     ui.tableViewLibraryInfoFeatures->setModel(this->featureLibraryInfoFeatureTableModel);
 
+    //菜单
+    featureLibraryInfoFeatureTableMenu = new QMenu(ui.tableViewLibraryInfoFeatures);
+
+    featureLibraryInfoFeatureTableMenuAddAction = new QAction();
+    featureLibraryInfoFeatureTableMenuAddAction->setText(QString("Add"));
+    featureLibraryInfoFeatureTableMenu->addAction(featureLibraryInfoFeatureTableMenuAddAction);
+
+    featureLibraryInfoFeatureTableMenuEditAction = new QAction();
+    featureLibraryInfoFeatureTableMenuEditAction->setText(QString("Edit"));
+	featureLibraryInfoFeatureTableMenu->addAction(featureLibraryInfoFeatureTableMenuEditAction);
+
+    featureLibraryInfoFeatureTableMenuDelAction = new QAction();
+    featureLibraryInfoFeatureTableMenuDelAction->setText(QString("Delete"));
+	featureLibraryInfoFeatureTableMenu->addAction(featureLibraryInfoFeatureTableMenuDelAction);
+
     //不可编辑
-    ui.tableViewLibraryInfoFeatures->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	ui.tableViewLibraryInfoFeatures->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	ui.tableViewLibraryInfoFeatures->setSelectionMode(QAbstractItemView::SingleSelection);
     ui.tableViewLibraryInfoFeatures->setSelectionBehavior(QAbstractItemView::SelectRows);
     //一次滚动一个像素
     ui.tableViewLibraryInfoFeatures->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
@@ -128,11 +140,20 @@ void FireDogEditor::init() {
     connect(ui.pushButtonSearchName, &QPushButton::clicked, this, &FireDogEditor::slots_featureLibraryTableSearch);
     //特征表格右键事件
     connect(ui.tableViewLibrary, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slots_featureTableOpenMenu(QPoint)));
+	//特征详情表格右键事件
+	connect(ui.tableViewLibraryInfoFeatures, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slots_featureInfoTableOpenMenu(QPoint)));
     //特征表格点击事件
     connect(ui.tableViewLibrary->selectionModel(), SIGNAL(currentRowChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(slots_selectFeatureTableEvent(const QModelIndex&, const QModelIndex&)));
     //解析线程
     connect(this->parseThread, SIGNAL(parseBegin()), this, SLOT(slots_parseBinBegin()));
     connect(this->parseThread, SIGNAL(parseEnd(firedog::FeatureLibrary*,int)), this, SLOT(slots_parseBinEnd(firedog::FeatureLibrary*, int)));
+
+    connect(this->featureLibraryTableMenuAddAction, &QAction::triggered, this, &FireDogEditor::slots_featureTableMenuAddEvent);
+	connect(this->featureLibraryTableMenuDelAction, &QAction::triggered, this, &FireDogEditor::slots_featureTableMenuDelEvent);
+
+	connect(this->featureLibraryInfoFeatureTableMenuAddAction, &QAction::triggered, this, &FireDogEditor::slots_featureInfoTableMenuAddEvent);
+	connect(this->featureLibraryInfoFeatureTableMenuEditAction, &QAction::triggered, this, &FireDogEditor::slots_featureInfoTableMenuEditEvent);
+	connect(this->featureLibraryInfoFeatureTableMenuDelAction, &QAction::triggered, this, &FireDogEditor::slots_featureInfoTableMenuDelEvent);
 
 }
 
@@ -154,12 +175,12 @@ void FireDogEditor::slots_featureLibraryTableSearch() {
     QString search = ui.lineEditSearchName->text();
     loadFeatureLibraryTable(search);
 
-    fireDogFeatureInfo->exec();
+    //fireDogFeatureInfo->exec();
 
-    QssMessageBox::tips("test tip", this, "Tips");
-    QssMessageBox::warn("test warn", this, "Warn");
-    QssMessageBox::error("test error", this, "Error");
-    QssMessageBox::ask("test question", this, "Question");
+    //QssMessageBox::tips("test tip", this, "Tips");
+    //QssMessageBox::warn("test warn", this, "Warn");
+    //QssMessageBox::error("test error", this, "Error");
+    //QssMessageBox::ask("test question", this, "Question");
 
 }
 
@@ -172,22 +193,18 @@ void FireDogEditor::slots_parseBinEnd(firedog::FeatureLibrary* featureLibrary, i
     this->loadingDialog->loadingEnd();
     if (state != 0) {
         if (state == PARSE_ERROR_CODE_FILE_READ_FAIL) {
-            QMessageBox::warning(this, "Error", "Feature library file read failed.",
-                QMessageBox::Yes);
+            QssMessageBox::warn("Feature library file read failed.",this,"Warn");
             return;
         }
-        if (state == PARSE_ERROR_CODE_FILE_PARSE_FAIL) {
-            QMessageBox::warning(this, "Error", "Feature library file format verification failed.",
-                QMessageBox::Yes);
+		if (state == PARSE_ERROR_CODE_FILE_PARSE_FAIL) {
+			QssMessageBox::warn("Feature library file format verification failed.", this, "Warn");
             return;
         }
-        if (state == PARSE_ERROR_CODE_FILE_VERSION_CHECK_FAIL) {
-            QMessageBox::warning(this, "Error", "Feature library file version verification failed.",
-                QMessageBox::Yes);
+		if (state == PARSE_ERROR_CODE_FILE_VERSION_CHECK_FAIL) {
+			QssMessageBox::warn("Feature library file version verification failed.", this, "Warn");
             return;
-        }
-        QMessageBox::warning(this, "Error", "Feature library parse failed.",
-            QMessageBox::Yes);
+		}
+		QssMessageBox::warn("Feature library parse failed.", this, "Warn");
         return;
     }
     
@@ -232,7 +249,6 @@ void FireDogEditor::loadFeatureLibraryTable(QString search) {
 
         BigDataTableRow row;
         row.contents << BigDataTableCol(name) << BigDataTableCol(describe) << BigDataTableCol(author);
-        row.id = QString::number(i);
 
         tableRows.push_back(row);
     }
@@ -241,14 +257,41 @@ void FireDogEditor::loadFeatureLibraryTable(QString search) {
 }
 
 void FireDogEditor::slots_featureTableOpenMenu(QPoint pos) {
+
+    
+    int curRow = ui.tableViewLibrary->selectionModel()->currentIndex().row(); //选中行
+
+    if (curRow==-1) {
+        featureLibraryTableMenuDelAction->setEnabled(false);
+    }
+	else {
+		featureLibraryTableMenuDelAction->setEnabled(true);
+    }
+
     auto index = ui.tableViewLibrary->indexAt(pos);
     featureLibraryTableMenu->exec(QCursor::pos()); // 菜单出现的位置为当前鼠标的位置
+}
+
+void FireDogEditor::slots_featureInfoTableOpenMenu(QPoint pos) {
+
+    int curRow = ui.tableViewLibraryInfoFeatures->selectionModel()->currentIndex().row(); //选中行
+
+	if (curRow == -1) {
+        featureLibraryInfoFeatureTableMenuEditAction->setEnabled(false);
+        featureLibraryInfoFeatureTableMenuDelAction->setEnabled(false);
+	}
+	else {
+		featureLibraryInfoFeatureTableMenuEditAction->setEnabled(true);
+		featureLibraryInfoFeatureTableMenuDelAction->setEnabled(true);
+	}
+
+	auto index = ui.tableViewLibraryInfoFeatures->indexAt(pos);
+    featureLibraryInfoFeatureTableMenu->exec(QCursor::pos()); // 菜单出现的位置为当前鼠标的位置
 }
 
 void FireDogEditor::slots_selectFeatureTableEvent(const QModelIndex& current, const QModelIndex& previous) {
 
     ui.pushButtonLibraryInfoSave->setText("Update");
-
 
     //clear
     if (this->featureLibraryInfoFeatureTableModel->rowCount() > 0) {
@@ -257,12 +300,10 @@ void FireDogEditor::slots_selectFeatureTableEvent(const QModelIndex& current, co
 
     this->featureLibraryInfoRuleTreeModel->clear();
 
-
     int row = current.row();
     BigDataTableRow bigDataTableRow = this->featureLibraryTableModel->getRowData(row);
-    int index = bigDataTableRow.id.toInt();
 
-    FeatureLibraryItem* item = this->featureLibrary->items->at(index);
+    FeatureLibraryItem* item = this->featureLibrary->items->at(row);
     QString name = item->name.c_str();
     QString author = item->author.c_str();
     QString describe = item->describe.c_str();
@@ -270,7 +311,6 @@ void FireDogEditor::slots_selectFeatureTableEvent(const QModelIndex& current, co
     ui.lineEditLibraryInfoName->setText(name);
     ui.lineEditLibraryInfoAuthor->setText(author);
     ui.textEditLibraryInfoDescribe->setText(describe);
-
 
     QVector<BigDataTableRow> tableRows;
     if (item->features != NULL) {
@@ -282,7 +322,6 @@ void FireDogEditor::slots_selectFeatureTableEvent(const QModelIndex& current, co
 
             BigDataTableRow row;
             row.contents << BigDataTableCol(key) << BigDataTableCol(type) << BigDataTableCol(content);
-            row.id = QString::number(i);
 
             tableRows.push_back(row);
         }
@@ -327,6 +366,46 @@ QStandardItem* FireDogEditor::ruleToItem(mountcloud::Rule* rule) {
     return ruleitem;
 }
 
+void FireDogEditor::slots_featureTableMenuAddEvent() {
+    clearInfoContent(true);
+}
+
+void FireDogEditor::slots_featureTableMenuDelEvent() {
+    int curRow = ui.tableViewLibrary->selectionModel()->currentIndex().row(); //选中行
+
+	FeatureLibraryItem* item = this->featureLibrary->items->at(curRow);
+	delete item;
+	item = NULL;
+
+	this->featureLibrary->items->erase(this->featureLibrary->items->begin() + curRow);
+
+    this->featureLibraryTableModel->removeRow(curRow);
+
+}
+
+void FireDogEditor::slots_featureInfoTableMenuAddEvent() {
+    firedog::Feature feature;
+    bool state = this->fireDogFeatureInfo->updateFeature(&feature);
+    if (state) {
+		QString key = feature.key.c_str();
+		QString type = !feature.hex.empty() ? "hex" : "text";
+		QString content = !feature.hex.empty() ? feature.hex.c_str() : feature.text.c_str();
+
+		BigDataTableRow row;
+		row.contents << BigDataTableCol(key) << BigDataTableCol(type) << BigDataTableCol(content);
+
+        this->featureLibraryInfoFeatureTableModel->addRow(row);
+    }
+}
+
+void FireDogEditor::slots_featureInfoTableMenuEditEvent() {
+
+}
+
+void FireDogEditor::slots_featureInfoTableMenuDelEvent() {
+
+}
+
 void FireDogEditor::clearInfoContent(bool isAdd) {
     this->isAdd = isAdd;
     if (isAdd) {
@@ -341,6 +420,8 @@ void FireDogEditor::clearInfoContent(bool isAdd) {
 
     QVector<BigDataTableRow> tableRows;
     this->featureLibraryInfoFeatureTableModel->handleData(tableRows);
+
+    this->featureLibraryInfoRuleTreeModel->clear();
 }
 
 FireDogEditor::~FireDogEditor() {
@@ -357,11 +438,6 @@ FireDogEditor::~FireDogEditor() {
     if (featureLibraryTableMenuAddAction != NULL) {
         delete featureLibraryTableMenuAddAction;
         featureLibraryTableMenuAddAction = NULL;
-    }
-
-    if (featureLibraryTableMenuEditAction != NULL) {
-        delete featureLibraryTableMenuEditAction;
-        featureLibraryTableMenuEditAction = NULL;
     }
 
     if (featureLibraryTableMenuDelAction != NULL) {
@@ -388,6 +464,26 @@ FireDogEditor::~FireDogEditor() {
         delete featureLibraryInfoRuleTreeModel;
         featureLibraryInfoRuleTreeModel = NULL;
     } 
+
+	if (featureLibraryInfoFeatureTableMenu != NULL) {
+		delete featureLibraryInfoFeatureTableMenu;
+        featureLibraryInfoFeatureTableMenu = NULL;
+	}
+
+	if (featureLibraryInfoFeatureTableMenuAddAction != NULL) {
+		delete featureLibraryInfoFeatureTableMenuAddAction;
+        featureLibraryInfoFeatureTableMenuAddAction = NULL;
+	}
+
+	if (featureLibraryInfoFeatureTableMenuEditAction != NULL) {
+		delete featureLibraryInfoFeatureTableMenuEditAction;
+        featureLibraryInfoFeatureTableMenuEditAction = NULL;
+	}
+
+	if (featureLibraryInfoFeatureTableMenuDelAction != NULL) {
+		delete featureLibraryInfoFeatureTableMenuDelAction;
+        featureLibraryInfoFeatureTableMenuDelAction = NULL;
+	}
 }
 
 void FireDogEditor::resizeEvent(QResizeEvent* event) {

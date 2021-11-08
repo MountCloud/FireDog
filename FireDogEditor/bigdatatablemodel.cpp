@@ -93,9 +93,38 @@ BigDataTableRow BigDataTableModel::getRowData(int nRow)
     }
     return m_vecData[nRow];
 }
+
+bool BigDataTableModel::removeRow(int row, const QModelIndex& parent) {
+	beginResetModel();
+	m_vecData.removeAt(row);
+	endResetModel();
+    return true;
+}
+
+bool BigDataTableModel::removeRows(int row, int count, const QModelIndex& parent) {
+	beginResetModel();
+    m_vecData.remove(row, count);
+	endResetModel();
+    return true;
+}
+
+void BigDataTableModel::addRow(BigDataTableRow row) {
+	beginResetModel();
+	m_vecData.append(row);
+	endResetModel();
+}
+
+void BigDataTableModel::insertRow(int index, BigDataTableRow row) {
+	beginResetModel();
+    m_vecData.insert(index, row);
+	endResetModel();
+}
+
 void BigDataTableModel::clear()
 {
+	beginResetModel();
     m_vecData.clear();
+	endResetModel();
 }
 void BigDataTableModel::handleData(const QVector<BigDataTableRow>& vecData)
 {
