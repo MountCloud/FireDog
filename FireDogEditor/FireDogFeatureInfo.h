@@ -6,6 +6,8 @@
 
 #include "Qss/Qss.h"
 
+#define FEATURE_FORMATE_REG_KEY "[0-9a-zA-Z]{0,}"
+
 #define FEATURE_FORMATE_REG_HEX "(([a-fA-F0-9?]{2}[ ]?)|(\\[([0-9a-fA-F]{2}[ ]?-[ ]?[a-fA-F0-9]{2}[ ]?[,]?){1,}\\][ ]?)){0,}"
 
 namespace firedog {
@@ -24,7 +26,7 @@ public:
     ~FireDogFeatureInfo();
 
     //…Ë÷√Ãÿ’˜
-    bool updateFeature(firedog::Feature* feature);
+    bool updateFeature(QStringList existsKeys,firedog::Feature* feature);
 
 private slots:
     void slots_radioClick();
@@ -35,7 +37,11 @@ private slots:
 private:
     Ui::FireDogFeatureInfo *ui;
 
+    QValidator* keyValidator = NULL;
+
     QValidator* hexValidator = NULL;
+
+    QStringList existsKeys;
 
     void init();
 

@@ -1,49 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>FireDogFeatureInfo</class>
- <widget class="QDialog" name="FireDogFeatureInfo">
+ <class>FireDogFeatureRuleInfo</class>
+ <widget class="QDialog" name="FireDogFeatureRuleInfo">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>490</width>
-    <height>220</height>
+    <width>306</width>
+    <height>181</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QLabel" name="labelKey">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>60</y>
-     <width>72</width>
-     <height>15</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Key</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="lineEditKey">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>80</y>
-     <width>471</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="placeholderText">
-    <string>Can use:0-9a-zA-Z</string>
-   </property>
-  </widget>
   <widget class="QLabel" name="labelType">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>5</y>
+     <y>10</y>
      <width>72</width>
      <height>15</height>
     </rect>
@@ -52,94 +26,97 @@
     <string>Type</string>
    </property>
   </widget>
-  <widget class="QRadioButton" name="radioButtonHex">
+  <widget class="QRadioButton" name="radioButtonAnd">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>25</y>
-     <width>51</width>
+     <y>35</y>
+     <width>61</width>
      <height>19</height>
     </rect>
    </property>
    <property name="text">
-    <string>Hex</string>
+    <string>$and</string>
    </property>
    <property name="checked">
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QRadioButton" name="radioButtonText">
+  <widget class="QRadioButton" name="radioButtonOr">
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>25</y>
-     <width>51</width>
+     <x>80</x>
+     <y>35</y>
+     <width>61</width>
      <height>19</height>
     </rect>
    </property>
    <property name="text">
-    <string>Text</string>
+    <string>$or</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEditContent">
+  <widget class="QRadioButton" name="radioButtonKey">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>140</y>
-     <width>471</width>
-     <height>21</height>
+     <x>150</x>
+     <y>35</y>
+     <width>61</width>
+     <height>19</height>
     </rect>
    </property>
-   <property name="placeholderText">
-    <string>Can use:0F 9? ?0 ?? [00-FF] [00-02,06-09] or text</string>
+   <property name="text">
+    <string>Key</string>
    </property>
   </widget>
-  <widget class="QLabel" name="labelContent">
+  <widget class="QLabel" name="labelKey">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>120</y>
+     <y>80</y>
      <width>72</width>
      <height>15</height>
     </rect>
    </property>
    <property name="text">
-    <string>Content</string>
+    <string>Key</string>
    </property>
   </widget>
   <widget class="Line" name="line">
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>45</y>
-     <width>491</width>
+     <y>60</y>
+     <width>311</width>
      <height>16</height>
     </rect>
    </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEditKey">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>105</y>
+     <width>291</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="placeholderText">
+    <string>0-9a-zA-Z</string>
    </property>
   </widget>
   <widget class="Line" name="line_2">
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>105</y>
-     <width>501</width>
+     <y>130</y>
+     <width>311</width>
      <height>16</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-  </widget>
-  <widget class="Line" name="line_3">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>165</y>
-     <width>491</width>
-     <height>21</height>
     </rect>
    </property>
    <property name="orientation">
@@ -149,8 +126,8 @@
   <widget class="QPushButton" name="pushButtonSave">
    <property name="geometry">
     <rect>
-     <x>290</x>
-     <y>185</y>
+     <x>10</x>
+     <y>150</y>
      <width>93</width>
      <height>28</height>
     </rect>
@@ -162,8 +139,8 @@
   <widget class="QPushButton" name="pushButtonCancel">
    <property name="geometry">
     <rect>
-     <x>390</x>
-     <y>185</y>
+     <x>210</x>
+     <y>150</y>
      <width>93</width>
      <height>28</height>
     </rect>

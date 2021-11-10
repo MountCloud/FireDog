@@ -7,6 +7,7 @@
 #include <QMenu>
 
 #include "FireDogFeatureInfo.h"
+#include "FireDogFeatureRuleInfo.h"
 
 #include "loadingdialog.h"
 #include "parsethread.h"
@@ -31,6 +32,8 @@ private slots:
     void slots_featureTableOpenMenu(QPoint pos);
 	//特征库详情右键菜单
 	void slots_featureInfoTableOpenMenu(QPoint pos);
+	//特征库详情规则树右键菜单
+	void slots_featureInfoRuleTreeOpenMenu(QPoint pos);
 
     //开始解析文件
     void slots_parseBinBegin();
@@ -53,10 +56,20 @@ private slots:
 	//特征详情表格删除菜单点击
 	void slots_featureInfoTableMenuDelEvent();
 
+	//特征详情规则树添加菜单点击
+	void slots_featureLibraryInfoRuleMenuAddEvent();
+	//特征详情规则树编辑菜单点击
+	void slots_featureLibraryInfoRuleMenuEditEvent();
+	//特征详情规则树删除菜单点击
+	void slots_featureLibraryInfoRuleMenuDelEvent();
+
+
 private:
     Ui::FireDogEditorClass ui;
 
     FireDogFeatureInfo* fireDogFeatureInfo;
+
+    FireDogFeatureRuleInfo* fireDogFeatureRuleInfo;
 
     //初始化
     void init();
@@ -80,7 +93,12 @@ private:
     QAction* featureLibraryInfoFeatureTableMenuEditAction = NULL;
 	QAction* featureLibraryInfoFeatureTableMenuDelAction = NULL;
 
+    //规则树
     QStandardItemModel* featureLibraryInfoRuleTreeModel = NULL;
+	QMenu* featureLibraryInfoRuleTreeMenu = NULL;
+	QAction* featureLibraryInfoRuleTreeMenuAddAction = NULL;
+	QAction* featureLibraryInfoRuleTreeMenuEditAction = NULL;
+	QAction* featureLibraryInfoRuleTreeMenuDelAction = NULL;
 
     //loading dialog
     LoadingDialog* loadingDialog = NULL;

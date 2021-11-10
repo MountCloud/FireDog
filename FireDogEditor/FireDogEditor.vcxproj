@@ -90,6 +90,7 @@
     <ClCompile Include="bigdatatableitem.cpp" />
     <ClCompile Include="bigdatatablemodel.cpp" />
     <ClCompile Include="FireDogFeatureInfo.cpp" />
+    <ClCompile Include="FireDogFeatureRuleInfo.cpp" />
     <ClCompile Include="parsethread.cpp" />
     <ClCompile Include="Qss\Qss.cpp" />
     <QtRcc Include="FireDogEditor.qrc" />
@@ -100,6 +101,7 @@
     <ClCompile Include="loadingdialog.cpp" />
     <ClCompile Include="main.cpp" />
     <QtUic Include="FireDogFeatureInfo.ui" />
+    <QtUic Include="FireDogFeatureRuleInfo.ui" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="loadingdialog.h" />
@@ -111,6 +113,7 @@
     <ClInclude Include="bigdatatableitem.h" />
     <QtMoc Include="Qss\Qss.h" />
     <QtMoc Include="FireDogFeatureInfo.h" />
+    <QtMoc Include="FireDogFeatureRuleInfo.h" />
     <ClInclude Include="resource.h" />
     <QtMoc Include="bigdatatablemodel.h" />
   </ItemGroup>

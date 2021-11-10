@@ -54,6 +54,9 @@ void FireDogEditor::init() {
     fireDogFeatureInfo = new FireDogFeatureInfo(this);
     fireDogFeatureInfo->setWindowTitle("Feature Editor");
 
+    fireDogFeatureRuleInfo = new FireDogFeatureRuleInfo(this);
+    fireDogFeatureRuleInfo->setWindowTitle("Feature Rule Editor");
+
     //特征库表格-start==================================================================
     this->featureLibraryTableModel = new BigDataTableModel();
 
@@ -132,6 +135,23 @@ void FireDogEditor::init() {
     //详情-规则-start==================================================================
     this->featureLibraryInfoRuleTreeModel = new QStandardItemModel();
     ui.treeViewLibraryInfoRules->setModel(featureLibraryInfoRuleTreeModel);
+
+	//可弹出右键菜单
+	ui.treeViewLibraryInfoRules->setContextMenuPolicy(Qt::CustomContextMenu);
+    //菜单
+    featureLibraryInfoRuleTreeMenu = new QMenu(ui.treeViewLibraryInfoRules);
+
+    featureLibraryInfoRuleTreeMenuAddAction = new QAction();
+    featureLibraryInfoRuleTreeMenuAddAction->setText(QString("Add Child"));
+    featureLibraryInfoRuleTreeMenu->addAction(featureLibraryInfoRuleTreeMenuAddAction);
+
+    featureLibraryInfoRuleTreeMenuEditAction = new QAction();
+    featureLibraryInfoRuleTreeMenuEditAction->setText(QString("Edit"));
+    featureLibraryInfoRuleTreeMenu->addAction(featureLibraryInfoRuleTreeMenuEditAction);
+
+    featureLibraryInfoRuleTreeMenuDelAction = new QAction();
+    featureLibraryInfoRuleTreeMenuDelAction->setText(QString("Delete"));
+    featureLibraryInfoRuleTreeMenu->addAction(featureLibraryInfoRuleTreeMenuDelAction);
     //详情-规则-end==================================================================
 
 
@@ -142,6 +162,8 @@ void FireDogEditor::init() {
     connect(ui.tableViewLibrary, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slots_featureTableOpenMenu(QPoint)));
 	//特征详情表格右键事件
 	connect(ui.tableViewLibraryInfoFeatures, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slots_featureInfoTableOpenMenu(QPoint)));
+	//特征详情规则树右键事件
+	connect(ui.treeViewLibraryInfoRules, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slots_featureInfoRuleTreeOpenMenu(QPoint)));
     //特征表格点击事件
     connect(ui.tableViewLibrary->selectionModel(), SIGNAL(currentRowChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(slots_selectFeatureTableEvent(const QModelIndex&, const QModelIndex&)));
     //解析线程
@@ -154,6 +176,10 @@ void FireDogEditor::init() {
 	connect(this->featureLibraryInfoFeatureTableMenuAddAction, &QAction::triggered, this, &FireDogEditor::slots_featureInfoTableMenuAddEvent);
 	connect(this->featureLibraryInfoFeatureTableMenuEditAction, &QAction::triggered, this, &FireDogEditor::slots_featureInfoTableMenuEditEvent);
 	connect(this->featureLibraryInfoFeatureTableMenuDelAction, &QAction::triggered, this, &FireDogEditor::slots_featureInfoTableMenuDelEvent);
+
+	connect(this->featureLibraryInfoRuleTreeMenuAddAction, &QAction::triggered, this, &FireDogEditor::slots_featureLibraryInfoRuleMenuAddEvent);
+	connect(this->featureLibraryInfoRuleTreeMenuEditAction, &QAction::triggered, this, &FireDogEditor::slots_featureLibraryInfoRuleMenuEditEvent);
+	connect(this->featureLibraryInfoRuleTreeMenuDelAction, &QAction::triggered, this, &FireDogEditor::slots_featureLibraryInfoRuleMenuDelEvent);
 
 }
 
@@ -289,6 +315,40 @@ void FireDogEditor::slots_featureInfoTableOpenMenu(QPoint pos) {
     featureLibraryInfoFeatureTableMenu->exec(QCursor::pos()); // 菜单出现的位置为当前鼠标的位置
 }
 
+void FireDogEditor::slots_featureInfoRuleTreeOpenMenu(QPoint pos) {
+    QModelIndex currIndex = ui.treeViewLibraryInfoRules->currentIndex();;
+	int curRow = currIndex.row(); //选中行
+
+    bool isKey = false;
+    if (curRow != -1) {
+        QStandardItem* item = this->featureLibraryInfoRuleTreeModel->itemFromIndex(currIndex);
+        QString text = item->text();
+        if (text != "$and" && text != "$or") {
+            isKey = true;
+        }
+    }
+
+    if (isKey || (this->featureLibraryInfoRuleTreeModel->rowCount() != 0 && curRow == -1)) {
+        this->featureLibraryInfoRuleTreeMenuAddAction->setEnabled(false);
+    }
+    else {
+        this->featureLibraryInfoRuleTreeMenuAddAction->setEnabled(true);
+    }
+    
+  
+	if (curRow == -1) {
+        featureLibraryInfoRuleTreeMenuEditAction->setEnabled(false);
+        featureLibraryInfoRuleTreeMenuDelAction->setEnabled(false);
+	}
+	else {
+		featureLibraryInfoRuleTreeMenuEditAction->setEnabled(true);
+		featureLibraryInfoRuleTreeMenuDelAction->setEnabled(true);
+	}
+
+	auto index = ui.treeViewLibraryInfoRules->indexAt(pos);
+    featureLibraryInfoRuleTreeMenu->exec(QCursor::pos()); // 菜单出现的位置为当前鼠标的位置
+}
+
 void FireDogEditor::slots_selectFeatureTableEvent(const QModelIndex& current, const QModelIndex& previous) {
 
     ui.pushButtonLibraryInfoSave->setText("Update");
@@ -371,6 +431,12 @@ void FireDogEditor::slots_featureTableMenuAddEvent() {
 }
 
 void FireDogEditor::slots_featureTableMenuDelEvent() {
+    QMessageBox::StandardButton botton = QMessageBox::question(this, "Question", "Please confirm to delete?");
+    if (botton != QMessageBox::Ok && botton != QMessageBox::Yes) {
+        return;
+    }
+    
+    clearInfoContent(true);
     int curRow = ui.tableViewLibrary->selectionModel()->currentIndex().row(); //选中行
 
 	FeatureLibraryItem* item = this->featureLibrary->items->at(curRow);
@@ -385,7 +451,17 @@ void FireDogEditor::slots_featureTableMenuDelEvent() {
 
 void FireDogEditor::slots_featureInfoTableMenuAddEvent() {
     firedog::Feature feature;
-    bool state = this->fireDogFeatureInfo->updateFeature(&feature);
+
+    QStringList existsKeys;
+
+    int rowCount = this->featureLibraryInfoFeatureTableModel->rowCount();
+    for (int i = 0; i < rowCount; i++) {
+        BigDataTableRow row = this->featureLibraryInfoFeatureTableModel->getRowData(i);
+        QString key = row.contents[0].content.toString();
+        existsKeys << key;
+    }
+
+    bool state = this->fireDogFeatureInfo->updateFeature(existsKeys,&feature);
     if (state) {
 		QString key = feature.key.c_str();
 		QString type = !feature.hex.empty() ? "hex" : "text";
@@ -399,11 +475,53 @@ void FireDogEditor::slots_featureInfoTableMenuAddEvent() {
 }
 
 void FireDogEditor::slots_featureInfoTableMenuEditEvent() {
+    int curRow = ui.tableViewLibraryInfoFeatures->selectionModel()->currentIndex().row(); //选中行
+    BigDataTableRow row = this->featureLibraryInfoFeatureTableModel->getRowData(curRow);
+    QString key = row.contents[0].content.toString();
+    QString type = row.contents[1].content.toString();
+    QString content = row.contents[2].content.toString();
 
+    firedog::Feature feature;
+    feature.key = key.toStdString();
+    if (type == "hex") {
+        feature.hex = content.toStdString();
+    }
+    else {
+        feature.text = content.toStdString();
+    }
+
+    QStringList existsKeys;
+
+	int rowCount = this->featureLibraryInfoFeatureTableModel->rowCount();
+	for (int i = 0; i < rowCount; i++) {
+        if (i == curRow) {
+            continue;
+        }
+		BigDataTableRow existrow = this->featureLibraryInfoFeatureTableModel->getRowData(i);
+		QString key = existrow.contents[0].content.toString();
+		existsKeys << key;
+	}
+
+    bool isok = this->fireDogFeatureInfo->updateFeature(existsKeys ,&feature);
+    if (isok) {
+		QString key = feature.key.c_str();
+		QString type = !feature.hex.empty() ? "hex" : "text";
+		QString content = !feature.hex.empty() ? feature.hex.c_str() : feature.text.c_str();
+
+		BigDataTableRow newrow;
+        newrow.contents << BigDataTableCol(key) << BigDataTableCol(type) << BigDataTableCol(content);
+
+        this->featureLibraryInfoFeatureTableModel->replaceRow(curRow, newrow);
+    }
 }
 
 void FireDogEditor::slots_featureInfoTableMenuDelEvent() {
-
+	QMessageBox::StandardButton botton = QMessageBox::question(this, "Question", "Please confirm to delete?");
+	if (botton != QMessageBox::Ok && botton != QMessageBox::Yes) {
+		return;
+	}
+    int curRow = ui.tableViewLibraryInfoFeatures->selectionModel()->currentIndex().row();
+    this->featureLibraryInfoFeatureTableModel->removeRow(curRow);
 }
 
 void FireDogEditor::clearInfoContent(bool isAdd) {
@@ -422,6 +540,44 @@ void FireDogEditor::clearInfoContent(bool isAdd) {
     this->featureLibraryInfoFeatureTableModel->handleData(tableRows);
 
     this->featureLibraryInfoRuleTreeModel->clear();
+}
+
+void FireDogEditor::slots_featureLibraryInfoRuleMenuAddEvent() {
+
+    bool ruleIsEmpty = this->featureLibraryInfoRuleTreeModel->rowCount() == 0;
+    bool isRoot = false;
+    if (ruleIsEmpty) {
+        isRoot = true;
+    }
+
+    QString rule;
+    bool isOk = this->fireDogFeatureRuleInfo->updateRule(&rule, isRoot);
+	if (isOk) {
+		QStandardItem* ruleitem = new QStandardItem(rule);
+        //如果是空的
+        if (ruleIsEmpty) {
+            featureLibraryInfoRuleTreeModel->appendRow(ruleitem);
+        }
+        else {
+			QModelIndex currIndex = ui.treeViewLibraryInfoRules->currentIndex();;
+            QStandardItem* selectItem = this->featureLibraryInfoRuleTreeModel->itemFromIndex(currIndex);
+            selectItem->appendRow(ruleitem);
+
+			QModelIndex index = this->featureLibraryInfoRuleTreeModel->indexFromItem(selectItem);
+            ui.treeViewLibraryInfoRules->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Clear);
+		}
+		QModelIndex index = this->featureLibraryInfoRuleTreeModel->indexFromItem(ruleitem);
+        ui.treeViewLibraryInfoRules->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+    }
+}
+void FireDogEditor::slots_featureLibraryInfoRuleMenuEditEvent() {
+    this->fireDogFeatureRuleInfo->exec();
+}
+void FireDogEditor::slots_featureLibraryInfoRuleMenuDelEvent() {
+	QMessageBox::StandardButton botton = QMessageBox::question(this, "Question", "Please confirm to delete?");
+	if (botton != QMessageBox::Ok && botton != QMessageBox::Yes) {
+		return;
+	}
 }
 
 FireDogEditor::~FireDogEditor() {

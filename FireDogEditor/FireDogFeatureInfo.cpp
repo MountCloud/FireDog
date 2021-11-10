@@ -18,8 +18,12 @@ FireDogFeatureInfo::FireDogFeatureInfo(QWidget *parent) :
 void FireDogFeatureInfo::init() {
 
 
-	QRegExp regx(FEATURE_FORMATE_REG_HEX);
-    this->hexValidator = new QRegExpValidator(regx, ui->lineEditContent);
+	QRegExp hexregx(FEATURE_FORMATE_REG_HEX);
+    this->hexValidator = new QRegExpValidator(hexregx, ui->lineEditContent);
+
+    QRegExp keyregx(FEATURE_FORMATE_REG_KEY);
+    this->keyValidator = new QRegExpValidator(keyregx, ui->lineEditKey);
+    ui->lineEditKey->setValidator(keyValidator);
 
     connect(ui->pushButtonCancel, &QPushButton::clicked, this, &FireDogFeatureInfo::slots_cancel);
     connect(ui->pushButtonSave, &QPushButton::clicked, this, &FireDogFeatureInfo::slots_save);
@@ -37,13 +41,15 @@ void FireDogFeatureInfo::slots_radioClick() {
     }
 }
 
-bool FireDogFeatureInfo::updateFeature(firedog::Feature* feature) {
+bool FireDogFeatureInfo::updateFeature(QStringList existsKeys, firedog::Feature* feature) {
+
+    this->isOk = false;
+
+    this->existsKeys = existsKeys;
 
     QString key = feature->key.c_str();
-    QString content = feature->text.c_str();
 
-    ui->lineEditKey->setText(key);
-	ui->lineEditContent->setText(content);
+	ui->lineEditKey->setText(key);
 
     bool ishex = feature->hex.empty() ? false : true;
     if (feature->hex.empty()&&feature->text.empty()) {
@@ -51,12 +57,16 @@ bool FireDogFeatureInfo::updateFeature(firedog::Feature* feature) {
     }
 
     if (ishex) {
+		QString content = feature->hex.c_str();
+		ui->lineEditContent->setText(content);
 		ui->lineEditContent->setValidator(this->hexValidator);
 
         ui->radioButtonHex->setChecked(true);
         ui->radioButtonText->setChecked(false);
     }
 	else {
+		QString content = feature->text.c_str();
+		ui->lineEditContent->setText(content);
 		ui->lineEditContent->setValidator(NULL);
 
 		ui->radioButtonHex->setChecked(false);
@@ -87,6 +97,20 @@ void FireDogFeatureInfo::slots_save() {
         QssMessageBox::warn("Please enter [Key].", this, "Warn");
         return;
 	}
+    if (this->existsKeys.contains(ui->lineEditKey->text())) {
+		QssMessageBox::warn("[Key] is exists.", this, "Warn");
+		return;
+    }
+
+	QString keyreg = "^";
+    keyreg.append(FEATURE_FORMATE_REG_KEY);
+    keyreg.append("$");
+	QRegExp keyrx(keyreg);
+    if (!keyrx.exactMatch(ui->lineEditKey->text())) {
+		QssMessageBox::warn("[Key] format verification failed.\nYou can enter: 0-9a-zA-Z", this, "Warn");
+		return;
+    }
+
 	if (ui->lineEditContent->text().isEmpty()) {
 		QssMessageBox::warn("Please enter [Content].", this, "Warn");
 		return;
@@ -101,7 +125,7 @@ void FireDogFeatureInfo::slots_save() {
 
 		bool ok = rx.exactMatch(hexStr);
         if (!ok) {
-			QssMessageBox::warn("Content format verification failed.\nYou can enter: 0F 9? ?0 ?? [00-FF] [00-02,06-09]", this, "Warn");
+			QssMessageBox::warn("[Content] format verification failed.\nYou can enter: 0F 9? ?0 ?? [00-FF] [00-02,06-09]", this, "Warn");
 			return;
         }
     }

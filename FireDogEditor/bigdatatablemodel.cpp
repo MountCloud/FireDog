@@ -120,6 +120,12 @@ void BigDataTableModel::insertRow(int index, BigDataTableRow row) {
 	endResetModel();
 }
 
+void BigDataTableModel::replaceRow(int index, BigDataTableRow row) {
+	beginResetModel();
+    m_vecData.replace(index, row);
+	endResetModel();
+}
+
 void BigDataTableModel::clear()
 {
 	beginResetModel();

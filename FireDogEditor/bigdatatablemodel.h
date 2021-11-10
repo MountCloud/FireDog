@@ -27,6 +27,8 @@ public:
     void addRow(BigDataTableRow row);
     //插入一行
     void insertRow(int index,BigDataTableRow row);
+    //替换一行
+    void replaceRow(int index, BigDataTableRow row);
 public slots:
     //处理数据
     void handleData(const QVector<BigDataTableRow>& vecData);

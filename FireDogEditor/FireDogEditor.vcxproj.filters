@@ -79,6 +79,9 @@
     <ClCompile Include="FireDogFeatureInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FireDogFeatureRuleInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="loadingdialog.h">
@@ -96,6 +99,9 @@
     <QtMoc Include="FireDogFeatureInfo.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="FireDogFeatureRuleInfo.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bigdatatableitem.h">
@@ -107,6 +113,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="FireDogFeatureInfo.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="FireDogFeatureRuleInfo.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
