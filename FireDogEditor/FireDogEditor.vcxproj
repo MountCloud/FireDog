@@ -117,6 +117,9 @@
     <ClInclude Include="resource.h" />
     <QtMoc Include="bigdatatablemodel.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="css\qss.css" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
     <Import Project="$(QtMsBuild)\qt.targets" />

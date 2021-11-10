@@ -63,19 +63,17 @@ private slots:
 	//特征详情规则树删除菜单点击
 	void slots_featureLibraryInfoRuleMenuDelEvent();
 
-
+    //添加或者更新按钮
+    void slots_saveBtnClickEvent();
 private:
     Ui::FireDogEditorClass ui;
 
-    FireDogFeatureInfo* fireDogFeatureInfo;
+    FireDogFeatureInfo* fireDogFeatureInfoView;
 
-    FireDogFeatureRuleInfo* fireDogFeatureRuleInfo;
-
-    //初始化
-    void init();
+    FireDogFeatureRuleInfo* fireDogFeatureRuleInfoView;
 
     //是否是添加，true是add，false是update
-    bool isAdd = true;
+    bool isFeatureAdd = true;
 
     //特征库
     firedog::FeatureLibrary* featureLibrary = NULL;
@@ -106,6 +104,9 @@ private:
     //解析线程
     ParseThread* parseThread = NULL;
 
+	//初始化
+	void init();
+
     //分辨率变更事件
     void resizeEvent(QResizeEvent* event) override;
 
@@ -117,5 +118,11 @@ private:
 
     //规则转视图item
     QStandardItem* ruleToItem(mountcloud::Rule* rule);
+
+    //从详情视图中获取特征Item
+    firedog::FeatureLibraryItem* getInfoViewFeatureItem();
+
+    //视图转规则
+	mountcloud::Rule* itemToRule(QStandardItem* item);
 
 };

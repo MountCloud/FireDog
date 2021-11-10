@@ -39,6 +39,9 @@
     <Filter Include="Source Files\qss">
       <UniqueIdentifier>{c2f9f591-1c21-49ef-a753-7a3a4616bc13}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\qss\css">
+      <UniqueIdentifier>{79042d7c-e4a3-40a9-9f2e-bca224877631}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="FireDogEditor.qrc">
@@ -118,5 +121,10 @@
     <QtUic Include="FireDogFeatureRuleInfo.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="css\qss.css">
+      <Filter>Source Files\qss\css</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -51,11 +51,11 @@ void FireDogEditor::init() {
     this->parseThread = new ParseThread();
 
     //子窗口
-    fireDogFeatureInfo = new FireDogFeatureInfo(this);
-    fireDogFeatureInfo->setWindowTitle("Feature Editor");
+    fireDogFeatureInfoView = new FireDogFeatureInfo(this);
+    fireDogFeatureInfoView->setWindowTitle("Feature Editor");
 
-    fireDogFeatureRuleInfo = new FireDogFeatureRuleInfo(this);
-    fireDogFeatureRuleInfo->setWindowTitle("Feature Rule Editor");
+    fireDogFeatureRuleInfoView = new FireDogFeatureRuleInfo(this);
+    fireDogFeatureRuleInfoView->setWindowTitle("Feature Rule Editor");
 
     //特征库表格-start==================================================================
     this->featureLibraryTableModel = new BigDataTableModel();
@@ -84,7 +84,7 @@ void FireDogEditor::init() {
     featureLibraryTableMenu = new QMenu(ui.tableViewLibrary);
 
     featureLibraryTableMenuAddAction = new QAction();
-    featureLibraryTableMenuAddAction->setText(QString("Add"));
+    featureLibraryTableMenuAddAction->setText(QString("Add New"));
     featureLibraryTableMenu->addAction(featureLibraryTableMenuAddAction);
 
     featureLibraryTableMenuDelAction = new QAction();
@@ -181,10 +181,20 @@ void FireDogEditor::init() {
 	connect(this->featureLibraryInfoRuleTreeMenuEditAction, &QAction::triggered, this, &FireDogEditor::slots_featureLibraryInfoRuleMenuEditEvent);
 	connect(this->featureLibraryInfoRuleTreeMenuDelAction, &QAction::triggered, this, &FireDogEditor::slots_featureLibraryInfoRuleMenuDelEvent);
 
+    connect(ui.pushButtonLibraryInfoSave, &QPushButton::clicked, this, &FireDogEditor::slots_saveBtnClickEvent);
 }
 
 //打开文件
 void FireDogEditor::slots_openFile() {
+    //如果已经有打开或者正在编辑的特征库
+	if (this->featureLibrary != NULL) {
+		QMessageBox::StandardButton botton = QMessageBox::question(this, "Question", "Please confirm to delete?");
+		if (botton != QMessageBox::Ok && botton != QMessageBox::Yes) {
+			return;
+		}
+        delete this->featureLibrary;
+        this->featureLibrary = NULL;
+    }
     QString filePath = QFileDialog::getOpenFileName(this,
         tr("Open Feature Library File."),
         "F:",
@@ -201,7 +211,7 @@ void FireDogEditor::slots_featureLibraryTableSearch() {
     QString search = ui.lineEditSearchName->text();
     loadFeatureLibraryTable(search);
 
-    //fireDogFeatureInfo->exec();
+    //fireDogFeatureInfoView->exec();
 
     //QssMessageBox::tips("test tip", this, "Tips");
     //QssMessageBox::warn("test warn", this, "Warn");
@@ -284,6 +294,12 @@ void FireDogEditor::loadFeatureLibraryTable(QString search) {
 
 void FireDogEditor::slots_featureTableOpenMenu(QPoint pos) {
 
+    if (this->isFeatureAdd) {
+        this->featureLibraryTableMenuAddAction->setEnabled(false);
+    }
+	else {
+		this->featureLibraryTableMenuAddAction->setEnabled(true);
+    }
     
     int curRow = ui.tableViewLibrary->selectionModel()->currentIndex().row(); //选中行
 
@@ -351,14 +367,7 @@ void FireDogEditor::slots_featureInfoRuleTreeOpenMenu(QPoint pos) {
 
 void FireDogEditor::slots_selectFeatureTableEvent(const QModelIndex& current, const QModelIndex& previous) {
 
-    ui.pushButtonLibraryInfoSave->setText("Update");
-
-    //clear
-    if (this->featureLibraryInfoFeatureTableModel->rowCount() > 0) {
-        this->featureLibraryInfoFeatureTableModel->removeRows(0, this->featureLibraryInfoFeatureTableModel->rowCount());
-    }
-
-    this->featureLibraryInfoRuleTreeModel->clear();
+    clearInfoContent(false);
 
     int row = current.row();
     BigDataTableRow bigDataTableRow = this->featureLibraryTableModel->getRowData(row);
@@ -461,7 +470,7 @@ void FireDogEditor::slots_featureInfoTableMenuAddEvent() {
         existsKeys << key;
     }
 
-    bool state = this->fireDogFeatureInfo->updateFeature(existsKeys,&feature);
+    bool state = this->fireDogFeatureInfoView->updateFeature(existsKeys,&feature);
     if (state) {
 		QString key = feature.key.c_str();
 		QString type = !feature.hex.empty() ? "hex" : "text";
@@ -502,7 +511,7 @@ void FireDogEditor::slots_featureInfoTableMenuEditEvent() {
 		existsKeys << key;
 	}
 
-    bool isok = this->fireDogFeatureInfo->updateFeature(existsKeys ,&feature);
+    bool isok = this->fireDogFeatureInfoView->updateFeature(existsKeys ,&feature);
     if (isok) {
 		QString key = feature.key.c_str();
 		QString type = !feature.hex.empty() ? "hex" : "text";
@@ -524,9 +533,9 @@ void FireDogEditor::slots_featureInfoTableMenuDelEvent() {
     this->featureLibraryInfoFeatureTableModel->removeRow(curRow);
 }
 
-void FireDogEditor::clearInfoContent(bool isAdd) {
-    this->isAdd = isAdd;
-    if (isAdd) {
+void FireDogEditor::clearInfoContent(bool isFeatureAdd) {
+    this->isFeatureAdd = isFeatureAdd;
+    if (isFeatureAdd) {
         ui.pushButtonLibraryInfoSave->setText("Add");
     }
     else {
@@ -551,7 +560,7 @@ void FireDogEditor::slots_featureLibraryInfoRuleMenuAddEvent() {
     }
 
     QString rule;
-    bool isOk = this->fireDogFeatureRuleInfo->updateRule(&rule, isRoot);
+    bool isOk = this->fireDogFeatureRuleInfoView->updateRule(&rule, isRoot);
 	if (isOk) {
 		QStandardItem* ruleitem = new QStandardItem(rule);
         //如果是空的
@@ -562,22 +571,214 @@ void FireDogEditor::slots_featureLibraryInfoRuleMenuAddEvent() {
 			QModelIndex currIndex = ui.treeViewLibraryInfoRules->currentIndex();;
             QStandardItem* selectItem = this->featureLibraryInfoRuleTreeModel->itemFromIndex(currIndex);
             selectItem->appendRow(ruleitem);
-
-			QModelIndex index = this->featureLibraryInfoRuleTreeModel->indexFromItem(selectItem);
-            ui.treeViewLibraryInfoRules->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Clear);
 		}
+		//清空选中
+        ui.treeViewLibraryInfoRules->selectionModel()->clear();
+
 		QModelIndex index = this->featureLibraryInfoRuleTreeModel->indexFromItem(ruleitem);
         ui.treeViewLibraryInfoRules->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select | QItemSelectionModel::Rows);
     }
 }
+
 void FireDogEditor::slots_featureLibraryInfoRuleMenuEditEvent() {
-    this->fireDogFeatureRuleInfo->exec();
+	QModelIndex currIndex = ui.treeViewLibraryInfoRules->currentIndex();;
+	QStandardItem* selectItem = this->featureLibraryInfoRuleTreeModel->itemFromIndex(currIndex);
+    
+    bool isRoot = selectItem->parent() == NULL;
+
+    QString rule = selectItem->text();
+    bool isOk = this->fireDogFeatureRuleInfoView->updateRule(&rule, isRoot);
+    if (isOk) {
+        selectItem->setText(rule);
+    }
 }
+
 void FireDogEditor::slots_featureLibraryInfoRuleMenuDelEvent() {
 	QMessageBox::StandardButton botton = QMessageBox::question(this, "Question", "Please confirm to delete?");
 	if (botton != QMessageBox::Ok && botton != QMessageBox::Yes) {
 		return;
 	}
+
+	QModelIndex currIndex = ui.treeViewLibraryInfoRules->currentIndex();;
+    this->featureLibraryInfoRuleTreeModel->removeRow(currIndex.row(),currIndex.parent());
+}
+
+void FireDogEditor::slots_saveBtnClickEvent() {
+
+
+	firedog::FeatureLibraryItem* item = getInfoViewFeatureItem();
+    if (item==NULL) {
+        return;
+    }
+
+	this->featureLibrary->items->push_back(item);
+
+	//搜索
+	QString name = item->name.c_str();
+	QString describe = item->describe.c_str();
+	QString author = item->author.c_str();
+
+	BigDataTableRow row;
+	row.contents << BigDataTableCol(name) << BigDataTableCol(describe) << BigDataTableCol(author);
+
+    //如果是新增
+    if (this->isFeatureAdd) {
+        if (this->featureLibrary == NULL) {
+            this->featureLibrary = new firedog::FeatureLibrary();
+		}
+        this->featureLibraryTableModel->addRow(row);
+    }
+    //如果是更新
+	else {
+		int rowNum = ui.tableViewLibrary->currentIndex().row();
+        //替换掉旧的特征
+        firedog::FeatureLibraryItem* olditem = this->featureLibrary->items->at(rowNum);
+        //先赋值
+        this->featureLibrary->items->at(rowNum) = item;
+        //再删内存
+        delete olditem;
+        olditem = NULL;
+
+        this->featureLibraryTableModel->replaceRow(rowNum, row);
+    }
+}
+
+firedog::FeatureLibraryItem* FireDogEditor::getInfoViewFeatureItem() {
+
+	QString name = ui.lineEditLibraryInfoName->text();
+	QString auth = ui.lineEditLibraryInfoAuthor->text();
+	QString describe = ui.textEditLibraryInfoDescribe->toPlainText();
+
+	int featureCount = this->featureLibraryInfoFeatureTableModel->rowCount();
+	int ruleCount = this->featureLibraryInfoRuleTreeModel->rowCount();
+
+	if (name.isEmpty()) {
+		QssMessageBox::warn("Please enter [Name].", this, "Warn");
+		return NULL;
+	}
+
+	if (auth.isEmpty()) {
+		QssMessageBox::warn("Please enter [Auth].", this, "Warn");
+		return NULL;
+	}
+
+	if (describe.isEmpty()) {
+		QssMessageBox::warn("Please enter [Describe].", this, "Warn");
+		return NULL;
+	}
+
+	if (featureCount == 0) {
+		QssMessageBox::warn("Please add [Feature].", this, "Warn");
+		return NULL;
+	}
+
+	if (ruleCount == 0) {
+		QssMessageBox::warn("Please add [Rule].", this, "Warn");
+		return NULL;
+	}
+
+    //校验规则
+    QStandardItem* rootItem = featureLibraryInfoRuleTreeModel->item(0);
+    mountcloud::Rule* rule = itemToRule(rootItem);
+    if (rule == NULL) {
+        return NULL;
+    }
+
+    firedog::FeatureLibraryItem* result = new firedog::FeatureLibraryItem();
+    result->name = name.toStdString();
+    result->describe = describe.toStdString();
+    result->author = auth.toStdString();
+
+    //特征
+    for (int i = 0; i < featureCount; i++) {
+        BigDataTableRow row = this->featureLibraryInfoFeatureTableModel->getRowData(i);
+		QString key = row.contents[0].content.toString();
+		QString type = row.contents[1].content.toString();
+		QString content = row.contents[2].content.toString();
+
+		Feature* feature = new Feature();
+		feature->key = key.toStdString();
+        if (type=="hex") {
+            feature->hex = content.toStdString();
+        }
+		else {
+			feature->text = content.toStdString();
+        }
+
+        result->features->push_back(feature);
+    }
+
+    //规则
+    result->rule = rule;
+
+    return result;
+}
+mountcloud::Rule* FireDogEditor::itemToRule(QStandardItem* item) {
+    if (item == NULL) {
+        return NULL;
+    }
+    QString errorMessage;
+    QString text = item->text();
+    if (text.isEmpty()) {
+        errorMessage = "The rule is wrong, please delete and add again.";
+        goto fail;
+    }
+
+    bool isOperation = text == "$and" || text == "$or";
+
+    //根规则只能是逻辑表达式
+    if (item->parent()==NULL) {
+        if (!isOperation) {
+			errorMessage = "The root rule can only be $and or $or.";
+			goto fail;
+        }
+    }
+
+    //操作下面必须有节点
+    if (isOperation) {
+        if (item->rowCount() == 0) {
+			errorMessage = "The rule childs is empty.";
+			goto fail;
+        }
+    }
+
+    mountcloud::Rule* result = new mountcloud::Rule();
+
+    if (isOperation) {
+		int childCount = item->rowCount();
+		for (int i = 0; i < childCount; i++) {
+            QStandardItem* childItem = item->child(i);
+            mountcloud::Rule*  childRule = itemToRule(childItem);
+            if (childRule==NULL) {
+                delete result;
+                return NULL;
+            }
+            if(text=="$and"){
+                if (result->ands == NULL) {
+                    result->ands = new std::vector<mountcloud::Rule*>();
+                }
+                result->ands->push_back(childRule);
+            }
+            else {
+				if (result->ors == NULL) {
+					result->ors = new std::vector<mountcloud::Rule*>();
+				}
+				result->ors->push_back(childRule);
+            }
+		}
+	}
+    else {
+        result->id = text.toStdString();
+    }
+
+    return result;
+
+fail:
+	ui.treeViewLibraryInfoRules->selectionModel()->clear();
+	QModelIndex index = this->featureLibraryInfoRuleTreeModel->indexFromItem(item);
+	ui.treeViewLibraryInfoRules->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+    QssMessageBox::warn(errorMessage, this, "Warn");
+	return NULL;
 }
 
 FireDogEditor::~FireDogEditor() {
