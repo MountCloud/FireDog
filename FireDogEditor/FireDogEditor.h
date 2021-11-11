@@ -28,6 +28,11 @@ public:
 private slots:
     //打开文件
     void slots_openFile();
+    //保存文件
+    void slots_saveFile();
+    //保存文件到
+    void slots_saveToFile();
+
     //特征库右键菜单
     void slots_featureTableOpenMenu(QPoint pos);
 	//特征库详情右键菜单
@@ -65,12 +70,22 @@ private slots:
 
     //添加或者更新按钮
     void slots_saveBtnClickEvent();
+
 private:
     Ui::FireDogEditorClass ui;
 
     FireDogFeatureInfo* fireDogFeatureInfoView;
 
     FireDogFeatureRuleInfo* fireDogFeatureRuleInfoView;
+
+	//loading dialog
+	LoadingDialog* loadingDialog = NULL;
+
+	//解析线程
+	ParseThread* parseThread = NULL;
+
+    //打开文件的路径
+    QString openFilePath;
 
     //是否是添加，true是add，false是update
     bool isFeatureAdd = true;
@@ -98,14 +113,11 @@ private:
 	QAction* featureLibraryInfoRuleTreeMenuEditAction = NULL;
 	QAction* featureLibraryInfoRuleTreeMenuDelAction = NULL;
 
-    //loading dialog
-    LoadingDialog* loadingDialog = NULL;
-
-    //解析线程
-    ParseThread* parseThread = NULL;
-
 	//初始化
 	void init();
+
+    //更新窗口标题
+    void updateWindowTitle(bool isUpdated);
 
     //分辨率变更事件
     void resizeEvent(QResizeEvent* event) override;

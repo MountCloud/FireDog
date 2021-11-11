@@ -207,6 +207,113 @@ FeatureLibraryItem::FeatureLibraryItem() {
 	features = new vector<Feature*>();
 }
 
+std::string FeatureLibrary::toJson(int* state){
+	json jsonFeatureLibrary;
+	jsonFeatureLibrary["version"] = FIREDOG_FEATURE_LIBRARY_VERSION;
+
+	if (items!=NULL) {
+		std::vector<json> jsonItems;
+		for (int i = 0; i < items->size(); i++) {
+			json jsonItem;
+
+			FeatureLibraryItem* item = items->at(i);
+
+			jsonItem["name"] = item->name;
+			jsonItem["describe"] = item->describe;
+			jsonItem["author"] = item->author;
+
+			std::vector<json> jsonFeatures;
+			if (item->features != NULL && item->features->size() > 0) {
+				for (int y = 0; y < item->features->size(); y++) {
+					Feature* feature = item->features->at(y);
+					json jsonFeature;
+					jsonFeature["key"] = feature->key;
+					if (!feature->hex.empty()) {
+						jsonFeature["hex"] = feature->hex;
+					}
+					else {
+						jsonFeature["text"] = feature->text;
+					}
+					jsonFeatures.push_back(jsonFeature);
+				}
+			}
+			else {
+				*state = FL_CONTENT_EXIST_EMPTY_FEATURES_FAIL;
+				return "";
+			}
+			jsonItem["features"] = jsonFeatures;
+
+			bool ruleState = false;
+			json ruleJson = ruleToJson(item->rule,&ruleState);
+
+			if (!ruleState) {
+				*state = FL_CONTENT_EXIST_RULE_FORMATE_FAIL;
+				return "";
+			}
+
+			jsonItem["rule"] = ruleJson;
+			jsonItems.push_back(jsonItem);
+		}
+		jsonFeatureLibrary["items"] = jsonItems;
+	}
+	else {
+		*state = FL_CONTENT_ITEMS_IS_EMPTY;
+		return "";
+	}
+	std::string json = jsonFeatureLibrary.dump(4);
+	*state = NO_ERROR;
+	return json;
+}
+
+nlohmann::json FeatureLibrary::ruleToJson(mountcloud::Rule* rule,bool* state) {
+	json jsonRule;
+	if (rule != NULL) {
+		if (!rule->id.empty()) {
+			jsonRule = rule->id;
+			*state = true;
+		}
+		else if(rule->ands!=NULL&&rule->ands->size()>0){
+			vector<json> andsjson;
+			for (int i = 0; i < rule->ands->size(); i++) {
+				mountcloud::Rule* andRule = rule->ands->at(i);
+				bool andRuleState = false;
+
+				json andJson = ruleToJson(andRule, &andRuleState);
+				if (!andRuleState) {
+					*state = false;
+					return jsonRule;
+				}
+				andsjson.push_back(andJson);
+			}
+			*state = true;
+			jsonRule["$and"] = andsjson;
+		}
+		else if(rule->ors!=NULL&&rule->ors->size()>0){
+			vector<json> orsjson;
+			for (int i = 0; i < rule->ors->size(); i++) {
+				mountcloud::Rule* orRule = rule->ors->at(i);
+				bool orRuleState = false;
+
+				json orJson = ruleToJson(orRule, &orRuleState);
+				if (!orRuleState) {
+					*state = false;
+					return jsonRule;
+				}
+				orsjson.push_back(orJson);
+			}
+			*state = true;
+			jsonRule["$or"] = orsjson;
+		}
+		else {
+			*state = false;
+		}
+	}
+	else {
+		*state = false;
+	}
+	return jsonRule;
+}
+
 FeatureLibraryItem::~FeatureLibraryItem() {
 	if (features != NULL) {
 		for (int i = 0; i < features->size(); i++) {

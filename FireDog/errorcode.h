@@ -14,6 +14,12 @@
 #define FL_CONTENT_FORMATE_ERROR 501
 //content version check failed
 #define FL_CONTENT_VERSION_ERROR 502
+//content items check failed,items is empty
+#define FL_CONTENT_ITEMS_IS_EMPTY 503
+//content rule formate fail
+#define FL_CONTENT_EXIST_EMPTY_FEATURES_FAIL 504
+//content rule formate fail
+#define FL_CONTENT_EXIST_RULE_FORMATE_FAIL 505
 
 ///---MATCHER Æ¥ÅäÆ÷ 1001-1500
 

@@ -2,6 +2,7 @@
 #include <QLabel>
 
 #include <QFileDialog>
+#include <QTextStream>
 
 #include "config.h"
 #include "featurelibrary.h"
@@ -15,13 +16,9 @@ FireDogEditor::FireDogEditor(QWidget *parent)
 {
     ui.setupUi(this);
 
+    updateWindowTitle(false);
 
     this->loadingDialog = new LoadingDialog(this);
-
-    //设置标题
-    QString windowTitle = "FireDog Editor ";
-    windowTitle.append(FIREDOG_EDITOR_VERSION);
-    setWindowTitle(windowTitle);
 
     //添加版本
     QString fireDogVersion = FIREDOG_VERSION;
@@ -157,6 +154,9 @@ void FireDogEditor::init() {
 
     //绑定事件
     connect(ui.actionOpen, &QAction::triggered, this, &FireDogEditor::slots_openFile);
+    connect(ui.actionSave, &QAction::triggered, this, &FireDogEditor::slots_saveFile);
+    connect(ui.actionSaveTo, &QAction::triggered, this, &FireDogEditor::slots_saveToFile);
+
     connect(ui.pushButtonSearchName, &QPushButton::clicked, this, &FireDogEditor::slots_featureLibraryTableSearch);
     //特征表格右键事件
     connect(ui.tableViewLibrary, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slots_featureTableOpenMenu(QPoint)));
@@ -184,11 +184,113 @@ void FireDogEditor::init() {
     connect(ui.pushButtonLibraryInfoSave, &QPushButton::clicked, this, &FireDogEditor::slots_saveBtnClickEvent);
 }
 
+void FireDogEditor::updateWindowTitle(bool isUpdated) {
+    //设置标题
+    QString windowTitle = "FireDog Editor ";
+	windowTitle.append(FIREDOG_EDITOR_VERSION);
+	windowTitle.append(" ");
+	windowTitle.append(" ");
+	if (isUpdated) {
+		windowTitle.append("*");
+	}
+
+	if (!this->openFilePath.isEmpty()) {
+		windowTitle.append("[");
+        QFile file(openFilePath);
+        QFileInfo fileInfo(file);
+        QString fileName = fileInfo.fileName();
+        windowTitle.append(fileName);
+		windowTitle.append("]");
+    }
+
+    setWindowTitle(windowTitle);
+
+}
+
+void FireDogEditor::slots_saveFile() {
+	if (this->featureLibrary == NULL || this->openFilePath.isEmpty()) {
+		QssMessageBox::warn("Please open the file first.", this, "Warn");
+        return;
+    }
+	//开始保存
+	QFile file(this->openFilePath);
+
+	int state = -1;
+	std::string json = this->featureLibrary->toJson(&state);
+
+	if (state != NO_ERROR) {
+		QssMessageBox::warn("Save fail,Feature library convert to json fail!.", this, "Warn");
+		return;
+	}
+
+	QString jsonstr = QString::fromUtf8(QByteArray::fromRawData(json.c_str(), json.size()));
+
+	if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+		QssMessageBox::warn("File Open fail!.", this, "Warn");
+		return;
+	}
+	QTextStream in(&file);
+	in << jsonstr;
+	file.flush();
+	file.close();
+    updateWindowTitle(false);
+}
+
+void FireDogEditor::slots_saveToFile() {
+	if (this->featureLibrary == NULL || this->featureLibrary->items->size()==0) {
+		QssMessageBox::warn("Please add the feature library first.", this, "Warn");
+        return;
+    }
+	QString fileName = QFileDialog::getSaveFileName(this,
+		tr("Save To"),
+		"",
+		tr("Feature library Files (*.fdog)"));
+
+	if (!fileName.isNull())
+	{
+        if (!fileName.toLower().endsWith(".fdog")) {
+            fileName.append(".fdog");
+        }
+		//开始保存
+        QFile file(fileName);
+        if (file.exists()) {
+            QMessageBox::StandardButton button = QssMessageBox::question(this, "Question", "Whether to overwrite this file?");
+            if (button != QMessageBox::Ok && button != QMessageBox::Yes) {
+                return;
+            }
+        }
+
+        int state = -1;
+        std::string json = this->featureLibrary->toJson(&state);
+
+        if (state != NO_ERROR) {
+			QssMessageBox::warn("Save fail,Feature library convert to json fail!.", this, "Warn");
+			return;
+        }
+
+        QString jsonstr = QString::fromUtf8(QByteArray::fromRawData(json.c_str(), json.size()));
+
+		if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+		{
+			QssMessageBox::warn("File Open fail!.", this, "Warn");
+			return;
+		}
+		QTextStream in(&file);
+        in << jsonstr;
+        file.flush();
+		file.close();
+
+		this->openFilePath = fileName;
+		updateWindowTitle(false);
+	}
+}
+
 //打开文件
 void FireDogEditor::slots_openFile() {
     //如果已经有打开或者正在编辑的特征库
 	if (this->featureLibrary != NULL) {
-		QMessageBox::StandardButton botton = QMessageBox::question(this, "Question", "Please confirm to delete?");
+		QMessageBox::StandardButton botton = QMessageBox::question(this, "Question", "A file has been opened, do you want to continue?");
 		if (botton != QMessageBox::Ok && botton != QMessageBox::Yes) {
 			return;
 		}
@@ -203,6 +305,7 @@ void FireDogEditor::slots_openFile() {
         qDebug(filePath.toStdString().c_str());
         this->parseThread->setFilePath(filePath);
         this->parseThread->start();
+        openFilePath = filePath;
     }
 }
 
@@ -261,6 +364,11 @@ void FireDogEditor::slots_parseBinEnd(firedog::FeatureLibrary* featureLibrary, i
 
     //加载数据
     loadFeatureLibraryTable("");
+
+    //保存按钮和保存到按钮启用
+    ui.actionSave->setEnabled(true);
+    ui.actionSaveTo->setEnabled(true);
+    updateWindowTitle(false);
 }
 
 void FireDogEditor::loadFeatureLibraryTable(QString search) {
@@ -455,6 +563,8 @@ void FireDogEditor::slots_featureTableMenuDelEvent() {
 	this->featureLibrary->items->erase(this->featureLibrary->items->begin() + curRow);
 
     this->featureLibraryTableModel->removeRow(curRow);
+	//标题加星
+	updateWindowTitle(true);
 
 }
 
@@ -605,7 +715,6 @@ void FireDogEditor::slots_featureLibraryInfoRuleMenuDelEvent() {
 
 void FireDogEditor::slots_saveBtnClickEvent() {
 
-
 	firedog::FeatureLibraryItem* item = getInfoViewFeatureItem();
     if (item==NULL) {
         return;
@@ -641,6 +750,11 @@ void FireDogEditor::slots_saveBtnClickEvent() {
 
         this->featureLibraryTableModel->replaceRow(rowNum, row);
     }
+
+    //保存到按钮亮起来
+	ui.actionSaveTo->setEnabled(true);
+    //并且标题加星
+    updateWindowTitle(true);
 }
 
 firedog::FeatureLibraryItem* FireDogEditor::getInfoViewFeatureItem() {

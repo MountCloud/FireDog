@@ -155,11 +155,24 @@ namespace firedog {
 		/// </summary>
 		std::vector<FeatureLibraryItem*>* items = NULL;
 
+        /// <summary>
+        /// to json
+        /// </summary>
+        /// <returns></returns>
+        std::string toJson(int* state);
+
 		FeatureLibrary();
 		~FeatureLibrary();
 
 	private:
 		static mountcloud::Rule* parseRule(nlohmann::json rulejson);
+
+        /// <summary>
+        /// rule to json object
+        /// </summary>
+        /// <param name="rule"></param>
+        /// <returns></returns>
+        nlohmann::json ruleToJson(mountcloud::Rule* rule,bool* state);
 	};
 
 
