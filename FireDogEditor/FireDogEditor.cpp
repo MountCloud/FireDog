@@ -3,10 +3,13 @@
 
 #include <QFileDialog>
 #include <QTextStream>
+#include <QDesktopServices>
 
 #include "config.h"
 #include "featurelibrary.h"
 #include "rule/rule.h"
+
+#include "partutil.h"
 
 using namespace firedog;
 
@@ -47,6 +50,7 @@ void FireDogEditor::init() {
 
     this->parseThread = new ParseThread();
 
+
     //子窗口
     fireDogFeatureInfoView = new FireDogFeatureInfo(this);
     fireDogFeatureInfoView->setWindowTitle("Feature Editor");
@@ -54,6 +58,7 @@ void FireDogEditor::init() {
     fireDogFeatureRuleInfoView = new FireDogFeatureRuleInfo(this);
     fireDogFeatureRuleInfoView->setWindowTitle("Feature Rule Editor");
 
+	//tab表-end==================================================================
     //特征库表格-start==================================================================
     this->featureLibraryTableModel = new BigDataTableModel();
 
@@ -150,12 +155,73 @@ void FireDogEditor::init() {
     featureLibraryInfoRuleTreeMenuDelAction->setText(QString("Delete"));
     featureLibraryInfoRuleTreeMenu->addAction(featureLibraryInfoRuleTreeMenuDelAction);
     //详情-规则-end==================================================================
+	
+    //匹配-文件列表-start==================================================================
+    this->matchingFilesTableModel = new BigDataTableModel();
 
+	QStringList matchingFilesTableModelTitle;
+    matchingFilesTableModelTitle << "Path" << "Size";
+    matchingFilesTableModel->setHeaders(matchingFilesTableModelTitle);
+
+	ui.tableViewFiles->setModel(this->matchingFilesTableModel);
+
+	//菜单
+    matchingFilesTableMenu = new QMenu(ui.tableViewFiles);
+
+    matchingFilesTableDelAction = new QAction();
+    matchingFilesTableDelAction->setText(QString("Del"));
+    matchingFilesTableMenu->addAction(matchingFilesTableDelAction);
+
+	//不可编辑
+	ui.tableViewFiles->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	ui.tableViewFiles->setSelectionMode(QAbstractItemView::SingleSelection);
+	ui.tableViewFiles->setSelectionBehavior(QAbstractItemView::SelectRows);
+	//一次滚动一个像素
+	ui.tableViewFiles->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+	ui.tableViewFiles->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+	//可弹出右键菜单
+	ui.tableViewFiles->setContextMenuPolicy(Qt::CustomContextMenu);
+	//设置列宽
+	//设置列宽
+	ui.tableViewFiles->setColumnWidth(0, 280);
+	ui.tableViewFiles->setColumnWidth(1, 100);
+	//匹配-文件列表-end==================================================================
+
+	//匹配-结果列表-start==================================================================
+	this->matchingResultTableModel = new BigDataTableModel();
+
+	QStringList matchingResultTableTitle;
+    matchingResultTableTitle << "Source" << "Feature Name" << "Feature Describe" << "Feature Author";
+    matchingResultTableModel->setHeaders(matchingResultTableTitle);
+
+	ui.tableViewSearchResult->setModel(this->matchingResultTableModel);
+
+	//不可编辑
+	ui.tableViewSearchResult->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	ui.tableViewSearchResult->setSelectionMode(QAbstractItemView::SingleSelection);
+	ui.tableViewSearchResult->setSelectionBehavior(QAbstractItemView::SelectRows);
+	//一次滚动一个像素
+	ui.tableViewSearchResult->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+	ui.tableViewSearchResult->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+	//可弹出右键菜单
+	ui.tableViewSearchResult->setContextMenuPolicy(Qt::CustomContextMenu);
+	//设置列宽
+	//设置列宽
+	ui.tableViewSearchResult->setColumnWidth(0, 180);
+	ui.tableViewSearchResult->setColumnWidth(1, 150);
+    ui.tableViewSearchResult->setColumnWidth(2, 350);
+
+	ui.tableViewSearchResult->setColumnWidth(4, 150);
+    //匹配-结果列表-end==================================================================
 
     //绑定事件
     connect(ui.actionOpen, &QAction::triggered, this, &FireDogEditor::slots_openFile);
     connect(ui.actionSave, &QAction::triggered, this, &FireDogEditor::slots_saveFile);
     connect(ui.actionSaveTo, &QAction::triggered, this, &FireDogEditor::slots_saveToFile);
+    connect(ui.actionHomePage, &QAction::triggered, this, &FireDogEditor::slots_openGit);
+	connect(ui.actionReportIssue, &QAction::triggered, this, &FireDogEditor::slots_openIssue);
+	connect(ui.actionAbout, &QAction::triggered, this, &FireDogEditor::slots_about);
+
 
     connect(ui.pushButtonSearchName, &QPushButton::clicked, this, &FireDogEditor::slots_featureLibraryTableSearch);
     //特征表格右键事件
@@ -164,7 +230,9 @@ void FireDogEditor::init() {
 	connect(ui.tableViewLibraryInfoFeatures, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slots_featureInfoTableOpenMenu(QPoint)));
 	//特征详情规则树右键事件
 	connect(ui.treeViewLibraryInfoRules, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slots_featureInfoRuleTreeOpenMenu(QPoint)));
-    //特征表格点击事件
+	//匹配文件列表右键事件
+	connect(ui.tableViewFiles, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slots_matchFilesTableOpenMenu(QPoint)));
+	//特征表格点击事件
     connect(ui.tableViewLibrary->selectionModel(), SIGNAL(currentRowChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(slots_selectFeatureTableEvent(const QModelIndex&, const QModelIndex&)));
     //解析线程
     connect(this->parseThread, SIGNAL(parseBegin()), this, SLOT(slots_parseBinBegin()));
@@ -181,8 +249,28 @@ void FireDogEditor::init() {
 	connect(this->featureLibraryInfoRuleTreeMenuEditAction, &QAction::triggered, this, &FireDogEditor::slots_featureLibraryInfoRuleMenuEditEvent);
 	connect(this->featureLibraryInfoRuleTreeMenuDelAction, &QAction::triggered, this, &FireDogEditor::slots_featureLibraryInfoRuleMenuDelEvent);
 
+    connect(this->matchingFilesTableDelAction, &QAction::triggered, this, &FireDogEditor::slots_matchingFilesDeleteEvent);
+
     connect(ui.pushButtonLibraryInfoSave, &QPushButton::clicked, this, &FireDogEditor::slots_saveBtnClickEvent);
+
+	connect(ui.pushButtonAddFiles, &QPushButton::clicked, this, &FireDogEditor::slots_matchingAddFilesBtnClickEvent);
+
+    connect(ui.pushButtonMatch, &QPushButton::clicked, this, &FireDogEditor::slots_matchingBtnClick);
 }
+
+
+void FireDogEditor::slots_openIssue() {
+	QDesktopServices::openUrl(QUrl(QLatin1String("https://github.com/MountCloud/FireDog/issues")));
+}
+
+void FireDogEditor::slots_openGit() {
+    QDesktopServices::openUrl(QUrl(QLatin1String("https://github.com/MountCloud/FireDog")));
+}
+
+void FireDogEditor::slots_about() {
+
+}
+
 
 void FireDogEditor::updateWindowTitle(bool isUpdated) {
     //设置标题
@@ -437,6 +525,19 @@ void FireDogEditor::slots_featureInfoTableOpenMenu(QPoint pos) {
 
 	auto index = ui.tableViewLibraryInfoFeatures->indexAt(pos);
     featureLibraryInfoFeatureTableMenu->exec(QCursor::pos()); // 菜单出现的位置为当前鼠标的位置
+}
+
+void FireDogEditor::slots_matchFilesTableOpenMenu(QPoint pos) {
+    QModelIndexList selectList = ui.tableViewFiles->selectionModel()->selectedRows();
+    if (selectList.isEmpty()) {
+        matchingFilesTableDelAction->setEnabled(false);
+    }
+	else {
+        matchingFilesTableDelAction->setEnabled(true);
+    }
+
+	auto index = ui.tableViewFiles->indexAt(pos);
+    matchingFilesTableMenu->exec(QCursor::pos()); // 菜单出现的位置为当前鼠标的位置
 }
 
 void FireDogEditor::slots_featureInfoRuleTreeOpenMenu(QPoint pos) {
@@ -712,7 +813,6 @@ void FireDogEditor::slots_featureLibraryInfoRuleMenuDelEvent() {
 	QModelIndex currIndex = ui.treeViewLibraryInfoRules->currentIndex();;
     this->featureLibraryInfoRuleTreeModel->removeRow(currIndex.row(),currIndex.parent());
 }
-
 void FireDogEditor::slots_saveBtnClickEvent() {
 
 	firedog::FeatureLibraryItem* item = getInfoViewFeatureItem();
@@ -827,6 +927,7 @@ firedog::FeatureLibraryItem* FireDogEditor::getInfoViewFeatureItem() {
 
     return result;
 }
+
 mountcloud::Rule* FireDogEditor::itemToRule(QStandardItem* item) {
     if (item == NULL) {
         return NULL;
@@ -895,6 +996,106 @@ fail:
 	return NULL;
 }
 
+
+void FireDogEditor::slots_matchingAddFilesBtnClickEvent() {
+    QStringList files = QFileDialog::getOpenFileNames(this,"Select Files","","");
+
+    QStringList nowFiles;
+    int count = this->matchingFilesTableModel->rowCount();
+    if (count > 0) {
+        for (int i = 0;i < this->matchingFilesTableModel->rowCount(); i++) {
+            BigDataTableRow row = this->matchingFilesTableModel->getRowData(i);
+            nowFiles << row.contents.at(0).content.toString();
+        }
+    }
+
+    if (files.size() > 0) {
+        for (int i = 0; i < files.size(); i++) {
+            QString filePath = files.at(i);
+
+            if (nowFiles.contains(filePath)) {
+                continue;
+            }
+
+            QFile file(filePath);
+            QString sizeStr = "UNKNOWN";
+            if (file.exists()) {
+                qint64 size = file.size();
+                sizeStr = getFileSizeString(size);
+            }
+            BigDataTableRow row;
+            row.contents << BigDataTableCol(filePath) << BigDataTableCol(sizeStr);
+
+			this->matchingFilesTableModel->addRow(row);
+        }
+    }
+}
+
+QString FireDogEditor::getFileSizeString(const qint64& size) {
+	int integer = 0;  //整数位
+	int decimal = 0;  //小数位，保留三位
+	char unit = 'B';
+	qint64 standardSize = size;
+	qint64 curSize = size;
+
+	if (standardSize > 1024) {
+		curSize = standardSize * 1000;
+		curSize /= 1024;
+		integer = curSize / 1000;
+		decimal = curSize % 1000;
+		standardSize /= 1024;
+		unit = 'K';
+		if (standardSize > 1024) {
+			curSize = standardSize * 1000;
+			curSize /= 1024;
+			integer = curSize / 1000;
+			decimal = curSize % 1000;
+			standardSize /= 1024;
+			unit = 'M';
+			if (standardSize > 1024) {
+				curSize = standardSize * 1000;
+				curSize /= 1024;
+				integer = curSize / 1000;
+				decimal = curSize % 1000;
+				unit = 'G';
+			}
+		}
+    }
+    else {
+        integer = size;
+    }
+
+	QString dec = "0";
+	if (0 <= decimal && decimal <= 9) {
+		dec = dec + dec + QString::number(decimal);
+	}
+
+	if (10 <= decimal && decimal <= 99) {
+		dec = "0" + QString::number(decimal);
+	}
+
+	if (100 <= decimal && decimal <= 999) {
+		dec = QString::number(decimal);
+	}
+
+	return QString::number(integer) + "." + dec + unit;
+}
+
+void FireDogEditor::slots_matchingFilesDeleteEvent() {
+	QModelIndexList selectList = ui.tableViewFiles->selectionModel()->selectedRows();
+	for (int i = 0; i < selectList.size(); i++) {
+		QModelIndex index = selectList.at(i);
+		int row = index.row();
+		matchingFilesTableModel->removeRow(row);
+	}
+}
+
+void FireDogEditor::slots_matchingBtnClick() {
+    std::vector<Part> parts = PartUtil::getParts(101, 10);
+    
+}
+
+
 FireDogEditor::~FireDogEditor() {
     if (featureLibraryTableModel!=NULL) {
         delete featureLibraryTableModel;
@@ -954,6 +1155,26 @@ FireDogEditor::~FireDogEditor() {
 	if (featureLibraryInfoFeatureTableMenuDelAction != NULL) {
 		delete featureLibraryInfoFeatureTableMenuDelAction;
         featureLibraryInfoFeatureTableMenuDelAction = NULL;
+	}
+
+	if (matchingFilesTableModel != NULL) {
+		delete matchingFilesTableModel;
+        matchingFilesTableModel = NULL;
+	}
+
+	if (matchingFilesTableMenu != NULL) {
+		delete matchingFilesTableMenu;
+        matchingFilesTableMenu = NULL;
+	}
+
+	if (matchingFilesTableDelAction != NULL) {
+		delete matchingFilesTableDelAction;
+        matchingFilesTableDelAction = NULL;
+	}
+
+	if (matchingResultTableModel != NULL) {
+		delete matchingResultTableModel;
+        matchingResultTableModel = NULL;
 	}
 }
 

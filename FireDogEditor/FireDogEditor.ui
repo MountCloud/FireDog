@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1280</width>
+    <width>1310</width>
     <height>768</height>
    </rect>
   </property>
@@ -44,14 +44,32 @@
       <property name="enabled">
        <bool>true</bool>
       </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabFeatureLibrary">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
        <attribute name="title">
         <string>Feature Library</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout">
+        <property name="leftMargin">
+         <number>8</number>
+        </property>
+        <property name="topMargin">
+         <number>8</number>
+        </property>
+        <property name="rightMargin">
+         <number>8</number>
+        </property>
+        <property name="bottomMargin">
+         <number>8</number>
+        </property>
         <item row="1" column="1">
          <widget class="QGroupBox" name="groupBoxLibrarays">
           <property name="title">
@@ -257,6 +275,235 @@
        <attribute name="title">
         <string>Matching</string>
        </attribute>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <property name="leftMargin">
+         <number>8</number>
+        </property>
+        <property name="topMargin">
+         <number>8</number>
+        </property>
+        <property name="rightMargin">
+         <number>8</number>
+        </property>
+        <property name="bottomMargin">
+         <number>8</number>
+        </property>
+        <item row="0" column="1" rowspan="3">
+         <widget class="QGroupBox" name="groupBoxResult">
+          <property name="title">
+           <string>Result</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="0">
+            <widget class="QLineEdit" name="lineEditSearchResult">
+             <property name="placeholderText">
+              <string>Search</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QPushButton" name="pushButtonSearchResult">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Search</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QTableView" name="tableViewSearchResult"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QGroupBox" name="groupBoxInput">
+          <property name="maximumSize">
+           <size>
+            <width>410</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Input</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <widget class="QLabel" name="labelText">
+             <property name="text">
+              <string>Text</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPlainTextEdit" name="plainTextText"/>
+           </item>
+           <item>
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelHex">
+             <property name="text">
+              <string>Hex</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="HexEditor" name="plainTextHex">
+             <property name="placeholderText">
+              <string>00 11 22 33 44 55 66 77 88 99 AA BB CC DD EE FF</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelFiles">
+             <property name="text">
+              <string>Files</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QTableView" name="tableViewFiles"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButtonAddFiles">
+             <property name="text">
+              <string>AddFiles</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QPushButton" name="pushButtonMatch">
+          <property name="text">
+           <string>Match</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QGroupBox" name="groupBoxConfig">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>51</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>410</width>
+            <height>51</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Config</string>
+          </property>
+          <widget class="QLabel" name="labelThreadNum">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>23</y>
+             <width>51</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Thread</string>
+           </property>
+          </widget>
+          <widget class="QSpinBox" name="spinBoxThreadNum">
+           <property name="geometry">
+            <rect>
+             <x>61</x>
+             <y>20</y>
+             <width>50</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="value">
+            <number>5</number>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label100MB">
+           <property name="geometry">
+            <rect>
+             <x>118</x>
+             <y>23</y>
+             <width>97</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>&gt;100MB Slice</string>
+           </property>
+          </widget>
+          <widget class="QSpinBox" name="spinBox100MB">
+           <property name="geometry">
+            <rect>
+             <x>216</x>
+             <y>20</y>
+             <width>50</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="value">
+            <number>5</number>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label1GB">
+           <property name="geometry">
+            <rect>
+             <x>273</x>
+             <y>23</y>
+             <width>81</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>&gt;1GB Slice</string>
+           </property>
+          </widget>
+          <widget class="QSpinBox" name="spinBox1GB">
+           <property name="geometry">
+            <rect>
+             <x>354</x>
+             <y>20</y>
+             <width>50</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="value">
+            <number>10</number>
+           </property>
+          </widget>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -267,7 +514,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1280</width>
+     <width>1310</width>
      <height>26</height>
     </rect>
    </property>
@@ -284,7 +531,9 @@
     <property name="title">
      <string>Help</string>
     </property>
+    <addaction name="actionReportIssue"/>
     <addaction name="actionHomePage"/>
+    <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
    <addaction name="menuOperation"/>
@@ -322,8 +571,20 @@
     <string>Save To</string>
    </property>
   </action>
+  <action name="actionReportIssue">
+   <property name="text">
+    <string>Report Issue</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>HexEditor</class>
+   <extends>QPlainTextEdit</extends>
+   <header>hexeditor.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="FireDogEditor.qrc"/>
  </resources>

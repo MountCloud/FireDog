@@ -91,7 +91,10 @@
     <ClCompile Include="bigdatatablemodel.cpp" />
     <ClCompile Include="FireDogFeatureInfo.cpp" />
     <ClCompile Include="FireDogFeatureRuleInfo.cpp" />
+    <ClCompile Include="hexeditor.cpp" />
+    <ClCompile Include="matchthread.cpp" />
     <ClCompile Include="parsethread.cpp" />
+    <ClCompile Include="partutil.cpp" />
     <ClCompile Include="Qss\Qss.cpp" />
     <QtRcc Include="FireDogEditor.qrc" />
     <QtRcc Include="Qss\qss.qrc" />
@@ -114,11 +117,14 @@
     <QtMoc Include="Qss\Qss.h" />
     <QtMoc Include="FireDogFeatureInfo.h" />
     <QtMoc Include="FireDogFeatureRuleInfo.h" />
+    <QtMoc Include="hexeditor.h" />
+    <ClInclude Include="matchthread.h" />
+    <ClInclude Include="partutil.h" />
     <ClInclude Include="resource.h" />
     <QtMoc Include="bigdatatablemodel.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="css\qss.css" />
+    <None Include="Qss\css\qss.css" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

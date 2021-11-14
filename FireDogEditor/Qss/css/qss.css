@@ -814,7 +814,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
 /*QTabWidget pane子控制器属性设置*/
 QTabWidget::pane 
 {
-    border: 0px solid #aaaaaa; /*tab有边框pane就不要边框了*/
+    border: 1px solid #aaaaaa; /*tab有边框pane就不要边框了*/  /*2021-11-14 个人觉得有边框好看*/
     margin-top:-1px;/*设置margin-top为-1是为了让tab-bar遮掉pane的上边框*/
 }
 
@@ -825,16 +825,15 @@ QTabWidget::tab-bar
 }
 
 /*tab-bar子控制器（tab标签栏）又由tab标签组成，子控制器tab表示tab标签*/
-QTabBar::tab 
-{
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #eeeeee, stop:0.8 #dddddd);/*渐变背景色*/
-	border-left: 1px solid #aaaaaa;/*边框，不设置标签底部边框*/
-	border-right: 1px solid #aaaaaa;/**/
-	border-top: 1px solid #aaaaaa;/**/
-	border-top-left-radius: 6px;/**/
-	border-top-right-radius: 6px;/**/
-	min-width: 18ex;/**/
-	padding: 4px;/**/
+QTabBar::tab {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #eeeeee, stop:0.8 #dddddd); /*渐变背景色*/
+    border-left: 1px solid #aaaaaa; /*边框，不设置标签底部边框*/
+    border-right: 1px solid #aaaaaa; /**/
+    border-top: 1px solid #aaaaaa; /**/
+    border-top-left-radius: 6px; /**/
+    border-top-right-radius: 6px; /**/
+    min-width: 18ex; /**/
+    padding: 4px; /**/
 }
 
 /*tab标签被选中或掠过时*/
@@ -844,12 +843,11 @@ QTabBar::tab:selected, QTabBar::tab:hover
 }
 
 /*tab标签被选中时*/
-QTabBar::tab:selected
-{
-	border-bottom: 3px solid #73c5f1;/*设置底部边框*/
-	margin-left: -4px;/*设置margin-top为-4px是为了扩大选中标签宽度，使得选中标签宽度大于未选中标签*/
-    margin-right: -4px;/**/
-}
+    QTabBar::tab:selected {
+        border-bottom: 3px solid #73c5f1; /*设置底部边框*/
+        /*margin-left: -4px;设置margin-top为-4px是为了扩大选中标签宽度，使得选中标签宽度大于未选中标签*/
+        /*margin-right: -4px; */
+    }
 
 /*tab标签未被选中时*/
 QTabBar::tab:!selected 

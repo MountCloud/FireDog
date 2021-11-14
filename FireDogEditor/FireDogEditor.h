@@ -32,6 +32,13 @@ private slots:
     void slots_saveFile();
     //保存文件到
     void slots_saveToFile();
+    //反馈问题
+    void slots_openIssue();
+    //打开git
+    void slots_openGit();
+    //打开关于我
+    void slots_about();
+
 
     //特征库右键菜单
     void slots_featureTableOpenMenu(QPoint pos);
@@ -39,6 +46,8 @@ private slots:
 	void slots_featureInfoTableOpenMenu(QPoint pos);
 	//特征库详情规则树右键菜单
 	void slots_featureInfoRuleTreeOpenMenu(QPoint pos);
+	//匹配文件列表右键菜单
+	void slots_matchFilesTableOpenMenu(QPoint pos);
 
     //开始解析文件
     void slots_parseBinBegin();
@@ -70,6 +79,13 @@ private slots:
 
     //添加或者更新按钮
     void slots_saveBtnClickEvent();
+
+    //匹配页面添加文件按钮
+    void slots_matchingAddFilesBtnClickEvent();
+	//匹配文件列表删除菜单点击
+	void slots_matchingFilesDeleteEvent();
+    //匹配按钮按下
+    void slots_matchingBtnClick();
 
 private:
     Ui::FireDogEditorClass ui;
@@ -112,6 +128,14 @@ private:
 	QAction* featureLibraryInfoRuleTreeMenuAddAction = NULL;
 	QAction* featureLibraryInfoRuleTreeMenuEditAction = NULL;
 	QAction* featureLibraryInfoRuleTreeMenuDelAction = NULL;
+    
+    //文件表格
+    BigDataTableModel* matchingFilesTableModel = NULL;
+    QMenu* matchingFilesTableMenu = NULL;
+	QAction* matchingFilesTableDelAction = NULL;
+
+	//文件表格
+	BigDataTableModel* matchingResultTableModel = NULL;
 
 	//初始化
 	void init();
@@ -136,5 +160,7 @@ private:
 
     //视图转规则
 	mountcloud::Rule* itemToRule(QStandardItem* item);
+
+    QString getFileSizeString(const qint64& size);
 
 };

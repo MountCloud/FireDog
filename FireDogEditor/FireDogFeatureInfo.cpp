@@ -115,6 +115,7 @@ void FireDogFeatureInfo::slots_save() {
 		QssMessageBox::warn("Please enter [Content].", this, "Warn");
 		return;
     }
+
     if (ui->radioButtonHex->isChecked()) {
         QString hexStr = ui->lineEditContent->text();
 
