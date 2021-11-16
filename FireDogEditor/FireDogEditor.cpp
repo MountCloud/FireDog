@@ -10,6 +10,7 @@
 #include "rule/rule.h"
 
 #include "partutil.h"
+#include "matchthread.h"
 
 using namespace firedog;
 
@@ -288,6 +289,11 @@ void FireDogEditor::updateWindowTitle(bool isUpdated) {
         QFileInfo fileInfo(file);
         QString fileName = fileInfo.fileName();
         windowTitle.append(fileName);
+		windowTitle.append("]");
+    }
+    else {
+		windowTitle.append("[");
+		windowTitle.append("Temporary file");
 		windowTitle.append("]");
     }
 
@@ -815,11 +821,19 @@ void FireDogEditor::slots_featureLibraryInfoRuleMenuDelEvent() {
 }
 void FireDogEditor::slots_saveBtnClickEvent() {
 
+    this->loadingDialog->show();
+
+    if (true) {
+        return;
+    }
+
 	firedog::FeatureLibraryItem* item = getInfoViewFeatureItem();
     if (item==NULL) {
         return;
     }
-
+    if (this->featureLibrary==NULL) {
+        this->featureLibrary = new FeatureLibrary();
+    }
 	this->featureLibrary->items->push_back(item);
 
 	//搜索
@@ -1091,8 +1105,141 @@ void FireDogEditor::slots_matchingFilesDeleteEvent() {
 }
 
 void FireDogEditor::slots_matchingBtnClick() {
-    std::vector<Part> parts = PartUtil::getParts(101, 10);
-    
+    if (this->featureLibrary == NULL || this->featureLibrary->items->size() == 0) {
+		QssMessageBox::warn("Please add feature library first.", this, "Warn");
+		return;
+    }
+    //std::vector<Part> parts = PartUtil::getParts(101, 10);
+    QString text = ui.plainTextText->toPlainText();
+    QString hex = ui.plainTextHex->toPlainText();
+
+    text = text.trimmed();
+    hex = hex.trimmed();
+
+	QStringList files;
+	int count = this->matchingFilesTableModel->rowCount();
+	if (count > 0) {
+		for (int i = 0; i < this->matchingFilesTableModel->rowCount(); i++) {
+			BigDataTableRow row = this->matchingFilesTableModel->getRowData(i);
+            files << row.contents.at(0).content.toString();
+		}
+	}
+
+    if (text.isEmpty() && hex.isEmpty() && files.isEmpty()) {
+        QssMessageBox::warn("Please enter text or hex or add a file.", this, "Warn");
+        return;
+    }
+
+	this->loadingDialog->show();
+
+    int threadNum = ui.spinBoxThreadNum->value();
+    int ge100MSlice = ui.spinBox100MB->value();
+    int ge1GSlice = ui.spinBox1GB->value();
+
+    ui.pushButtonMatch->setEnabled(false);
+    if (matchButlerThread != NULL) {
+        disconnect(matchButlerThread, &MatchButlerThread::matchEnd, this, &FireDogEditor::matchEnd);
+        delete matchButlerThread;
+        matchButlerThread = NULL;
+    }
+    matchButlerThread = new MatchButlerThread(threadNum, this->featureLibrary);;
+    connect(matchButlerThread, &MatchButlerThread::matchEnd, this, &FireDogEditor::matchEnd);
+
+    //如果text不是空
+    if (!text.isEmpty()) {
+        MatchWork work;
+        work.workType = WORK_TYPE_TEXT;
+        work.content = text;
+        matchButlerThread->addWork(work);
+    }
+
+    //如果hex不是空
+    if (!hex.isEmpty()) {
+		MatchWork work;
+		work.workType = WORK_TYPE_HEX;
+		work.content = hex;
+		matchButlerThread->addWork(work);
+    }
+
+	//如果files不是空
+    if (!files.isEmpty()) {
+
+        qint64 fs100M = 1024 * 1024 * 100;
+        qint64 fs1G = 1024 * 1024 * 1024;
+
+        for (int i = 0; i < files.size(); i++) {
+            QString filePath = files.at(i);
+            QFile file(filePath);
+            if (!file.exists()) {
+                continue;
+            }
+
+            qint64 fileSize = file.size();
+            if (fileSize < fs100M) {
+                MatchWork work;
+                work.workType = WORK_TYPE_FILE;
+                work.content = filePath;
+                matchButlerThread->addWork(work);
+            }
+            else{
+                int partSize = 0;
+                if (fileSize < fs1G) {
+                    partSize = ge100MSlice;
+                }
+                else {
+                    partSize = ge1GSlice;
+                }
+				std::vector<Part> parts = PartUtil::getParts(fileSize, partSize);
+                for (int y = 0; y < parts.size(); y++) {
+                    Part part = parts.at(y);
+                    if (y != 0) {
+                        //向前推点
+                        part.start = part.start - 256;
+                    }
+                    MatchWork work;
+                    work.workType = WORK_TYPE_PART;
+                    work.content = filePath;
+                    work.part = part;
+                    matchButlerThread->addWork(work);
+                }
+            }
+        }
+    }
+
+    //开始任务
+    matchButlerThread->start();
+}
+
+void FireDogEditor::matchEnd(int worksize, int success, int error, int state) {
+    this->loadingDialog->hide();
+    ui.pushButtonMatch->setEnabled(true);
+    QVector<BigDataTableRow> rows;
+    if (state == 0) {
+        QVector<HitFeature> hits = this->matchButlerThread->getHits();
+        if (hits.size()>0) {
+            for (int i = 0; i < hits.size(); i++) {
+                HitFeature hit = hits.at(i);
+                BigDataTableRow row;
+                QString source;
+                if (hit.workType == WORK_TYPE_TEXT) {
+                    source = "text";
+                }
+                else if (hit.workType == WORK_TYPE_HEX) {
+                    source = "hex";
+                }
+                else {
+                    source = hit.content;
+                }
+                QString featureName = hit.name;
+                QString featureDescribe = hit.describe;
+                QString featureAuthor = hit.author;
+
+                row.contents << BigDataTableCol(source) << BigDataTableCol(featureName) << BigDataTableCol(featureDescribe) << BigDataTableCol(featureAuthor);
+                rows << row;
+            }
+        }
+    }
+    this->matchingResultTableModel->handleData(rows);
 }
 
 

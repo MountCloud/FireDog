@@ -377,9 +377,9 @@ QLineEdit
 	  qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 #f9b158, stop:1 #ffe189);/*左边框渐变色*/
 }
 
-QLineEdit:read-only
-{
+QLineEdit:read-only {
     color: #787878;
+    background-color: #f2f2f2;
 }
 
 /*/////////////////////////////////////////////////QPlainTextEdit///////////////////////////////////////////*/

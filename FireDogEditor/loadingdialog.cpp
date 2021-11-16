@@ -60,13 +60,15 @@ LoadingDialog::LoadingDialog(QWidget* parent) :
 
     connect(this, SIGNAL(loadingEnd()), this, SLOT(hide()));
 
-    this->hide();
+	this->hide();
 }
 
 void LoadingDialog::resizeEvent(QResizeEvent* event) {
 
     int pwidth = this->parentWidget()->width();
     int pheight = this->parentWidget()->height();
+
+	//this->setFixedSize(pwidth, pheight);
 
     this->background->move((pwidth - LOADING_LAYOUT_WIDTH) / 2, (pheight - (LOADING_LAYOUT_HEIGHT + LOADING_LAYOUT_HEIGHT / 2)) / 2);
 

@@ -51,6 +51,7 @@ public:
 /// 匹配任务线程
 /// </summary>
 class MatchWorkThread : public QThread {
+	Q_OBJECT;
 public:
 	MatchWorkThread(int id);
 	~MatchWorkThread();
@@ -75,12 +76,15 @@ signals:
 /// 管家线程
 /// </summary>
 class MatchButlerThread : public QThread {
+	Q_OBJECT;
 public:
 	MatchButlerThread(int threadNum, firedog::FeatureLibrary* featureLibrary);
 	~MatchButlerThread();
 	int init();
 
 	void run();
+
+	QVector<HitFeature> getHits();
 public slots:
 	void addWork(MatchWork work);
 

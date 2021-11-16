@@ -21,9 +21,13 @@ MatchWorkThread::MatchWorkThread(int id) {
 	this->id = id;
 }
 
+void MatchWorkThread::setWork(MatchWork* work) {
+	this->nowWork = work;
+}
+
 void MatchWorkThread::run() {
 	try {
-		int nextWorkState = STATE_NO_ERROR;
+		int nextWorkState = STATE_ERROR;
 
 		while (true) {
 			if (this->nowWork != NULL) {
@@ -154,7 +158,7 @@ MatchWorkThread::~MatchWorkThread() {
 	}
 }
 
-void MatchButlerThread::nextWork(MatchWorkThread* misson, int* state) {
+void MatchButlerThread::nextWork(MatchWorkThread* workThread, int* state) {
 	QMutexLocker locker(&workMutex);
 	if (works.isEmpty()) {
 		*state = STATE_ERROR;
@@ -164,7 +168,7 @@ void MatchButlerThread::nextWork(MatchWorkThread* misson, int* state) {
 	MatchWork tempWork = works.dequeue();
 
 	MatchWork* work = new MatchWork();
-	misson->setWork(work);
+	workThread->setWork(work);
 
 	work->workType = tempWork.workType;
 	work->content = tempWork.content;
@@ -189,16 +193,16 @@ void MatchButlerThread::hit(HitFeature hit) {
 }
 
 int MatchButlerThread::init() {
-	FireDog* fireDog = new FireDog();
+	fireDog = new FireDog();
 	int ecode = fireDog->pushFeatureLibrary(featureLibrary);
 	if (ecode != NO_ERROR) {
 		return ecode;
 	}
 	for (int i = 0; i < threadNum; i++) {
 		MatchWorkThread* work = new MatchWorkThread(i);
-		connect(work, &MatchWorkThread::nextWork, this, &MatchButlerThread::nextWork);
+		connect(work, &MatchWorkThread::nextWork, this, &MatchButlerThread::nextWork, Qt::DirectConnection);
 		connect(work, &MatchWorkThread::workSuccess, this, &MatchButlerThread::workSuccess);
-		connect(work, &MatchWorkThread::hit, this, &MatchButlerThread::hit);
+		connect(work, &MatchWorkThread::hit, this, &MatchButlerThread::hit, Qt::DirectConnection);
 		workThreads.insert(i, work);
 		worksStates.insert(i, false);
 	}
@@ -252,11 +256,11 @@ void MatchButlerThread::run() {
 	}
 }
 
+QVector<HitFeature> MatchButlerThread::getHits() {
+	return this->hits;
+}
+
 MatchButlerThread::~MatchButlerThread() {
-	if (featureLibrary != NULL) {
-		delete featureLibrary;
-		featureLibrary = NULL;
-	}
 	if (fireDog != NULL) {
 		delete fireDog;
 		fireDog = NULL;

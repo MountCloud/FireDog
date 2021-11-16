@@ -27,7 +27,7 @@ private:
     QLabel* label;
     //QLabel* tip_label;
     QFrame* background;
-    QTimer* timer;
+    //QTimer* timer;
 };
 
 #endif

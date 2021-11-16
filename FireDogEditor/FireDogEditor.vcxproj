@@ -118,7 +118,7 @@
     <QtMoc Include="FireDogFeatureInfo.h" />
     <QtMoc Include="FireDogFeatureRuleInfo.h" />
     <QtMoc Include="hexeditor.h" />
-    <ClInclude Include="matchthread.h" />
+    <QtMoc Include="matchthread.h" />
     <ClInclude Include="partutil.h" />
     <ClInclude Include="resource.h" />
     <QtMoc Include="bigdatatablemodel.h" />

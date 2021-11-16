@@ -22,5 +22,6 @@ public:
     QString id;
     QHash<QString, QString> data;
     bool isEmpty = false;
+    
 };
 #endif

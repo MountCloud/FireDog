@@ -17,6 +17,9 @@
 
 #define FIREDOG_EDITOR_VERSION "v1.0"
 
+//匹配管家
+class MatchButlerThread;
+
 class FireDogEditor : public QssMainWindow
 {
     Q_OBJECT
@@ -87,6 +90,9 @@ private slots:
     //匹配按钮按下
     void slots_matchingBtnClick();
 
+    //匹配结束
+    void matchEnd(int worksize, int success, int error, int state);
+
 private:
     Ui::FireDogEditorClass ui;
 
@@ -134,8 +140,11 @@ private:
     QMenu* matchingFilesTableMenu = NULL;
 	QAction* matchingFilesTableDelAction = NULL;
 
-	//文件表格
+	//匹配结果表格
 	BigDataTableModel* matchingResultTableModel = NULL;
+
+    //match thread
+    MatchButlerThread* matchButlerThread = NULL;
 
 	//初始化
 	void init();

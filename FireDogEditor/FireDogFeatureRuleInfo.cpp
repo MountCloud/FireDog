@@ -32,10 +32,10 @@ void FireDogFeatureRuleInfo::init() {
 
 void FireDogFeatureRuleInfo::slots_radioClick() {
 	if (ui->radioButtonAnd->isChecked() || ui->radioButtonOr->isChecked()) {
-		ui->lineEditKey->setEnabled(false);
+		ui->lineEditKey->setReadOnly(true);
 	}
 	else {
-		ui->lineEditKey->setEnabled(true);
+		ui->lineEditKey->setReadOnly(false);
     }
 }
 
@@ -70,18 +70,18 @@ bool FireDogFeatureRuleInfo::updateRule(QString* rule, bool isRoot) {
 
     if (rule->isEmpty() || *rule == "$and") {
 		ui->radioButtonAnd->setChecked(true);
-		ui->lineEditKey->setEnabled(false);
+		ui->lineEditKey->setReadOnly(true);
 
 		ui->lineEditKey->setText("");
     }else if(*rule == "$or") {
 		ui->radioButtonOr->setChecked(true);
-		ui->lineEditKey->setEnabled(false);
+		ui->lineEditKey->setReadOnly(true);
 
 		ui->lineEditKey->setText("");
     }
     else {
         ui->radioButtonKey->setChecked(true);
-        ui->lineEditKey->setEnabled(true);
+        ui->lineEditKey->setReadOnly(false);
         ui->lineEditKey->setText(*rule);
     }
 

@@ -129,6 +129,9 @@
     <QtMoc Include="hexeditor.h">
       <Filter>Header Files\components</Filter>
     </QtMoc>
+    <QtMoc Include="matchthread.h">
+      <Filter>Header Files\matching</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bigdatatableitem.h">
@@ -139,9 +142,6 @@
     </ClInclude>
     <ClInclude Include="partutil.h">
       <Filter>Header Files\part</Filter>
-    </ClInclude>
-    <ClInclude Include="matchthread.h">
-      <Filter>Header Files\matching</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
