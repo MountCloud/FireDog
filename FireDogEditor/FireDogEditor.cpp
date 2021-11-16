@@ -12,6 +12,9 @@
 #include "partutil.h"
 #include "matchthread.h"
 
+#include "gui18n.h"
+#include "gui18nutil.h"
+
 using namespace firedog;
 
 //构造函数
@@ -59,12 +62,18 @@ void FireDogEditor::init() {
     fireDogFeatureRuleInfoView = new FireDogFeatureRuleInfo(this);
     fireDogFeatureRuleInfoView->setWindowTitle("Feature Rule Editor");
 
+    fireDogSwitchLanguageUi = new Ui::FireDogSwitchLanguageUi(this);
+
 	//tab表-end==================================================================
     //特征库表格-start==================================================================
     this->featureLibraryTableModel = new BigDataTableModel();
 
     QStringList featureLibraryTableModelTitle;
-    featureLibraryTableModelTitle << "Name" << "Describe" << "Author";
+    QString ftableTitlteName = Gui18n::GetInstance()->GetConfig("feature-librarys-name", "Name");
+    QString ftableTitlteDescribe = Gui18n::GetInstance()->GetConfig("feature-librarys-describe", "Describe");
+    QString ftableTitlteAuthor = Gui18n::GetInstance()->GetConfig("feature-librarys-author", "Author");
+
+    featureLibraryTableModelTitle << ftableTitlteName << ftableTitlteDescribe << ftableTitlteAuthor;
     featureLibraryTableModel->setHeaders(featureLibraryTableModelTitle);
 
     ui.tableViewLibrary->setModel(this->featureLibraryTableModel);
@@ -99,8 +108,12 @@ void FireDogEditor::init() {
     //详情-特征表格-start==================================================================
     this->featureLibraryInfoFeatureTableModel = new BigDataTableModel();
 
+	QString fftableTitlteKey = Gui18n::GetInstance()->GetConfig("feature-info-features-key", "Key");
+	QString fftableTitlteType = Gui18n::GetInstance()->GetConfig("feature-info-features-type", "Type");
+	QString fftableTitlteContent = Gui18n::GetInstance()->GetConfig("feature-info-features-content", "Content");
+
     QStringList featureLibraryInfoFeatureTableModelTitle;
-    featureLibraryInfoFeatureTableModelTitle << "Key" << "Type" << "Content";
+    featureLibraryInfoFeatureTableModelTitle << fftableTitlteKey << fftableTitlteType << fftableTitlteContent;
     featureLibraryInfoFeatureTableModel->setHeaders(featureLibraryInfoFeatureTableModelTitle);
 
     ui.tableViewLibraryInfoFeatures->setModel(this->featureLibraryInfoFeatureTableModel);
@@ -221,6 +234,7 @@ void FireDogEditor::init() {
     connect(ui.actionHomePage, &QAction::triggered, this, &FireDogEditor::slots_openGit);
 	connect(ui.actionReportIssue, &QAction::triggered, this, &FireDogEditor::slots_openIssue);
 	connect(ui.actionAbout, &QAction::triggered, this, &FireDogEditor::slots_about);
+    connect(ui.actionLanguage, &QAction::triggered, this, &FireDogEditor::slots_settingLanguage);
 
 
     connect(ui.pushButtonSearchName, &QPushButton::clicked, this, &FireDogEditor::slots_featureLibraryTableSearch);
@@ -252,12 +266,40 @@ void FireDogEditor::init() {
     connect(this->matchingFilesTableDelAction, &QAction::triggered, this, &FireDogEditor::slots_matchingFilesDeleteEvent);
 
     connect(ui.pushButtonLibraryInfoSave, &QPushButton::clicked, this, &FireDogEditor::slots_saveBtnClickEvent);
-
 	connect(ui.pushButtonAddFiles, &QPushButton::clicked, this, &FireDogEditor::slots_matchingAddFilesBtnClickEvent);
-
     connect(ui.pushButtonMatch, &QPushButton::clicked, this, &FireDogEditor::slots_matchingBtnClick);
-
     connect(ui.pushButtonSearchResult, &QPushButton::clicked, this, &FireDogEditor::slots_searchMatchResultBtnClick);
+
+    //初始化多语言
+    Gui18nUtil::SetText(ui.menuOperation, "menu-operation");
+    Gui18nUtil::SetText(ui.actionOpen, "menu-operation-open");
+    Gui18nUtil::SetText(ui.actionSave, "menu-operation-save");
+    Gui18nUtil::SetText(ui.actionSaveTo, "menu-operation-saveto");
+
+	Gui18nUtil::SetText(ui.menuSetting, "menu-setting");
+	Gui18nUtil::SetText(ui.actionLanguage, "menu-setting-language");
+
+	Gui18nUtil::SetText(ui.menuHelp, "menu-help");
+	Gui18nUtil::SetText(ui.actionReportIssue, "menu-help-reportissue");
+	Gui18nUtil::SetText(ui.actionHomePage, "menu-help-github");
+	Gui18nUtil::SetText(ui.actionAbout, "menu-help-about");
+
+	Gui18nUtil::SetText(ui.tabWidgetMain, 0, "main-tab-feature-library");
+	Gui18nUtil::SetText(ui.tabWidgetMain, 1, "main-tab-matching");
+
+	Gui18nUtil::SetText(ui.groupBoxSearch, "feature-search");
+	Gui18nUtil::SetText(ui.lineEditSearchName, "feature-search-txt-tip");
+	Gui18nUtil::SetText(ui.pushButtonSearchName, "feature-search-btn");
+
+	Gui18nUtil::SetText(ui.groupBoxLibrarays, "feature-librarys");
+
+	Gui18nUtil::SetText(ui.groupBoxLibraryInfo, "feature-info");
+    Gui18nUtil::SetText(ui.labelLibraryInfoName, "feature-info-name");
+    Gui18nUtil::SetText(ui.labelLibraryInfoAuthor, "feature-info-author");
+    Gui18nUtil::SetText(ui.labelLibraryInfoDescribe, "feature-info-describe");
+    Gui18nUtil::SetText(ui.labelLibraryInfoFeatures, "feature-info-features");
+	Gui18nUtil::SetText(ui.labelLibraryInfoRule, "feature-info-rule");
+	Gui18nUtil::SetText(ui.pushButtonLibraryInfoSave, "feature-info-btn-add");
 }
 
 
@@ -271,6 +313,10 @@ void FireDogEditor::slots_openGit() {
 
 void FireDogEditor::slots_about() {
 
+}
+
+void FireDogEditor::slots_settingLanguage() {
+    this->fireDogSwitchLanguageUi->exec();
 }
 
 
@@ -377,6 +423,7 @@ void FireDogEditor::slots_saveToFile() {
 		file.close();
 
 		this->openFilePath = fileName;
+        ui.actionSave->setEnabled(true);
 		updateWindowTitle(false);
 	}
 }
@@ -754,10 +801,12 @@ void FireDogEditor::slots_featureInfoTableMenuDelEvent() {
 void FireDogEditor::clearInfoContent(bool isFeatureAdd) {
     this->isFeatureAdd = isFeatureAdd;
     if (isFeatureAdd) {
-        ui.pushButtonLibraryInfoSave->setText("Add");
+		QString addText = Gui18n::GetInstance()->GetConfig("feature-info-btn-add", "Add");
+        ui.pushButtonLibraryInfoSave->setText(addText);
     }
-    else {
-        ui.pushButtonLibraryInfoSave->setText("Update");
+	else {
+		QString updateText = Gui18n::GetInstance()->GetConfig("feature-info-btn-update", "Update");
+        ui.pushButtonLibraryInfoSave->setText(updateText);
     }
     ui.lineEditLibraryInfoName->setText("");
     ui.lineEditLibraryInfoAuthor->setText("");
@@ -829,7 +878,6 @@ void FireDogEditor::slots_saveBtnClickEvent() {
     if (this->featureLibrary==NULL) {
         this->featureLibrary = new FeatureLibrary();
     }
-	this->featureLibrary->items->push_back(item);
 
 	//搜索
 	QString name = item->name.c_str();
@@ -841,9 +889,7 @@ void FireDogEditor::slots_saveBtnClickEvent() {
 
     //如果是新增
     if (this->isFeatureAdd) {
-        if (this->featureLibrary == NULL) {
-            this->featureLibrary = new firedog::FeatureLibrary();
-		}
+		this->featureLibrary->items->push_back(item);
         this->featureLibraryTableModel->addRow(row);
     }
     //如果是更新
@@ -1106,6 +1152,7 @@ void FireDogEditor::slots_matchingBtnClick() {
 		QssMessageBox::warn("Please add feature library first.", this, "Warn");
 		return;
     }
+
     //std::vector<Part> parts = PartUtil::getParts(101, 10);
     QString text = ui.plainTextText->toPlainText();
     QString hex = ui.plainTextHex->toPlainText();
@@ -1128,6 +1175,8 @@ void FireDogEditor::slots_matchingBtnClick() {
     }
 
 	this->loadingDialog->show();
+;
+	int sourceId = 0;
 
     int threadNum = ui.spinBoxThreadNum->value();
     int ge100MSlice = ui.spinBox100MB->value();
@@ -1144,18 +1193,26 @@ void FireDogEditor::slots_matchingBtnClick() {
 
     //如果text不是空
     if (!text.isEmpty()) {
+        int nowSourceId = sourceId++;
+
         MatchWork work;
+        work.sourceId = nowSourceId;
         work.workType = WORK_TYPE_TEXT;
         work.content = text;
         matchButlerThread->addWork(work);
+
     }
 
     //如果hex不是空
     if (!hex.isEmpty()) {
+		int nowSourceId = sourceId++;
+
 		MatchWork work;
+        work.sourceId = nowSourceId;
 		work.workType = WORK_TYPE_HEX;
 		work.content = hex;
 		matchButlerThread->addWork(work);
+
     }
 
 	//如果files不是空
@@ -1165,18 +1222,22 @@ void FireDogEditor::slots_matchingBtnClick() {
         qint64 fs1G = 1024 * 1024 * 1024;
 
         for (int i = 0; i < files.size(); i++) {
-            QString filePath = files.at(i);
+			QString filePath = files.at(i);
+			int nowSourceId = sourceId++;
+
             QFile file(filePath);
             if (!file.exists()) {
                 continue;
             }
 
-            qint64 fileSize = file.size();
-            if (fileSize < fs100M) {
+			qint64 fileSize = file.size();
+			if (fileSize < fs100M) {
                 MatchWork work;
+                work.sourceId = nowSourceId;
                 work.workType = WORK_TYPE_FILE;
                 work.content = filePath;
                 matchButlerThread->addWork(work);
+
             }
             else{
                 int partSize = 0;
@@ -1193,7 +1254,8 @@ void FireDogEditor::slots_matchingBtnClick() {
                         //向前推点
                         part.start = part.start - 256;
                     }
-                    MatchWork work;
+					MatchWork work;
+					work.sourceId = nowSourceId;
                     work.workType = WORK_TYPE_PART;
                     work.content = filePath;
                     work.part = part;

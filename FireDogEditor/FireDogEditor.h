@@ -8,6 +8,7 @@
 
 #include "FireDogFeatureInfo.h"
 #include "FireDogFeatureRuleInfo.h"
+#include "FireDogSwitchLanguage.h"
 
 #include "loadingdialog.h"
 #include "parsethread.h"
@@ -43,7 +44,8 @@ private slots:
     void slots_openGit();
     //打开关于我
     void slots_about();
-
+    //设置语言
+    void slots_settingLanguage();
 
     //特征库右键菜单
     void slots_featureTableOpenMenu(QPoint pos);
@@ -100,9 +102,11 @@ private slots:
 private:
     Ui::FireDogEditorClass ui;
 
-    FireDogFeatureInfo* fireDogFeatureInfoView;
+    FireDogFeatureInfo* fireDogFeatureInfoView = NULL;
 
-    FireDogFeatureRuleInfo* fireDogFeatureRuleInfoView;
+    FireDogFeatureRuleInfo* fireDogFeatureRuleInfoView = NULL;
+
+    Ui::FireDogSwitchLanguageUi* fireDogSwitchLanguageUi = NULL;
 
 	//loading dialog
 	LoadingDialog* loadingDialog = NULL;
@@ -146,40 +150,29 @@ private:
 
 	//匹配结果表格
 	BigDataTableModel* matchingResultTableModel = NULL;
-
     //match thread
     MatchButlerThread* matchButlerThread = NULL;
-
     //匹配到的结果
     QVector<HitFeature> matchResultHits;
 
 	//初始化
 	void init();
-
     //更新窗口标题
     void updateWindowTitle(bool isUpdated);
-
     //分辨率变更事件
     void resizeEvent(QResizeEvent* event) override;
-
     //加载特征库列表
     void loadFeatureLibraryTable(QString search);
-
     //清空详情内容
     void clearInfoContent(bool isAdd);
-
     //规则转视图item
     QStandardItem* ruleToItem(mountcloud::Rule* rule);
-
     //从详情视图中获取特征Item
     firedog::FeatureLibraryItem* getInfoViewFeatureItem();
-
 	//视图转规则
 	mountcloud::Rule* itemToRule(QStandardItem* item);
-
 	//加载匹配到的结果
 	void loadMatchResult(QString search);
-
     QString getFileSizeString(const qint64& size);
 
 };

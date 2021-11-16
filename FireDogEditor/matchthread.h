@@ -27,6 +27,9 @@ namespace firedog {
 
 class HitFeature {
 public:
+	int sourceId;
+	int featureId;
+
 	int workType;
 	QString content;
 
@@ -40,6 +43,7 @@ public:
 /// </summary>
 class MatchWork {
 public:
+	int sourceId;
 	int workType;
 	QString content;
 	Part part;
@@ -104,6 +108,7 @@ private:
 	QMutex workMutex;
 	QMutex hitMutex;
 	QVector<HitFeature> hits;
+	QHash<int, QVector<int>> sourceHitFeatures;
 
 };
 

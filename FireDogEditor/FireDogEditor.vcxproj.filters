@@ -54,6 +54,12 @@
     <Filter Include="Source Files\matching">
       <UniqueIdentifier>{a4d28507-7316-489e-8a75-c58fc49dbd89}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\i18n">
+      <UniqueIdentifier>{8ddbe32c-620e-43bd-acfc-ae88515aed7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\i18n">
+      <UniqueIdentifier>{5f0c5b69-8b04-4e80-bed2-c56d1990683b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="FireDogEditor.qrc">
@@ -106,6 +112,15 @@
     <ClCompile Include="matchthread.cpp">
       <Filter>Source Files\matching</Filter>
     </ClCompile>
+    <ClCompile Include="gui18n.cpp">
+      <Filter>Source Files\i18n</Filter>
+    </ClCompile>
+    <ClCompile Include="gui18nutil.cpp">
+      <Filter>Source Files\i18n</Filter>
+    </ClCompile>
+    <ClCompile Include="FireDogSwitchLanguage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="loadingdialog.h">
@@ -132,6 +147,9 @@
     <QtMoc Include="matchthread.h">
       <Filter>Header Files\matching</Filter>
     </QtMoc>
+    <QtMoc Include="FireDogSwitchLanguage.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bigdatatableitem.h">
@@ -143,12 +161,21 @@
     <ClInclude Include="partutil.h">
       <Filter>Header Files\part</Filter>
     </ClInclude>
+    <ClInclude Include="gui18n.h">
+      <Filter>Header Files\i18n</Filter>
+    </ClInclude>
+    <ClInclude Include="gui18nutil.h">
+      <Filter>Header Files\i18n</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="FireDogFeatureInfo.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="FireDogFeatureRuleInfo.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="FireDogSwitchLanguage.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

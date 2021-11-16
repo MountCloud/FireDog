@@ -402,13 +402,13 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>51</height>
+            <height>80</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>410</width>
-            <height>51</height>
+            <height>80</height>
            </size>
           </property>
           <property name="title">
@@ -418,20 +418,23 @@
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>23</y>
-             <width>51</width>
-             <height>16</height>
+             <y>53</y>
+             <width>131</width>
+             <height>20</height>
             </rect>
            </property>
            <property name="text">
             <string>Thread</string>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
           </widget>
           <widget class="QSpinBox" name="spinBoxThreadNum">
            <property name="geometry">
             <rect>
-             <x>61</x>
-             <y>20</y>
+             <x>150</x>
+             <y>50</y>
              <width>50</width>
              <height>22</height>
             </rect>
@@ -446,20 +449,23 @@
           <widget class="QLabel" name="label100MB">
            <property name="geometry">
             <rect>
-             <x>118</x>
+             <x>12</x>
              <y>23</y>
-             <width>97</width>
+             <width>131</width>
              <height>16</height>
             </rect>
            </property>
            <property name="text">
             <string>&gt;100MB Slice</string>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
           </widget>
           <widget class="QSpinBox" name="spinBox100MB">
            <property name="geometry">
             <rect>
-             <x>216</x>
+             <x>150</x>
              <y>20</y>
              <width>50</width>
              <height>22</height>
@@ -475,20 +481,23 @@
           <widget class="QLabel" name="label1GB">
            <property name="geometry">
             <rect>
-             <x>273</x>
+             <x>209</x>
              <y>23</y>
-             <width>81</width>
-             <height>16</height>
+             <width>131</width>
+             <height>20</height>
             </rect>
            </property>
            <property name="text">
             <string>&gt;1GB Slice</string>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
           </widget>
           <widget class="QSpinBox" name="spinBox1GB">
            <property name="geometry">
             <rect>
-             <x>354</x>
+             <x>350</x>
              <y>20</y>
              <width>50</width>
              <height>22</height>
@@ -536,7 +545,14 @@
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuSetting">
+    <property name="title">
+     <string>Setting</string>
+    </property>
+    <addaction name="actionLanguage"/>
+   </widget>
    <addaction name="menuOperation"/>
+   <addaction name="menuSetting"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -574,6 +590,11 @@
   <action name="actionReportIssue">
    <property name="text">
     <string>Report Issue</string>
+   </property>
+  </action>
+  <action name="actionLanguage">
+   <property name="text">
+    <string>Language</string>
    </property>
   </action>
  </widget>

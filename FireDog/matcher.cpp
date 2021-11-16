@@ -271,20 +271,28 @@ Matcher::~Matcher() {
 }
 
 
-MatcherResult* Matcher::matchBytes(const char* bytes, int length) {
-	MatcherResult* mr = NULL;
+std::vector <MatcherResult*>* Matcher::matchBytes(const char* bytes, int length) {
+
+	std::vector <MatcherResult*>* result = NULL;
+
 	for (int i = 0; i < length; i++) {
 		char byte = bytes[i];
-		mr = this->matchByte(byte);
-		if (mr != NULL) {
-			break;
+		std::vector <MatcherResult*>* tempResult = this->matchByte(byte);
+		if (tempResult != NULL) {
+			//匹配到了
+			if (result == NULL) {
+				result = new std::vector<MatcherResult*>();
+			}
+			result->insert(result->end(), tempResult->begin(), tempResult->end());
+			//删掉vector的指针
+			delete tempResult;
 		}
 	}
-	return mr;
+	return result;
 }
 
-MatcherResult* Matcher::matchByte(const char byte) {
-	MatcherResult* result = NULL;
+std::vector <MatcherResult*>* Matcher::matchByte(const char byte) {
+	std::vector <MatcherResult*>* result = NULL;
 	if (matchCache == NULL) {
 		matchCache = new std::vector<MatcherData*>();
 	}
@@ -296,9 +304,15 @@ MatcherResult* Matcher::matchByte(const char byte) {
 			MatcherData* mbd = matchCache->at(i);
 
 			//校验完整字节
-			result = checkMatcherFeature(mbd, byte, tempMatchBytesCache);
-			if (result!=NULL) {
-				break;
+			std::vector <MatcherResult*>* tempResult = checkMatcherFeature(mbd, byte, tempMatchBytesCache);
+			if (tempResult !=NULL) {
+				//匹配到了
+				if (result==NULL) {
+					result = new std::vector<MatcherResult*>();
+				}
+				result->insert(result->end(), tempResult->begin(), tempResult->end());
+				//删掉vector的指针
+				delete tempResult;
 			}
 		}
 		this->matchCache->clear();
@@ -306,17 +320,24 @@ MatcherResult* Matcher::matchByte(const char byte) {
 		this->matchCache = tempMatchBytesCache;
 	}
 
-	if (result==NULL) {
-		//step2:find by feature library 然后从特征库中拉取
-		//校验完整字节
-		result = checkMatcherFeature(this->dataSource->getData(), byte, this->matchCache);
+	//step2:find by feature library 然后从特征库中拉取
+	//校验完整字节
+	std::vector <MatcherResult*>* tempResult = checkMatcherFeature(this->dataSource->getData(), byte, this->matchCache);
+	if (tempResult != NULL) {
+		//匹配到了
+		if (result == NULL) {
+			result = new std::vector<MatcherResult*>();
+		}
+		result->insert(result->end(), tempResult->begin(), tempResult->end());
+		//删掉vector的指针
+		delete tempResult;
 	}
 
 	return result;
 }
 
-MatcherResult* Matcher::checkMatcherFeature(MatcherData* mbd, char byte, std::vector<MatcherData*>* tempMatchBytesCache) {
-	MatcherResult* result = NULL;
+std::vector <MatcherResult*>* Matcher::checkMatcherFeature(MatcherData* mbd, char byte, std::vector<MatcherData*>* tempMatchBytesCache) {
+	std::vector <MatcherResult*>* result = NULL;
 	//高位
 	const char highPos = StringUtil::byteHigh(byte);
 	//低位
@@ -341,6 +362,7 @@ MatcherResult* Matcher::checkMatcherFeature(MatcherData* mbd, char byte, std::ve
 	if (mbd->anyData != NULL) {
 		//any 匹配到了
 		if (mbd->anyData->features != NULL) {
+			result = new std::vector<MatcherResult*>();
 			for (int i = 0; i < mbd->anyData->features->size(); i++) {
 				MatcherFeature* mf = mbd->anyData->features->at(i);
 				int featureId = mf->featureId;
@@ -362,11 +384,12 @@ MatcherResult* Matcher::checkMatcherFeature(MatcherData* mbd, char byte, std::ve
 				FeatureLibraryItem* fitem = dataSource->getFeatureLibraryItem(featureId);
 				Rule* rule = fitem->rule;
 				if (rule != NULL && rule->check(ruleData)) {
-					MatcherResult* result = new MatcherResult();
-					result->author = fitem->author;
-					result->name = fitem->name;
-					result->describe = fitem->describe;
-					return result;
+					MatcherResult* mr = new MatcherResult();
+					mr->featureId = featureId;
+					mr->author = fitem->author;
+					mr->name = fitem->name;
+					mr->describe = fitem->describe;
+					result->push_back(mr);
 				}
 			}
 		}
@@ -376,13 +399,13 @@ MatcherResult* Matcher::checkMatcherFeature(MatcherData* mbd, char byte, std::ve
 		}
 	}
 
-	return NULL;
+	return result;
 }
 
-MatcherResult* Matcher::checkMatcherFeatureMap(AvlMap<char, MatcherData*>* map, char byte, std::vector<MatcherData*>* tempMatchBytesCache) {
-
+std::vector<MatcherResult*>* Matcher::checkMatcherFeatureMap(AvlMap<char, MatcherData*>* map, char byte, std::vector<MatcherData*>* tempMatchBytesCache) {
+	std::vector<MatcherResult*>* result = NULL;
 	if (map==NULL) {
-		return NULL;
+		return result;
 	}
 
 	AvlMap<char, MatcherData*>::Iterator mbditer = map->find(byte);
@@ -390,6 +413,7 @@ MatcherResult* Matcher::checkMatcherFeatureMap(AvlMap<char, MatcherData*>* map, 
 		MatcherData* iterMbd = mbditer->mapped_value;
 		//这里我在想是不是以后可以用多种模式控制，如果是fast模式直接return匹配到的特征？
 		if (iterMbd->features != NULL) {
+			result = new std::vector<MatcherResult*>();
 			for (int i = 0; i < iterMbd->features->size(); i++) {
 				MatcherFeature* mf = iterMbd->features->at(i);
 				int featureId = mf->featureId;
@@ -413,20 +437,18 @@ MatcherResult* Matcher::checkMatcherFeatureMap(AvlMap<char, MatcherData*>* map, 
 				FeatureLibraryItem* fitem = dataSource->getFeatureLibraryItem(featureId);
 				Rule* rule = fitem->rule;
 				if (rule != NULL && rule->check(ruleData)) {
-					MatcherResult* result = new MatcherResult();
-					result->author = fitem->author;
-					result->name = fitem->name;
-					result->describe = fitem->describe;
-					return result;
+					MatcherResult* mr = new MatcherResult();
+					mr->featureId = featureId;
+					mr->author = fitem->author;
+					mr->name = fitem->name;
+					mr->describe = fitem->describe;
+					result->push_back(mr);
 				}
 			}
-
 		}
 		tempMatchBytesCache->push_back(iterMbd);
 	}
-
-	
-	return NULL;
+	return result;
 }
 
 MatcherData* MatcherDataSource::getData() {
