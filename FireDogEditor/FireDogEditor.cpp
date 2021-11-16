@@ -210,9 +210,8 @@ void FireDogEditor::init() {
 	//设置列宽
 	ui.tableViewSearchResult->setColumnWidth(0, 180);
 	ui.tableViewSearchResult->setColumnWidth(1, 150);
-    ui.tableViewSearchResult->setColumnWidth(2, 350);
-
-	ui.tableViewSearchResult->setColumnWidth(4, 150);
+    ui.tableViewSearchResult->setColumnWidth(2, 300);
+	ui.tableViewSearchResult->setColumnWidth(3, 150);
     //匹配-结果列表-end==================================================================
 
     //绑定事件
@@ -257,6 +256,8 @@ void FireDogEditor::init() {
 	connect(ui.pushButtonAddFiles, &QPushButton::clicked, this, &FireDogEditor::slots_matchingAddFilesBtnClickEvent);
 
     connect(ui.pushButtonMatch, &QPushButton::clicked, this, &FireDogEditor::slots_matchingBtnClick);
+
+    connect(ui.pushButtonSearchResult, &QPushButton::clicked, this, &FireDogEditor::slots_searchMatchResultBtnClick);
 }
 
 
@@ -821,12 +822,6 @@ void FireDogEditor::slots_featureLibraryInfoRuleMenuDelEvent() {
 }
 void FireDogEditor::slots_saveBtnClickEvent() {
 
-    this->loadingDialog->show();
-
-    if (true) {
-        return;
-    }
-
 	firedog::FeatureLibraryItem* item = getInfoViewFeatureItem();
     if (item==NULL) {
         return;
@@ -869,6 +864,8 @@ void FireDogEditor::slots_saveBtnClickEvent() {
 	ui.actionSaveTo->setEnabled(true);
     //并且标题加星
     updateWindowTitle(true);
+
+    clearInfoContent(true);
 }
 
 firedog::FeatureLibraryItem* FireDogEditor::getInfoViewFeatureItem() {
@@ -1138,12 +1135,12 @@ void FireDogEditor::slots_matchingBtnClick() {
 
     ui.pushButtonMatch->setEnabled(false);
     if (matchButlerThread != NULL) {
-        disconnect(matchButlerThread, &MatchButlerThread::matchEnd, this, &FireDogEditor::matchEnd);
+        disconnect(matchButlerThread, &MatchButlerThread::matchEnd, this, &FireDogEditor::slots_matchEnd);
         delete matchButlerThread;
         matchButlerThread = NULL;
     }
     matchButlerThread = new MatchButlerThread(threadNum, this->featureLibrary);;
-    connect(matchButlerThread, &MatchButlerThread::matchEnd, this, &FireDogEditor::matchEnd);
+    connect(matchButlerThread, &MatchButlerThread::matchEnd, this, &FireDogEditor::slots_matchEnd);
 
     //如果text不是空
     if (!text.isEmpty()) {
@@ -1210,38 +1207,65 @@ void FireDogEditor::slots_matchingBtnClick() {
     matchButlerThread->start();
 }
 
-void FireDogEditor::matchEnd(int worksize, int success, int error, int state) {
+void FireDogEditor::slots_matchEnd(int worksize, int success, int error, int state) {
     this->loadingDialog->hide();
     ui.pushButtonMatch->setEnabled(true);
-    QVector<BigDataTableRow> rows;
+    this->matchResultHits.clear();
     if (state == 0) {
         QVector<HitFeature> hits = this->matchButlerThread->getHits();
         if (hits.size()>0) {
             for (int i = 0; i < hits.size(); i++) {
                 HitFeature hit = hits.at(i);
-                BigDataTableRow row;
-                QString source;
-                if (hit.workType == WORK_TYPE_TEXT) {
-                    source = "text";
-                }
-                else if (hit.workType == WORK_TYPE_HEX) {
-                    source = "hex";
-                }
-                else {
-                    source = hit.content;
-                }
-                QString featureName = hit.name;
-                QString featureDescribe = hit.describe;
-                QString featureAuthor = hit.author;
-
-                row.contents << BigDataTableCol(source) << BigDataTableCol(featureName) << BigDataTableCol(featureDescribe) << BigDataTableCol(featureAuthor);
-                rows << row;
+                this->matchResultHits.append(hit);
             }
         }
     }
-    this->matchingResultTableModel->handleData(rows);
+    loadMatchResult("");
 }
 
+void FireDogEditor::loadMatchResult(QString search) {
+	QVector<BigDataTableRow> rows;
+
+    if (this->matchResultHits.size() > 0) {
+        for (int i = 0; i < this->matchResultHits.size(); i++) {
+            HitFeature hit = this->matchResultHits.at(i);
+			BigDataTableRow row;
+			QString source;
+			if (hit.workType == WORK_TYPE_TEXT) {
+				source = "text";
+			}
+			else if (hit.workType == WORK_TYPE_HEX) {
+				source = "hex";
+			}
+			else {
+				source = hit.content;
+			}
+			QString featureName = hit.name;
+			QString featureDescribe = hit.describe;
+			QString featureAuthor = hit.author;
+
+            if (!search.isEmpty()) {
+                search = search.trimmed();
+                if (!source.contains(search) &&
+                    !featureName.contains(search) &&
+                    !featureDescribe.contains(search) &&
+                    !featureAuthor.contains(search)) {
+                    continue;
+                }
+            }
+
+			row.contents << BigDataTableCol(source) << BigDataTableCol(featureName) << BigDataTableCol(featureDescribe) << BigDataTableCol(featureAuthor);
+			rows << row;
+        }
+    }
+
+	this->matchingResultTableModel->handleData(rows);
+}
+
+void FireDogEditor::slots_searchMatchResultBtnClick() {
+    QString search = ui.lineEditSearchResult->text();
+    loadMatchResult(search);
+}
 
 FireDogEditor::~FireDogEditor() {
     if (featureLibraryTableModel!=NULL) {

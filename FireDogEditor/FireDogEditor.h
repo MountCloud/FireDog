@@ -19,6 +19,8 @@
 
 //匹配管家
 class MatchButlerThread;
+//匹配到的特征
+class HitFeature;
 
 class FireDogEditor : public QssMainWindow
 {
@@ -90,8 +92,10 @@ private slots:
     //匹配按钮按下
     void slots_matchingBtnClick();
 
+    void slots_searchMatchResultBtnClick();
+
     //匹配结束
-    void matchEnd(int worksize, int success, int error, int state);
+    void slots_matchEnd(int worksize, int success, int error, int state);
 
 private:
     Ui::FireDogEditorClass ui;
@@ -146,6 +150,9 @@ private:
     //match thread
     MatchButlerThread* matchButlerThread = NULL;
 
+    //匹配到的结果
+    QVector<HitFeature> matchResultHits;
+
 	//初始化
 	void init();
 
@@ -167,8 +174,11 @@ private:
     //从详情视图中获取特征Item
     firedog::FeatureLibraryItem* getInfoViewFeatureItem();
 
-    //视图转规则
+	//视图转规则
 	mountcloud::Rule* itemToRule(QStandardItem* item);
+
+	//加载匹配到的结果
+	void loadMatchResult(QString search);
 
     QString getFileSizeString(const qint64& size);
 

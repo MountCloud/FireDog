@@ -23,11 +23,10 @@ signals:
     void loadingEnd();
 
 private:
-    QMovie* movie;
-    QLabel* label;
-    //QLabel* tip_label;
-    QFrame* background;
-    //QTimer* timer;
+	QFrame* loading = NULL;
+    QMovie* movie = NULL;
+    QLabel* label = NULL;
+    QFrame* background = NULL;
 };
 
 #endif

@@ -251,7 +251,7 @@ void MatchButlerThread::run() {
 			break;
 		}
 		else {
-			this->sleep(3);
+			this->sleep(1);
 		}
 	}
 }
