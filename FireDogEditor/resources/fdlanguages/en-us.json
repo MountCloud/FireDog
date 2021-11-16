@@ -1,0 +1,50 @@
+{
+  "menu-operation": "Operation",
+  "menu-operation-open": "Open",
+  "menu-operation-save": "Save",
+  "menu-operation-saveto": "Save To",
+  "menu-setting": "Setting",
+  "menu-setting-language": "Language",
+  "menu-help": "Help",
+  "menu-help-reportissue": "ReportIssue",
+  "menu-help-github": "Github",
+  "menu-help-about": "About",
+
+  "main-tab-feature-library": "Feature Library",
+  "main-tab-matching": "Matching",
+
+  "feature-search":"Search",
+  "feature-search-txt-tip":"Please enter",
+  "feature-search-btn":"Search",
+
+  "feature-librarys":"Librarays",
+  "feature-librarys-name":"Name",
+  "feature-librarys-describe":"Describe",
+  "feature-librarys-author":"Author",
+
+  "feature-info":"Info",
+  "feature-info-name":"Name",
+  "feature-info-author":"Author",
+  "feature-info-describe":"Describe",
+  "feature-info-features":"Features",
+  "feature-info-features-key":"Key",
+  "feature-info-features-type":"Type",
+  "feature-info-features-content":"Content",
+  "feature-info-rule":"Rule",
+
+  "feature-info-btn-add":"Add",
+  "feature-info-btn-update":"Update",
+  
+  "text-message-box-title-question": "Confirm",
+  "text-message-box-title-information": "Tips",
+  "text-message-box-title-warning": "Warning",
+  "text-message-box-title-critical": "Critical",
+  
+  "switch-language-window-title": "Language",
+  "switch-language-lable-language": "Language:",
+  "switch-language-lable-now-language": "NowLanguage:",
+  "switch-language-button-set-language": "SetLanguage",
+  "switch-language-message-no-changed": "The set language has not changed from the current language.",
+  "switch-language-message-no-language-items": "The list of language options is empty.",
+  "switch-language-message-update-language-tips": "Changing the language will restart the application."
+}

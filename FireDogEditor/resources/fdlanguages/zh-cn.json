@@ -1,0 +1,50 @@
+{
+  "menu-operation": "操作",
+  "menu-operation-open": "打开",
+  "menu-operation-save": "保存",
+  "menu-operation-saveto": "保存到",
+  "menu-setting": "设置",
+  "menu-setting-language": "语言",
+  "menu-help": "帮助",
+  "menu-help-reportissue": "问题反馈",
+  "menu-help-github": "Github",
+  "menu-help-about": "关于",
+
+  "main-tab-feature-library": "特征库",
+  "main-tab-matching": "检测",
+
+  "feature-search":"搜索",
+  "feature-search-txt-tip":"请输入",
+  "feature-search-btn":"搜索",
+
+  "feature-librarys":"库",
+  "feature-librarys-name":"名称",
+  "feature-librarys-describe":"描述",
+  "feature-librarys-author":"作者",
+
+  "feature-info":"详情",
+  "feature-info-name":"名称",
+  "feature-info-author":"作者",
+  "feature-info-describe":"描述",
+  "feature-info-features":"特征",
+  "feature-info-features-key":"Key",
+  "feature-info-features-type":"类型",
+  "feature-info-features-content":"内容",
+  "feature-info-rule":"规则",
+
+  "feature-info-btn-add":"添加",
+  "feature-info-btn-update":"修改",
+
+  "text-message-box-title-question": "请确认",
+  "text-message-box-title-information": "提示",
+  "text-message-box-title-warning": "警告",
+  "text-message-box-title-critical": "错误",
+
+  "switch-language-window-title": "语言",
+  "switch-language-lable-language": "语言:",
+  "switch-language-lable-now-language": "当前语言:",
+  "switch-language-button-set-language": "设置语言",
+  "switch-language-message-no-changed": "设置的语言与当前语言一致未作出改变。",
+  "switch-language-message-no-language-items": "语言选项列表为空。",
+  "switch-language-message-update-language-tips": "修改语言将会重启应用程序。"
+}
