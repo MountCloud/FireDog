@@ -280,7 +280,7 @@ void MatchButlerThread::run() {
 			break;
 		}
 		else {
-			this->sleep(1);
+			this->sleep(0.5);
 		}
 	}
 }
