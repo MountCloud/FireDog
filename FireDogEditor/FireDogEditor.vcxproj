@@ -120,6 +120,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bigdatatableitem.h" />
+    <ClInclude Include="resource.h" />
     <QtMoc Include="Qss\Qss.h" />
     <QtMoc Include="FireDogFeatureInfo.h" />
     <QtMoc Include="FireDogFeatureRuleInfo.h" />
@@ -130,11 +131,17 @@
     <ClInclude Include="gui18n.h" />
     <ClInclude Include="gui18nutil.h" />
     <ClInclude Include="partutil.h" />
-    <ClInclude Include="resource.h" />
     <QtMoc Include="bigdatatablemodel.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Qss\css\qss.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="FireDogEditorResource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
+    <Image Include="resources\icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
