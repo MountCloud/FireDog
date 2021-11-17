@@ -9,6 +9,7 @@
 #include "FireDogFeatureInfo.h"
 #include "FireDogFeatureRuleInfo.h"
 #include "FireDogSwitchLanguage.h"
+#include "FireDogAbout.h"
 
 #include "loadingdialog.h"
 #include "parsethread.h"
@@ -17,6 +18,7 @@
 #include "Qss/Qss.h"
 
 #define FIREDOG_EDITOR_VERSION "v1.0"
+#define EXIT_CODE_REBOOT -123456789
 
 //匹配管家
 class MatchButlerThread;
@@ -42,6 +44,8 @@ private slots:
     void slots_openIssue();
     //打开git
     void slots_openGit();
+	//打开git
+	void slots_openFireKylin();
     //打开关于我
     void slots_about();
     //设置语言
@@ -99,6 +103,8 @@ private slots:
     //匹配结束
     void slots_matchEnd(int worksize, int success, int error, int state);
 
+    //重启
+    void slots_reboot();
 private:
     Ui::FireDogEditorClass ui;
 
@@ -107,6 +113,8 @@ private:
     FireDogFeatureRuleInfo* fireDogFeatureRuleInfoView = NULL;
 
     Ui::FireDogSwitchLanguageUi* fireDogSwitchLanguageUi = NULL;
+
+    FireDogAbout* fireDogAbout = NULL;
 
 	//loading dialog
 	LoadingDialog* loadingDialog = NULL;

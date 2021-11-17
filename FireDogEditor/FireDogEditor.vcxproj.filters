@@ -121,6 +121,9 @@
     <ClCompile Include="FireDogSwitchLanguage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FireDogAbout.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="loadingdialog.h">
@@ -150,6 +153,9 @@
     <QtMoc Include="FireDogSwitchLanguage.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="FireDogAbout.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bigdatatableitem.h">
@@ -176,6 +182,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="FireDogSwitchLanguage.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="FreDogAbout.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

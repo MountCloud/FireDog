@@ -183,6 +183,7 @@ void MatchButlerThread::nextWork(MatchWorkThread* workThread, int* state) {
 	MatchWork* work = new MatchWork();
 	workThread->setWork(work);
 
+	work->sourceId = tempWork.sourceId;
 	work->workType = tempWork.workType;
 	work->content = tempWork.content;
 	work->part = tempWork.part;

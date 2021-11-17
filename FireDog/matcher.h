@@ -61,6 +61,8 @@ namespace firedog {
 		std::vector<FeatureLibrary*>* librarys = NULL;
 		std::unordered_map<int, FeatureLibraryItem*>* libraryItems = NULL;
 
+		std::vector<MatcherFeature*>* matcherFeatures = NULL;
+
 		int nowLibraryId = 0;
 		int createLibraryId();
 	};

@@ -21,12 +21,12 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-
-    FireDogEditor w;
-
-    //initQss();
-
-    w.show();
-    return a.exec();
+    int nExitCode = 0;
+    do {
+		QApplication a(argc, argv);
+		FireDogEditor w;
+		w.show();
+		nExitCode = a.exec();
+	} while (nExitCode == EXIT_CODE_REBOOT);
+	return nExitCode;
 }

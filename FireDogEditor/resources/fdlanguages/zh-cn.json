@@ -1,4 +1,6 @@
 {
+  "window-title-temporary-file": "临时文件",
+
   "text-message-box-title-question": "请确认",
   "text-message-box-title-information": "提示",
   "text-message-box-title-warning": "警告",
@@ -136,5 +138,7 @@
   "switch-language-button-set-language": "设置语言",
   "switch-language-message-no-changed": "设置的语言与当前语言一致未作出改变。",
   "switch-language-message-no-language-items": "语言选项列表为空。",
-  "switch-language-message-update-language-tips": "修改语言将会重启应用程序。"
+  "switch-language-message-update-language-tips": "修改语言将会重启应用程序。",
+
+  "about-window-title":"关于"
 }

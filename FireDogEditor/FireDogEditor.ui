@@ -524,7 +524,7 @@
      <x>0</x>
      <y>0</y>
      <width>1314</width>
-     <height>23</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOperation">
@@ -542,6 +542,8 @@
     </property>
     <addaction name="actionReportIssue"/>
     <addaction name="actionHomePage"/>
+    <addaction name="separator"/>
+    <addaction name="actionFireKylin"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
@@ -595,6 +597,11 @@
   <action name="actionLanguage">
    <property name="text">
     <string>Language</string>
+   </property>
+  </action>
+  <action name="actionFireKylin">
+   <property name="text">
+    <string>FireKylin</string>
    </property>
   </action>
  </widget>

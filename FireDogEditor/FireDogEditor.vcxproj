@@ -89,6 +89,7 @@
   <ItemGroup>
     <ClCompile Include="bigdatatableitem.cpp" />
     <ClCompile Include="bigdatatablemodel.cpp" />
+    <ClCompile Include="FireDogAbout.cpp" />
     <ClCompile Include="FireDogFeatureInfo.cpp" />
     <ClCompile Include="FireDogFeatureRuleInfo.cpp" />
     <ClCompile Include="FireDogSwitchLanguage.cpp" />
@@ -109,6 +110,7 @@
     <QtUic Include="FireDogFeatureInfo.ui" />
     <QtUic Include="FireDogFeatureRuleInfo.ui" />
     <QtUic Include="FireDogSwitchLanguage.ui" />
+    <QtUic Include="FreDogAbout.ui" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="loadingdialog.h" />
@@ -124,6 +126,7 @@
     <QtMoc Include="hexeditor.h" />
     <QtMoc Include="matchthread.h" />
     <QtMoc Include="FireDogSwitchLanguage.h" />
+    <QtMoc Include="FireDogAbout.h" />
     <ClInclude Include="gui18n.h" />
     <ClInclude Include="gui18nutil.h" />
     <ClInclude Include="partutil.h" />

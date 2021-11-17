@@ -1,4 +1,6 @@
 {
+  "window-title-temporary-file": "Temporary file",
+  
   "text-message-box-title-question": "Confirm",
   "text-message-box-title-information": "Tips",
   "text-message-box-title-warning": "Warning",
@@ -136,5 +138,7 @@
   "switch-language-button-set-language": "SetLanguage",
   "switch-language-message-no-changed": "The set language has not changed from the current language.",
   "switch-language-message-no-language-items": "The list of language options is empty.",
-  "switch-language-message-update-language-tips": "Changing the language will restart the application."
+  "switch-language-message-update-language-tips": "Changing the language will restart the application.",
+
+  "about-window-title":"About"
 }

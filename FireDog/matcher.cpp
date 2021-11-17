@@ -12,16 +12,6 @@ using namespace std;
 
 MatcherData::~MatcherData() {
 
-	if (features != NULL) {
-		for (int i = 0; i < features->size(); i++) {
-			MatcherFeature* mf = features->at(i);
-			delete mf;
-			mf = NULL;
-		}
-		delete features;
-		features = NULL;
-	}
-
 	if (fullData != NULL) {
 		AvlMap<char, MatcherData*>::Iterator iter = fullData->begin();
 		for (; iter != fullData->end(); iter++) {
@@ -85,6 +75,16 @@ MatcherDataSource::~MatcherDataSource() {
 		delete libraryItems;
 		libraryItems = NULL;
 	}
+	if (matcherFeatures != NULL) {
+		for (int i = 0; i < matcherFeatures->size(); i++) {
+			MatcherFeature* mf = matcherFeatures->at(i);
+			delete mf;
+			mf = NULL;
+		}
+		matcherFeatures->clear();
+		delete matcherFeatures;
+		matcherFeatures = NULL;
+	}
 }
 
 MatcherDataSource::MatcherDataSource() {
@@ -131,6 +131,11 @@ int MatcherDataSource::pushFeatureLibrary(FeatureLibrary* lib) {
 			MatcherFeature* mf = new MatcherFeature();
 			mf->featureId = featureId;
 			mf->featureKey = key;
+
+			if (this->matcherFeatures == NULL) {
+				this->matcherFeatures = new std::vector<MatcherFeature*>();
+			}
+			this->matcherFeatures->push_back(mf);
 
 			if (text.size()>0) {
 				hexData = Converter::textToBytes(text, &ec, &em);

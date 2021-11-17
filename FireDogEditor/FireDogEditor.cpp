@@ -64,7 +64,14 @@ void FireDogEditor::init() {
     QString fireDogFeatureRuleInfoViewTitle = Gui18n::GetInstance()->GetConfig("feature-rule-window-title", "Feature Rule Editor");
     fireDogFeatureRuleInfoView->setWindowTitle(fireDogFeatureRuleInfoViewTitle);
 
-    fireDogSwitchLanguageUi = new Ui::FireDogSwitchLanguageUi(this);
+	fireDogAbout = new FireDogAbout(this);
+    QString fireDogAboutTitle = Gui18n::GetInstance()->GetConfig("about-window-title", "About");
+    fireDogAbout->setWindowTitle(fireDogAboutTitle);
+
+
+	fireDogSwitchLanguageUi = new Ui::FireDogSwitchLanguageUi(this);
+
+
 
 	//tab表-end==================================================================
     //特征库表格-start==================================================================
@@ -256,6 +263,7 @@ void FireDogEditor::init() {
     connect(ui.actionSaveTo, &QAction::triggered, this, &FireDogEditor::slots_saveToFile);
     connect(ui.actionHomePage, &QAction::triggered, this, &FireDogEditor::slots_openGit);
 	connect(ui.actionReportIssue, &QAction::triggered, this, &FireDogEditor::slots_openIssue);
+	connect(ui.actionFireKylin, &QAction::triggered, this, &FireDogEditor::slots_openFireKylin);
 	connect(ui.actionAbout, &QAction::triggered, this, &FireDogEditor::slots_about);
     connect(ui.actionLanguage, &QAction::triggered, this, &FireDogEditor::slots_settingLanguage);
 
@@ -292,6 +300,8 @@ void FireDogEditor::init() {
 	connect(ui.pushButtonAddFiles, &QPushButton::clicked, this, &FireDogEditor::slots_matchingAddFilesBtnClickEvent);
     connect(ui.pushButtonMatch, &QPushButton::clicked, this, &FireDogEditor::slots_matchingBtnClick);
     connect(ui.pushButtonSearchResult, &QPushButton::clicked, this, &FireDogEditor::slots_searchMatchResultBtnClick);
+
+	connect(this->fireDogSwitchLanguageUi, SIGNAL(switchSuccess()), this, SLOT(slots_reboot()));
 
     //初始化多语言
     Gui18nUtil::SetText(ui.menuOperation, "menu-operation");
@@ -348,8 +358,12 @@ void FireDogEditor::slots_openGit() {
     QDesktopServices::openUrl(QUrl(QLatin1String("https://github.com/MountCloud/FireDog")));
 }
 
-void FireDogEditor::slots_about() {
+void FireDogEditor::slots_openFireKylin() {
+	QDesktopServices::openUrl(QUrl(QLatin1String("https://github.com/MountCloud/FireKylin")));
+}
 
+void FireDogEditor::slots_about() {
+    this->fireDogAbout->exec();
 }
 
 void FireDogEditor::slots_settingLanguage() {
@@ -376,8 +390,9 @@ void FireDogEditor::updateWindowTitle(bool isUpdated) {
 		windowTitle.append("]");
     }
     else {
+        QString tempFileTip = Gui18n::GetInstance()->GetConfig("window-title-temporary-file", "Temporary file");
 		windowTitle.append("[");
-		windowTitle.append("Temporary file");
+		windowTitle.append(tempFileTip);
 		windowTitle.append("]");
     }
 
@@ -1268,7 +1283,7 @@ void FireDogEditor::slots_matchingBtnClick() {
 
     //如果text不是空
     if (!text.isEmpty()) {
-        int nowSourceId = sourceId++;
+        int nowSourceId = sourceId = sourceId + 1;
 
         MatchWork work;
         work.sourceId = nowSourceId;
@@ -1280,7 +1295,7 @@ void FireDogEditor::slots_matchingBtnClick() {
 
     //如果hex不是空
     if (!hex.isEmpty()) {
-		int nowSourceId = sourceId++;
+        int nowSourceId = sourceId = sourceId + 1;
 
 		MatchWork work;
         work.sourceId = nowSourceId;
@@ -1298,7 +1313,7 @@ void FireDogEditor::slots_matchingBtnClick() {
 
         for (int i = 0; i < files.size(); i++) {
 			QString filePath = files.at(i);
-			int nowSourceId = sourceId++;
+            int nowSourceId = sourceId = sourceId + 1;
 
             QFile file(filePath);
             if (!file.exists()) {
@@ -1492,3 +1507,6 @@ void FireDogEditor::resizeEvent(QResizeEvent* event) {
     this->loadingDialog->setFixedSize(QSize(width, height));
 }
 
+void FireDogEditor::slots_reboot() {
+    qApp->exit(EXIT_CODE_REBOOT);
+}
