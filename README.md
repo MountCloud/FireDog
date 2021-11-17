@@ -26,6 +26,10 @@ Email: mountcloud@outlook.com
 
 Provide a lightweight feature detection engine, support custom extended feature libraries, and draw engine architecture diagrams when you have time.
 
+# 特征库编辑器下载地址 Feature Library Editor download
+
+https://github.com/MountCloud/FireDog/releases
+
 # 更新日志 Update log
 
 
