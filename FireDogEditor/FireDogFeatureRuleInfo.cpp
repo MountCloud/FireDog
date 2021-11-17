@@ -3,6 +3,9 @@
 
 #include "Qss/Qss.h"
 
+#include "gui18n.h"
+#include "gui18nutil.h"
+
 FireDogFeatureRuleInfo::FireDogFeatureRuleInfo(QWidget *parent) :
     QssDialog(parent),
     ui(new Ui::FireDogFeatureRuleInfo)
@@ -28,6 +31,12 @@ void FireDogFeatureRuleInfo::init() {
 
     connect(ui->pushButtonSave, &QPushButton::clicked, this, &FireDogFeatureRuleInfo::slots_saveClick);
     connect(ui->pushButtonCancel, &QPushButton::clicked, this, &FireDogFeatureRuleInfo::slots_cancelClick);
+
+    //i18n
+	Gui18nUtil::SetText(ui->labelType, "feature-rule-info-type");
+	Gui18nUtil::SetText(ui->labelKey, "feature-rule-info-key");
+	Gui18nUtil::SetText(ui->pushButtonSave, "feature-rule-info-save");
+	Gui18nUtil::SetText(ui->pushButtonCancel, "feature-rule-info-cancel");
 }
 
 void FireDogFeatureRuleInfo::slots_radioClick() {
@@ -45,7 +54,9 @@ void FireDogFeatureRuleInfo::slots_saveClick() {
 
 	if (ui->radioButtonKey->isChecked()){
         if (ui->lineEditKey->text().isEmpty()) {
-			QssMessageBox::warn("Please enter [Key].", this, "Warn");
+			QString titleStr = Gui18n::GetInstance()->GetConfig("text-message-box-title-warning", "Warning");
+			QString messageStr = Gui18n::GetInstance()->GetConfig("feature-rule-please-enter-key", "Please enter [Key].");
+			QssMessageBox::warn(messageStr, this, titleStr);
             return;
         }
 	}

@@ -57,10 +57,12 @@ void FireDogEditor::init() {
 
     //子窗口
     fireDogFeatureInfoView = new FireDogFeatureInfo(this);
-    fireDogFeatureInfoView->setWindowTitle("Feature Editor");
+    QString fireDogFeatureInfoViewTitle = Gui18n::GetInstance()->GetConfig("feature-info-window-title", "Feature Editor");
+    fireDogFeatureInfoView->setWindowTitle(fireDogFeatureInfoViewTitle);
 
     fireDogFeatureRuleInfoView = new FireDogFeatureRuleInfo(this);
-    fireDogFeatureRuleInfoView->setWindowTitle("Feature Rule Editor");
+    QString fireDogFeatureRuleInfoViewTitle = Gui18n::GetInstance()->GetConfig("feature-rule-window-title", "Feature Rule Editor");
+    fireDogFeatureRuleInfoView->setWindowTitle(fireDogFeatureRuleInfoViewTitle);
 
     fireDogSwitchLanguageUi = new Ui::FireDogSwitchLanguageUi(this);
 
@@ -93,14 +95,17 @@ void FireDogEditor::init() {
     ui.tableViewLibrary->setColumnWidth(2, 150);
 
     //菜单
+	QString fltMenuAddNew = Gui18n::GetInstance()->GetConfig("feature-librarys-menu-addnew", "Add New");
+	QString fltMenuAddDelete = Gui18n::GetInstance()->GetConfig("feature-librarys-menu-delete", "Delete");
+
     featureLibraryTableMenu = new QMenu(ui.tableViewLibrary);
 
     featureLibraryTableMenuAddAction = new QAction();
-    featureLibraryTableMenuAddAction->setText(QString("Add New"));
+    featureLibraryTableMenuAddAction->setText(QString(fltMenuAddNew));
     featureLibraryTableMenu->addAction(featureLibraryTableMenuAddAction);
 
     featureLibraryTableMenuDelAction = new QAction();
-    featureLibraryTableMenuDelAction->setText(QString("Delete"));
+    featureLibraryTableMenuDelAction->setText(QString(fltMenuAddDelete));
     featureLibraryTableMenu->addAction(featureLibraryTableMenuDelAction);
 
     //特征库表格-end==================================================================
@@ -119,18 +124,22 @@ void FireDogEditor::init() {
     ui.tableViewLibraryInfoFeatures->setModel(this->featureLibraryInfoFeatureTableModel);
 
     //菜单
+	QString flitMenuAdd = Gui18n::GetInstance()->GetConfig("feature-info-features-menu-add", "Add");
+    QString flitMenuEdit = Gui18n::GetInstance()->GetConfig("feature-info-features-menu-edit", "Edit");
+	QString flitMenuAddDelete = Gui18n::GetInstance()->GetConfig("feature-info-features-menu-del", "Delete");
+
     featureLibraryInfoFeatureTableMenu = new QMenu(ui.tableViewLibraryInfoFeatures);
 
     featureLibraryInfoFeatureTableMenuAddAction = new QAction();
-    featureLibraryInfoFeatureTableMenuAddAction->setText(QString("Add"));
+    featureLibraryInfoFeatureTableMenuAddAction->setText(QString(flitMenuAdd));
     featureLibraryInfoFeatureTableMenu->addAction(featureLibraryInfoFeatureTableMenuAddAction);
 
     featureLibraryInfoFeatureTableMenuEditAction = new QAction();
-    featureLibraryInfoFeatureTableMenuEditAction->setText(QString("Edit"));
+    featureLibraryInfoFeatureTableMenuEditAction->setText(QString(flitMenuEdit));
 	featureLibraryInfoFeatureTableMenu->addAction(featureLibraryInfoFeatureTableMenuEditAction);
 
     featureLibraryInfoFeatureTableMenuDelAction = new QAction();
-    featureLibraryInfoFeatureTableMenuDelAction->setText(QString("Delete"));
+    featureLibraryInfoFeatureTableMenuDelAction->setText(QString(flitMenuAddDelete));
 	featureLibraryInfoFeatureTableMenu->addAction(featureLibraryInfoFeatureTableMenuDelAction);
 
     //不可编辑
@@ -155,35 +164,44 @@ void FireDogEditor::init() {
 	//可弹出右键菜单
 	ui.treeViewLibraryInfoRules->setContextMenuPolicy(Qt::CustomContextMenu);
     //菜单
+	QString flrtMenuAdd = Gui18n::GetInstance()->GetConfig("feature-info-rule-menu-addchild", "Add Child");
+	QString flrtMenuEdit = Gui18n::GetInstance()->GetConfig("feature-info-rule-menu-edit", "Edit");
+	QString flrtMenuAddDelete = Gui18n::GetInstance()->GetConfig("feature-info-rule-menu-del", "Delete");
+
     featureLibraryInfoRuleTreeMenu = new QMenu(ui.treeViewLibraryInfoRules);
 
     featureLibraryInfoRuleTreeMenuAddAction = new QAction();
-    featureLibraryInfoRuleTreeMenuAddAction->setText(QString("Add Child"));
+    featureLibraryInfoRuleTreeMenuAddAction->setText(QString(flrtMenuAdd));
     featureLibraryInfoRuleTreeMenu->addAction(featureLibraryInfoRuleTreeMenuAddAction);
 
     featureLibraryInfoRuleTreeMenuEditAction = new QAction();
-    featureLibraryInfoRuleTreeMenuEditAction->setText(QString("Edit"));
+    featureLibraryInfoRuleTreeMenuEditAction->setText(QString(flrtMenuEdit));
     featureLibraryInfoRuleTreeMenu->addAction(featureLibraryInfoRuleTreeMenuEditAction);
 
     featureLibraryInfoRuleTreeMenuDelAction = new QAction();
-    featureLibraryInfoRuleTreeMenuDelAction->setText(QString("Delete"));
+    featureLibraryInfoRuleTreeMenuDelAction->setText(QString(flrtMenuAddDelete));
     featureLibraryInfoRuleTreeMenu->addAction(featureLibraryInfoRuleTreeMenuDelAction);
     //详情-规则-end==================================================================
 	
     //匹配-文件列表-start==================================================================
     this->matchingFilesTableModel = new BigDataTableModel();
 
+	QString mfilesTablePath = Gui18n::GetInstance()->GetConfig("matching-files-path", "Path");
+	QString mfilesTableSize = Gui18n::GetInstance()->GetConfig("matching-files-size", "Size");
+
 	QStringList matchingFilesTableModelTitle;
-    matchingFilesTableModelTitle << "Path" << "Size";
+    matchingFilesTableModelTitle << mfilesTablePath << mfilesTableSize;
     matchingFilesTableModel->setHeaders(matchingFilesTableModelTitle);
 
 	ui.tableViewFiles->setModel(this->matchingFilesTableModel);
 
 	//菜单
+    QString mfilesTableMenuDel = Gui18n::GetInstance()->GetConfig("matching-files-menu-del", "Delete");
+
     matchingFilesTableMenu = new QMenu(ui.tableViewFiles);
 
     matchingFilesTableDelAction = new QAction();
-    matchingFilesTableDelAction->setText(QString("Del"));
+    matchingFilesTableDelAction->setText(QString(mfilesTableMenuDel));
     matchingFilesTableMenu->addAction(matchingFilesTableDelAction);
 
 	//不可编辑
@@ -204,8 +222,13 @@ void FireDogEditor::init() {
 	//匹配-结果列表-start==================================================================
 	this->matchingResultTableModel = new BigDataTableModel();
 
+	QString mresultTableSource = Gui18n::GetInstance()->GetConfig("matching-result-table-source", "Source");
+	QString mresultTableFeatureName = Gui18n::GetInstance()->GetConfig("matching-result-table-feature-name", "Feature Name");
+	QString mresultTableFeatureDescribe = Gui18n::GetInstance()->GetConfig("matching-result-table-feature-describe", "Feature Describe");
+	QString mresultTableFeatureAuthor = Gui18n::GetInstance()->GetConfig("matching-result-table-feature-author", "Feature Author");
+
 	QStringList matchingResultTableTitle;
-    matchingResultTableTitle << "Source" << "Feature Name" << "Feature Describe" << "Feature Author";
+    matchingResultTableTitle << mresultTableSource << mresultTableFeatureName << mresultTableFeatureDescribe << mresultTableFeatureAuthor;
     matchingResultTableModel->setHeaders(matchingResultTableTitle);
 
 	ui.tableViewSearchResult->setModel(this->matchingResultTableModel);
@@ -300,6 +323,20 @@ void FireDogEditor::init() {
     Gui18nUtil::SetText(ui.labelLibraryInfoFeatures, "feature-info-features");
 	Gui18nUtil::SetText(ui.labelLibraryInfoRule, "feature-info-rule");
 	Gui18nUtil::SetText(ui.pushButtonLibraryInfoSave, "feature-info-btn-add");
+
+	Gui18nUtil::SetText(ui.groupBoxInput, "matching-input");
+	Gui18nUtil::SetText(ui.labelText, "matching-input-text");
+	Gui18nUtil::SetText(ui.labelHex, "matching-input-hex");
+	Gui18nUtil::SetText(ui.labelFiles, "matching-input-files");
+	Gui18nUtil::SetText(ui.pushButtonAddFiles, "matching-input-files-addfiles");
+	Gui18nUtil::SetText(ui.groupBoxConfig, "matching-config");
+	Gui18nUtil::SetText(ui.label100MB, "matching-config-ge100mb-slice");
+	Gui18nUtil::SetText(ui.label1GB, "matching-config-ge1gb-slice");
+	Gui18nUtil::SetText(ui.labelThreadNum, "matching-config-thread");
+	Gui18nUtil::SetText(ui.pushButtonMatch, "matching-btn");
+	Gui18nUtil::SetText(ui.groupBoxResult, "matching-result");
+	Gui18nUtil::SetText(ui.lineEditSearchResult, "matching-result-search-text");
+	Gui18nUtil::SetText(ui.pushButtonSearchResult, "matching-result-search-btn");
 }
 
 
@@ -396,7 +433,9 @@ void FireDogEditor::slots_saveToFile() {
 		//开始保存
         QFile file(fileName);
         if (file.exists()) {
-            QMessageBox::StandardButton button = QssMessageBox::question(this, "Question", "Whether to overwrite this file?");
+			QString titleStr = Gui18n::GetInstance()->GetConfig("text-message-box-title-question", "Confirm");
+            QString messageStr = Gui18n::GetInstance()->GetConfig("file-save-overwrite", "Whether to overwrite this file?");
+            QMessageBox::StandardButton button = QssMessageBox::question(this, titleStr, messageStr);
             if (button != QMessageBox::Ok && button != QMessageBox::Yes) {
                 return;
             }
@@ -406,7 +445,9 @@ void FireDogEditor::slots_saveToFile() {
         std::string json = this->featureLibrary->toJson(&state);
 
         if (state != NO_ERROR) {
-			QssMessageBox::warn("Save fail,Feature library convert to json fail!.", this, "Warn");
+			QString titleStr = Gui18n::GetInstance()->GetConfig("text-message-box-title-warning", "Warning");
+			QString messageStr = Gui18n::GetInstance()->GetConfig("file-save-fail-by-convertjson", "Save fail,Feature library convert to json fail!.");
+			QssMessageBox::warn(messageStr, this, titleStr);
 			return;
         }
 
@@ -414,7 +455,9 @@ void FireDogEditor::slots_saveToFile() {
 
 		if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
 		{
-			QssMessageBox::warn("File Open fail!.", this, "Warn");
+			QString titleStr = Gui18n::GetInstance()->GetConfig("text-message-box-title-warning", "Warning");
+			QString messageStr = Gui18n::GetInstance()->GetConfig("file-open-fail", "File Open fail!");
+			QssMessageBox::warn(messageStr, this, titleStr);
 			return;
 		}
 		QTextStream in(&file);
@@ -432,17 +475,25 @@ void FireDogEditor::slots_saveToFile() {
 void FireDogEditor::slots_openFile() {
     //如果已经有打开或者正在编辑的特征库
 	if (this->featureLibrary != NULL) {
-		QMessageBox::StandardButton botton = QMessageBox::question(this, "Question", "A file has been opened, do you want to continue?");
+		QString titleStr = Gui18n::GetInstance()->GetConfig("text-message-box-title-questio", "Confirm");
+		QString messageStr = Gui18n::GetInstance()->GetConfig("file-open-has-opened", "A file has been opened, do you want to continue?");
+
+		QMessageBox::StandardButton botton = QMessageBox::question(this, titleStr, messageStr);
 		if (botton != QMessageBox::Ok && botton != QMessageBox::Yes) {
 			return;
 		}
         delete this->featureLibrary;
         this->featureLibrary = NULL;
     }
+
+    QString openFileDialogTitle = Gui18n::GetInstance()->GetConfig("file-open-dialog-title", "Open Feature Library File");
+    QString openFileDialogTip = Gui18n::GetInstance()->GetConfig("file-open-dialog-tip", "Feature Library");
+    openFileDialogTip.append("(*.fdog)");
+
     QString filePath = QFileDialog::getOpenFileName(this,
-        tr("Open Feature Library File."),
-        "F:",
-        tr("Feature Library(*.fdog)"));
+        openFileDialogTitle,
+        "",
+        openFileDialogTip);
     if (!filePath.isEmpty()) {
         qDebug(filePath.toStdString().c_str());
         this->parseThread->setFilePath(filePath);
@@ -472,20 +523,25 @@ void FireDogEditor::slots_parseBinBegin() {
 
 void FireDogEditor::slots_parseBinEnd(firedog::FeatureLibrary* featureLibrary, int state) {
     this->loadingDialog->loadingEnd();
-    if (state != 0) {
+	if (state != 0) {
+		QString titleStr = Gui18n::GetInstance()->GetConfig("text-message-box-title-warning", "Warning");
         if (state == PARSE_ERROR_CODE_FILE_READ_FAIL) {
-            QssMessageBox::warn("Feature library file read failed.",this,"Warn");
+			QString messageStr = Gui18n::GetInstance()->GetConfig("file-parse-fail-cant-read", "Feature library file read failed.");
+            QssMessageBox::warn(messageStr,this, titleStr);
             return;
         }
 		if (state == PARSE_ERROR_CODE_FILE_PARSE_FAIL) {
-			QssMessageBox::warn("Feature library file format verification failed.", this, "Warn");
+			QString messageStr = Gui18n::GetInstance()->GetConfig("file-parse-fail-formate-error", "Feature library file format verification failed.");
+			QssMessageBox::warn(messageStr, this, titleStr);
             return;
         }
 		if (state == PARSE_ERROR_CODE_FILE_VERSION_CHECK_FAIL) {
-			QssMessageBox::warn("Feature library file version verification failed.", this, "Warn");
+			QString messageStr = Gui18n::GetInstance()->GetConfig("file-parse-fail-version-error", "Feature library file version verification failed");
+			QssMessageBox::warn(messageStr, this, titleStr);
             return;
 		}
-		QssMessageBox::warn("Feature library parse failed.", this, "Warn");
+		QString messageStr = Gui18n::GetInstance()->GetConfig("file-parse-fail", "Feature library parse failed.");
+		QssMessageBox::warn(messageStr, this, titleStr);
         return;
     }
     
@@ -703,7 +759,10 @@ void FireDogEditor::slots_featureTableMenuAddEvent() {
 }
 
 void FireDogEditor::slots_featureTableMenuDelEvent() {
-    QMessageBox::StandardButton botton = QMessageBox::question(this, "Question", "Please confirm to delete?");
+	QString titleStr = Gui18n::GetInstance()->GetConfig("text-message-box-title-question", "Confirm");
+	QString messageStr = Gui18n::GetInstance()->GetConfig("feature-librarys-menu-delete-tip", "Please confirm to delete?");
+
+    QMessageBox::StandardButton botton = QMessageBox::question(this, titleStr, messageStr);
     if (botton != QMessageBox::Ok && botton != QMessageBox::Yes) {
         return;
     }
@@ -790,7 +849,10 @@ void FireDogEditor::slots_featureInfoTableMenuEditEvent() {
 }
 
 void FireDogEditor::slots_featureInfoTableMenuDelEvent() {
-	QMessageBox::StandardButton botton = QMessageBox::question(this, "Question", "Please confirm to delete?");
+	QString titleStr = Gui18n::GetInstance()->GetConfig("text-message-box-title-question", "Confirm");
+	QString messageStr = Gui18n::GetInstance()->GetConfig("feature-info-features-menu-del-tep", "Please confirm to delete?");
+
+	QMessageBox::StandardButton botton = QMessageBox::question(this, titleStr, messageStr);
 	if (botton != QMessageBox::Ok && botton != QMessageBox::Yes) {
 		return;
 	}
@@ -861,7 +923,9 @@ void FireDogEditor::slots_featureLibraryInfoRuleMenuEditEvent() {
 }
 
 void FireDogEditor::slots_featureLibraryInfoRuleMenuDelEvent() {
-	QMessageBox::StandardButton botton = QMessageBox::question(this, "Question", "Please confirm to delete?");
+	QString titleStr = Gui18n::GetInstance()->GetConfig("text-message-box-title-question", "Confirm");
+	QString messageStr = Gui18n::GetInstance()->GetConfig("feature-info-rule-menu-del-tip", "Please confirm to delete?");
+	QMessageBox::StandardButton botton = QMessageBox::question(this, titleStr, messageStr);
 	if (botton != QMessageBox::Ok && botton != QMessageBox::Yes) {
 		return;
 	}
@@ -923,28 +987,34 @@ firedog::FeatureLibraryItem* FireDogEditor::getInfoViewFeatureItem() {
 	int featureCount = this->featureLibraryInfoFeatureTableModel->rowCount();
 	int ruleCount = this->featureLibraryInfoRuleTreeModel->rowCount();
 
+    QString titleStr = Gui18n::GetInstance()->GetConfig("text-message-box-title-warning", "Warning");
 	if (name.isEmpty()) {
-		QssMessageBox::warn("Please enter [Name].", this, "Warn");
+		QString messageStr = Gui18n::GetInstance()->GetConfig("feature-info-add-please-enter-name", "Please enter [Name].");
+		QssMessageBox::warn(messageStr, this, titleStr);
 		return NULL;
 	}
 
 	if (auth.isEmpty()) {
-		QssMessageBox::warn("Please enter [Auth].", this, "Warn");
+		QString messageStr = Gui18n::GetInstance()->GetConfig("feature-info-add-please-enter-auth", "Please enter [Auth].");
+		QssMessageBox::warn(messageStr, this, titleStr);
 		return NULL;
 	}
 
 	if (describe.isEmpty()) {
-		QssMessageBox::warn("Please enter [Describe].", this, "Warn");
+		QString messageStr = Gui18n::GetInstance()->GetConfig("feature-info-add-please-enter-describe", "Please enter [Describe].");
+		QssMessageBox::warn(messageStr, this, titleStr);
 		return NULL;
 	}
 
 	if (featureCount == 0) {
-		QssMessageBox::warn("Please add [Feature].", this, "Warn");
+		QString messageStr = Gui18n::GetInstance()->GetConfig("feature-info-add-please-enter-feature", "Please add [Feature].");
+		QssMessageBox::warn(messageStr, this, titleStr);
 		return NULL;
 	}
 
 	if (ruleCount == 0) {
-		QssMessageBox::warn("Please add [Rule].", this, "Warn");
+		QString messageStr = Gui18n::GetInstance()->GetConfig("feature-info-add-please-enter-feature", "Please add [Rule].");
+		QssMessageBox::warn(messageStr, this, titleStr);
 		return NULL;
 	}
 
@@ -991,8 +1061,8 @@ mountcloud::Rule* FireDogEditor::itemToRule(QStandardItem* item) {
     }
     QString errorMessage;
     QString text = item->text();
-    if (text.isEmpty()) {
-        errorMessage = "The rule is wrong, please delete and add again.";
+	if (text.isEmpty()) {
+		errorMessage = Gui18n::GetInstance()->GetConfig("feature-info-add-rule-error", "This rule is wrong, please fix it and try again.");
         goto fail;
     }
 
@@ -1001,7 +1071,7 @@ mountcloud::Rule* FireDogEditor::itemToRule(QStandardItem* item) {
     //根规则只能是逻辑表达式
     if (item->parent()==NULL) {
         if (!isOperation) {
-			errorMessage = "The root rule can only be $and or $or.";
+			errorMessage = Gui18n::GetInstance()->GetConfig("feature-info-add-rule-root-error", "The root rule can only be $and or $or.");
 			goto fail;
         }
     }
@@ -1009,7 +1079,7 @@ mountcloud::Rule* FireDogEditor::itemToRule(QStandardItem* item) {
     //操作下面必须有节点
     if (isOperation) {
         if (item->rowCount() == 0) {
-			errorMessage = "The rule childs is empty.";
+			errorMessage = Gui18n::GetInstance()->GetConfig("feature-info-add-rule-childs-error", "The rule childs is empty.");;
 			goto fail;
         }
     }
@@ -1049,13 +1119,15 @@ fail:
 	ui.treeViewLibraryInfoRules->selectionModel()->clear();
 	QModelIndex index = this->featureLibraryInfoRuleTreeModel->indexFromItem(item);
 	ui.treeViewLibraryInfoRules->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select | QItemSelectionModel::Rows);
-    QssMessageBox::warn(errorMessage, this, "Warn");
+    QString titleStr = Gui18n::GetInstance()->GetConfig("text-message-box-title-warning", "Warning");
+    QssMessageBox::warn(errorMessage, this, titleStr);
 	return NULL;
 }
 
 
 void FireDogEditor::slots_matchingAddFilesBtnClickEvent() {
-    QStringList files = QFileDialog::getOpenFileNames(this,"Select Files","","");
+	QString messageStr = Gui18n::GetInstance()->GetConfig("matching-input-files-select-file", "Select Files");
+    QStringList files = QFileDialog::getOpenFileNames(this, messageStr,"","");
 
     QStringList nowFiles;
     int count = this->matchingFilesTableModel->rowCount();
@@ -1170,7 +1242,10 @@ void FireDogEditor::slots_matchingBtnClick() {
 	}
 
     if (text.isEmpty() && hex.isEmpty() && files.isEmpty()) {
-        QssMessageBox::warn("Please enter text or hex or add a file.", this, "Warn");
+		QString titleStr = Gui18n::GetInstance()->GetConfig("text-message-box-title-warning", "Warning");
+		QString messageStr = Gui18n::GetInstance()->GetConfig("matching-please-enter", "Please enter text or hex or add a file.");
+
+        QssMessageBox::warn(messageStr, this, titleStr);
         return;
     }
 

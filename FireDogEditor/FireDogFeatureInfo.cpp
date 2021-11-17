@@ -1,9 +1,11 @@
 #include "FireDogFeatureInfo.h"
 #include "ui_FireDogFeatureInfo.h"
 
-
 #include "featurelibrary.h"
 #include "Qss/Qss.h"
+
+#include "gui18n.h"
+#include "gui18nutil.h"
 
 FireDogFeatureInfo::FireDogFeatureInfo(QWidget *parent) :
     QssDialog(parent),
@@ -30,6 +32,17 @@ void FireDogFeatureInfo::init() {
 
     connect(ui->radioButtonHex, &QRadioButton::clicked, this, &FireDogFeatureInfo::slots_radioClick);
     connect(ui->radioButtonText, &QRadioButton::clicked, this, &FireDogFeatureInfo::slots_radioClick);
+
+    //i18n
+	Gui18nUtil::SetText(ui->labelType, "feature-info-type");
+	Gui18nUtil::SetText(ui->radioButtonHex, "feature-info-type-hex");
+	Gui18nUtil::SetText(ui->radioButtonText, "feature-info-type-text");
+	Gui18nUtil::SetText(ui->labelKey, "feature-info-key");
+	Gui18nUtil::SetText(ui->lineEditKey, "feature-info-key-text");
+	Gui18nUtil::SetText(ui->labelContent, "feature-info-content");
+	Gui18nUtil::SetText(ui->lineEditContent, "feature-info-content-text");
+	Gui18nUtil::SetText(ui->pushButtonSave, "feature-info-btn-save");
+	Gui18nUtil::SetText(ui->pushButtonCancel, "feature-info-btn-cancel");
 }
 
 void FireDogFeatureInfo::slots_radioClick() {
@@ -93,12 +106,16 @@ bool FireDogFeatureInfo::updateFeature(QStringList existsKeys, firedog::Feature*
 }
 
 void FireDogFeatureInfo::slots_save() {
+    QString titleStr = Gui18n::GetInstance()->GetConfig("text-message-box-title-warning", "Warning");
+
 	if (ui->lineEditKey->text().isEmpty()) {
-        QssMessageBox::warn("Please enter [Key].", this, "Warn");
+		QString messageStr = Gui18n::GetInstance()->GetConfig("feature-info-please-enter-key", "Please enter [Key].");
+        QssMessageBox::warn(messageStr, this, titleStr);
         return;
 	}
-    if (this->existsKeys.contains(ui->lineEditKey->text())) {
-		QssMessageBox::warn("[Key] is exists.", this, "Warn");
+	if (this->existsKeys.contains(ui->lineEditKey->text())) {
+		QString messageStr = Gui18n::GetInstance()->GetConfig("feature-info-key-exists", "[Key] is exists.");
+		QssMessageBox::warn(messageStr, this, titleStr);
 		return;
     }
 
@@ -106,13 +123,15 @@ void FireDogFeatureInfo::slots_save() {
     keyreg.append(FEATURE_FORMATE_REG_KEY);
     keyreg.append("$");
 	QRegExp keyrx(keyreg);
-    if (!keyrx.exactMatch(ui->lineEditKey->text())) {
-		QssMessageBox::warn("[Key] format verification failed.\nYou can enter: 0-9a-zA-Z", this, "Warn");
+	if (!keyrx.exactMatch(ui->lineEditKey->text())) {
+		QString messageStr = Gui18n::GetInstance()->GetConfig("feature-info-key-formate-fail", "[Key] format verification failed.\nYou can enter: 0-9a-zA-Z");
+		QssMessageBox::warn(messageStr, this, titleStr);
 		return;
     }
 
 	if (ui->lineEditContent->text().isEmpty()) {
-		QssMessageBox::warn("Please enter [Content].", this, "Warn");
+		QString messageStr = Gui18n::GetInstance()->GetConfig("feature-info-please-enter-content", "Please enter [Content].");
+		QssMessageBox::warn(messageStr, this, titleStr);
 		return;
     }
 
@@ -126,7 +145,8 @@ void FireDogFeatureInfo::slots_save() {
 
 		bool ok = rx.exactMatch(hexStr);
         if (!ok) {
-			QssMessageBox::warn("[Content] format verification failed.\nYou can enter: 0F 9? ?0 ?? [00-FF] [00-02,06-09]", this, "Warn");
+			QString messageStr = Gui18n::GetInstance()->GetConfig("feature-info-content-formate-fail", "[Content] format verification failed.\nYou can enter: 0F 9? ?0 ?? [00-FF] [00-02,06-09]");
+			QssMessageBox::warn(messageStr, this, titleStr);
 			return;
         }
     }

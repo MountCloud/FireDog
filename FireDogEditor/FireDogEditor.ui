@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1310</width>
-    <height>768</height>
+    <width>1314</width>
+    <height>777</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -297,7 +297,7 @@
            <item row="0" column="0">
             <widget class="QLineEdit" name="lineEditSearchResult">
              <property name="placeholderText">
-              <string>Search</string>
+              <string>Please enter</string>
              </property>
             </widget>
            </item>
@@ -383,7 +383,7 @@
            <item>
             <widget class="QPushButton" name="pushButtonAddFiles">
              <property name="text">
-              <string>AddFiles</string>
+              <string>Add Files</string>
              </property>
             </widget>
            </item>
@@ -456,7 +456,7 @@
             </rect>
            </property>
            <property name="text">
-            <string>&gt;100MB Slice</string>
+            <string>File&gt;100MB Slice</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -488,7 +488,7 @@
             </rect>
            </property>
            <property name="text">
-            <string>&gt;1GB Slice</string>
+            <string>File&gt;1GB Slice</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -523,8 +523,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1310</width>
-     <height>26</height>
+     <width>1314</width>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOperation">
