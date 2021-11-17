@@ -32,6 +32,10 @@ Provide a lightweight feature detection engine, support custom extended feature 
 # v1.2.1
 
 ```
+FireDog Version: v1.2.1
+FireDog Editor Version: v1.0
+Feature Libraray Version: v1.1.0
+
 1：单资源匹配返回单条匹配特征改为返回多条匹配特征，这样单个文件允许被检测出多个特征。
 2：【革命性更新】推出“特征库编辑器 FireDogEditor”，可以使用界面对特征库进行修改，并且进行测试，该编辑器支持国际化。
 
