@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestLinux", "TestLinux\Test
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FireDogEditor", "FireDogEditor\FireDogEditor.vcxproj", "{ED98F27A-F902-458D-877D-FF5FCA80E10B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestNewRule", "TestNewRule\TestNewRule.vcxproj", "{D0C3AB96-FA28-4095-A4BE-4AA0DE724F87}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		FireDog\FireDog.vcxitems*{07ecb430-e41b-4b28-abaa-ea857b15e618}*SharedItemsImports = 9
@@ -75,6 +77,18 @@ Global
 		{ED98F27A-F902-458D-877D-FF5FCA80E10B}.Release|x64.ActiveCfg = Release|Win32
 		{ED98F27A-F902-458D-877D-FF5FCA80E10B}.Release|x86.ActiveCfg = Release|Win32
 		{ED98F27A-F902-458D-877D-FF5FCA80E10B}.Release|x86.Build.0 = Release|Win32
+		{D0C3AB96-FA28-4095-A4BE-4AA0DE724F87}.Debug|ARM.ActiveCfg = Debug|Win32
+		{D0C3AB96-FA28-4095-A4BE-4AA0DE724F87}.Debug|ARM64.ActiveCfg = Debug|Win32
+		{D0C3AB96-FA28-4095-A4BE-4AA0DE724F87}.Debug|x64.ActiveCfg = Debug|x64
+		{D0C3AB96-FA28-4095-A4BE-4AA0DE724F87}.Debug|x64.Build.0 = Debug|x64
+		{D0C3AB96-FA28-4095-A4BE-4AA0DE724F87}.Debug|x86.ActiveCfg = Debug|Win32
+		{D0C3AB96-FA28-4095-A4BE-4AA0DE724F87}.Debug|x86.Build.0 = Debug|Win32
+		{D0C3AB96-FA28-4095-A4BE-4AA0DE724F87}.Release|ARM.ActiveCfg = Release|Win32
+		{D0C3AB96-FA28-4095-A4BE-4AA0DE724F87}.Release|ARM64.ActiveCfg = Release|Win32
+		{D0C3AB96-FA28-4095-A4BE-4AA0DE724F87}.Release|x64.ActiveCfg = Release|x64
+		{D0C3AB96-FA28-4095-A4BE-4AA0DE724F87}.Release|x64.Build.0 = Release|x64
+		{D0C3AB96-FA28-4095-A4BE-4AA0DE724F87}.Release|x86.ActiveCfg = Release|Win32
+		{D0C3AB96-FA28-4095-A4BE-4AA0DE724F87}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
