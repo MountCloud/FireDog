@@ -165,8 +165,8 @@ namespace firedog {
 		~FeatureLibrary();
 
 	private:
-		static mountcloud::Rule* parseRule(nlohmann::json rulejson);
-
+		static std::vector<mountcloud::Rule*> parseRules(nlohmann::json rulejson);
+        static mountcloud::Rule* parseRule(nlohmann::json rulejson);
         /// <summary>
         /// rule to json object
         /// </summary>

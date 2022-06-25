@@ -364,45 +364,45 @@ std::vector <MatcherResult*>* Matcher::checkMatcherFeature(MatcherData* mbd, cha
 	}
 
 	//校验any
-	if (mbd->anyData != NULL) {
-		//any 匹配到了
-		if (mbd->anyData->features != NULL) {
-			result = new std::vector<MatcherResult*>();
-			for (int i = 0; i < mbd->anyData->features->size(); i++) {
-				MatcherFeature* mf = mbd->anyData->features->at(i);
-				int featureId = mf->featureId;
-				string featureKey = mf->featureKey;
+	//if (mbd->anyData != NULL) {
+	//	//any 匹配到了
+	//	if (mbd->anyData->features != NULL) {
+	//		result = new std::vector<MatcherResult*>();
+	//		for (int i = 0; i < mbd->anyData->features->size(); i++) {
+	//			MatcherFeature* mf = mbd->anyData->features->at(i);
+	//			int featureId = mf->featureId;
+	//			string featureKey = mf->featureKey;
 
-				RuleData* ruleData = NULL;
-				if (featureRuleData == NULL) {
-					featureRuleData = new unordered_map<int, mountcloud::RuleData*>();
-				}
-				if (featureRuleData->find(featureId) == featureRuleData->end()) {
-					ruleData = new RuleData();
-				}
-				else {
-					ruleData = featureRuleData->at(featureId);
-				}
+	//			RuleData* ruleData = NULL;
+	//			if (featureRuleData == NULL) {
+	//				featureRuleData = new unordered_map<int, mountcloud::RuleData*>();
+	//			}
+	//			if (featureRuleData->find(featureId) == featureRuleData->end()) {
+	//				ruleData = new RuleData();
+	//			}
+	//			else {
+	//				ruleData = featureRuleData->at(featureId);
+	//			}
 
-				ruleData->set(featureKey, true);
+	//			ruleData->set(featureKey, true);
 
-				FeatureLibraryItem* fitem = dataSource->getFeatureLibraryItem(featureId);
-				Rule* rule = fitem->rule;
-				if (rule != NULL && rule->check(ruleData)) {
-					MatcherResult* mr = new MatcherResult();
-					mr->featureId = featureId;
-					mr->author = fitem->author;
-					mr->name = fitem->name;
-					mr->describe = fitem->describe;
-					result->push_back(mr);
-				}
-			}
-		}
-		else {
-			//any没有匹配到
-			tempMatchBytesCache->push_back(mbd->anyData);
-		}
-	}
+	//			FeatureLibraryItem* fitem = dataSource->getFeatureLibraryItem(featureId);
+	//			Rule* rule = fitem->rule;
+	//			if (rule != NULL && rule->check(ruleData)) {
+	//				MatcherResult* mr = new MatcherResult();
+	//				mr->featureId = featureId;
+	//				mr->author = fitem->author;
+	//				mr->name = fitem->name;
+	//				mr->describe = fitem->describe;
+	//				result->push_back(mr);
+	//			}
+	//		}
+	//	}
+	//	else {
+	//		//any没有匹配到
+	//		tempMatchBytesCache->push_back(mbd->anyData);
+	//	}
+	//}
 
 	return result;
 }
@@ -435,7 +435,7 @@ std::vector<MatcherResult*>* Matcher::checkMatcherFeatureMap(AvlMap<char, Matche
 					ruleData = featureRuleData->at(featureId);
 				}
 
-				ruleData->set(featureKey, true);
+				//ruleData->set(featureKey, true);
 
 				featureRuleData->operator[](featureId) = ruleData;
 

@@ -89,9 +89,18 @@ FeatureLibrary* FeatureLibrary::createByJson(string json, int* errorcode) {
 				//先看规则
 				nlohmann::json rulejson = item["rule"];
 
-				Rule* rule = parseRule(rulejson);
-				if (rule == NULL) {
+				vector<Rule*> rules = parseRules(rulejson);
+				if (rules.size()==0) {
 					continue;
+				}
+
+				Rule* rule = NULL;
+				if (rules.size()==1) {
+					rule = rules.at(0);
+				}
+				else {
+					AndRule* andRule = new AndRule();
+					andRule->addRules(rules);
 				}
 
 				FeatureLibraryItem* fitem = new FeatureLibraryItem();
@@ -132,76 +141,115 @@ FeatureLibrary* FeatureLibrary::createByJson(string json, int* errorcode) {
 	return result;
 }
 
+vector<Rule*> FeatureLibrary::parseRules(nlohmann::json rulejson) {
+	vector<Rule*> rules;
+
+	auto eachlogicchild = [](nlohmann::json childjson, LogicRule* logicRule) {
+		for (int i = 0; i < childjson.size(); i++) {
+			nlohmann::json cj = childjson[i];
+			vector<Rule*> rules = parseRules(cj);
+			if (rules.size() > 0) {
+				logicRule->addRules(rules);
+			}
+		}
+	};
+	if (rulejson.is_string()) {
+		string id = rulejson;
+		CountRule* countRule = new CountRule(id);
+		rules.push_back(countRule);
+	}else if (rulejson.is_object()&&!rulejson.is_array()) {
+		for (auto ruleiter = rulejson.begin(); ruleiter != rulejson.end(); ruleiter++) {
+			std::string key = ruleiter.key();
+			nlohmann::json childrulejson = rulejson[key];
+			if (key == "$and") {
+				AndRule* andRule = new AndRule();
+				eachlogicchild(childrulejson, andRule);
+				rules.push_back(andRule);
+			}
+			else if(key == "$or") {
+				OrRule* orRule = new OrRule();
+				eachlogicchild(childrulejson, orRule);
+				rules.push_back(orRule);
+			}
+			else if (key == "$not") {
+				NotRule* notRule = new NotRule();
+				eachlogicchild(childrulejson, notRule);
+				rules.push_back(notRule);
+			}
+			else if (key == "$int") {
+				if (childrulejson.is_number()) {
+					long num = childrulejson;
+					IntRule* intRule = new IntRule(childrulejson);
+					rules.push_back(intRule);
+				}
+			}
+			else if (key == "$count") {
+				if (childrulejson.is_array()) {
+					vector<string> ids;
+					long num = 1L;
+					int idslen = childrulejson.size();
+					for (int i = 0; i < idslen; i++) {
+						nlohmann::json crj = childrulejson[i];
+						if (crj.is_string()) {
+							string id = crj;
+							ids.push_back(id);
+						}
+						else if (i == idslen - 1 && crj.is_number()) {
+							long tempnum = crj;
+							if (tempnum > 1) {
+								num = tempnum;
+							}
+						}
+					}
+					if (ids.size() > 0) {
+						CountRule* countRule = new CountRule(ids);
+						countRule->setCritical(num);
+						rules.push_back(countRule);
+					}
+				}
+			}
+			else if(key == "$lt"|| key == "$le" || key == "$gt" || key == "$ge") {
+				if (!childrulejson.is_array()&&childrulejson.size()==2) {
+					Rule* compareRule = NULL;
+					nlohmann::json num1json = childrulejson[0];
+					nlohmann::json num2json = childrulejson[1];
+					Rule* num1Rule = parseRule(num1json);
+					Rule* num2Rule = parseRule(num2json);
+					if (num1Rule!=NULL&&num1Rule->getBaseType() == RULE_BASE_TYPE_NUMBER
+						&&num2Rule!=NULL&&num2Rule->getBaseType() == RULE_BASE_TYPE_NUMBER) {
+						if (key == "$lt") {
+							compareRule = new LtRule((NumberRule*)num1Rule, (NumberRule*)num2Rule);
+						}
+						if (key == "$le") {
+							compareRule = new LeRule((NumberRule*)num1Rule, (NumberRule*)num2Rule);
+						}
+						if (key == "$gt") {
+							compareRule = new GtRule((NumberRule*)num1Rule, (NumberRule*)num2Rule);
+						}
+						if (key == "$ge") {
+							compareRule = new GeRule((NumberRule*)num1Rule, (NumberRule*)num2Rule);
+						}
+					}
+					if (compareRule != NULL) {
+						rules.push_back(compareRule);
+					}
+				}
+			}
+		}
+	}
+	return rules;
+}
+
 Rule* FeatureLibrary::parseRule(nlohmann::json rulejson) {
-	if (!rulejson.is_object()) {
-		return NULL;
-	}
+	Rule* rule = NULL;
 
-
-	Rule* rule = new Rule();
-
-	if (rulejson.contains("$and")&&rulejson["$and"].is_array()&& rulejson["$and"].size()>0) {
-		nlohmann::json andr = rulejson["$and"];
-		nlohmann::json androne = andr[0];
-		rule->ands = new vector<Rule*>();
-		//说明是组合
-		if (androne.is_object()) {
-			for (int i = 0; i < andr.size(); i++) {
-				nlohmann::json tandr = andr[i];
-				Rule* tr = parseRule(tandr);
-				if (tr==NULL) {
-					continue;
-				}
-				rule->ands->push_back(tr);
-			}
-		}
-		//说明是id咯
-		else {
-			for (int i = 0; i < andr.size(); i++) {
-				nlohmann::json tandr = andr[i];
-				if (tandr.is_string()) {
-					string tid = tandr;
-					Rule* andids = new Rule();
-					andids->id = tid;
-					rule->ands->push_back(andids);
-				}
-			}
-		}
-	}
-
-	if (rulejson.contains("$or") && rulejson["$or"].is_array() && rulejson["$or"].size() > 0) {
-		nlohmann::json orr = rulejson["$or"];
-		nlohmann::json orrone = orr[0];
-		rule->ors = new vector<Rule*>();
-		//说明是组合
-		if (orrone.is_object()) {
-			for (int i = 0; i < orr.size(); i++) {
-				nlohmann::json torr = orr[i];
-				Rule* tr = parseRule(torr);
-				if (tr == NULL) {
-					continue;
-				}
-				rule->ors->push_back(tr);
-			}
-		}
-		//说明是id咯
-		else {
-			for (int i = 0; i < orr.size(); i++) {
-				nlohmann::json torr = orr[i];
-				if (torr.is_string()) {
-					string tid = torr;
-
-					Rule* orids = new Rule();
-					orids->id = tid;
-					rule->ors->push_back(orids);
-				}
-			}
-		}
+	vector<Rule*> rules = parseRules(rulejson);
+	if (rules.size()>0) {
+		rule = rules.at(0);
 	}
 
 	return rule;
 }
-
 
 FeatureLibraryItem::FeatureLibraryItem() {
 	features = new vector<Feature*>();
@@ -267,50 +315,50 @@ std::string FeatureLibrary::toJson(int* state){
 
 nlohmann::json FeatureLibrary::ruleToJson(mountcloud::Rule* rule,bool* state) {
 	json jsonRule;
-	if (rule != NULL) {
-		if (!rule->id.empty()) {
-			jsonRule = rule->id;
-			*state = true;
-		}
-		else if(rule->ands!=NULL&&rule->ands->size()>0){
-			vector<json> andsjson;
-			for (int i = 0; i < rule->ands->size(); i++) {
-				mountcloud::Rule* andRule = rule->ands->at(i);
-				bool andRuleState = false;
+	//if (rule != NULL) {
+	//	if (!rule->id.empty()) {
+	//		jsonRule = rule->id;
+	//		*state = true;
+	//	}
+	//	else if(rule->ands!=NULL&&rule->ands->size()>0){
+	//		vector<json> andsjson;
+	//		for (int i = 0; i < rule->ands->size(); i++) {
+	//			mountcloud::Rule* andRule = rule->ands->at(i);
+	//			bool andRuleState = false;
 
-				json andJson = ruleToJson(andRule, &andRuleState);
-				if (!andRuleState) {
-					*state = false;
-					return jsonRule;
-				}
-				andsjson.push_back(andJson);
-			}
-			*state = true;
-			jsonRule["$and"] = andsjson;
-		}
-		else if(rule->ors!=NULL&&rule->ors->size()>0){
-			vector<json> orsjson;
-			for (int i = 0; i < rule->ors->size(); i++) {
-				mountcloud::Rule* orRule = rule->ors->at(i);
-				bool orRuleState = false;
+	//			json andJson = ruleToJson(andRule, &andRuleState);
+	//			if (!andRuleState) {
+	//				*state = false;
+	//				return jsonRule;
+	//			}
+	//			andsjson.push_back(andJson);
+	//		}
+	//		*state = true;
+	//		jsonRule["$and"] = andsjson;
+	//	}
+	//	else if(rule->ors!=NULL&&rule->ors->size()>0){
+	//		vector<json> orsjson;
+	//		for (int i = 0; i < rule->ors->size(); i++) {
+	//			mountcloud::Rule* orRule = rule->ors->at(i);
+	//			bool orRuleState = false;
 
-				json orJson = ruleToJson(orRule, &orRuleState);
-				if (!orRuleState) {
-					*state = false;
-					return jsonRule;
-				}
-				orsjson.push_back(orJson);
-			}
-			*state = true;
-			jsonRule["$or"] = orsjson;
-		}
-		else {
-			*state = false;
-		}
-	}
-	else {
-		*state = false;
-	}
+	//			json orJson = ruleToJson(orRule, &orRuleState);
+	//			if (!orRuleState) {
+	//				*state = false;
+	//				return jsonRule;
+	//			}
+	//			orsjson.push_back(orJson);
+	//		}
+	//		*state = true;
+	//		jsonRule["$or"] = orsjson;
+	//	}
+	//	else {
+	//		*state = false;
+	//	}
+	//}
+	//else {
+	//	*state = false;
+	//}
 	return jsonRule;
 }
 

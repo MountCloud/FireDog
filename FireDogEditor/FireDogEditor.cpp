@@ -740,32 +740,32 @@ void FireDogEditor::slots_selectFeatureTableEvent(const QModelIndex& current, co
 
 QStandardItem* FireDogEditor::ruleToItem(mountcloud::Rule* rule) {
     QStandardItem* ruleitem = new QStandardItem();
-    if (!rule->id.empty()) {
-        ruleitem->setText(QString(rule->id.c_str()));
-    }
-    else {
-        if (rule->ands != NULL) {
-            ruleitem->setText(QStringLiteral("$and"));
+    //if (!rule->id.empty()) {
+    //    ruleitem->setText(QString(rule->id.c_str()));
+    //}
+    //else {
+    //    if (rule->ands != NULL) {
+    //        ruleitem->setText(QStringLiteral("$and"));
 
-            for (int i = 0; i < rule->ands->size(); i++) {
-                mountcloud::Rule* andRule = rule->ands->at(i);
-                QStandardItem* andRuleItem = ruleToItem(andRule);
-                ruleitem->appendRow(andRuleItem);
-            }
-        }
-        else if (rule->ors != NULL) {
-            ruleitem->setText(QStringLiteral("$or"));
+    //        for (int i = 0; i < rule->ands->size(); i++) {
+    //            mountcloud::Rule* andRule = rule->ands->at(i);
+    //            QStandardItem* andRuleItem = ruleToItem(andRule);
+    //            ruleitem->appendRow(andRuleItem);
+    //        }
+    //    }
+    //    else if (rule->ors != NULL) {
+    //        ruleitem->setText(QStringLiteral("$or"));
 
-            for (int i = 0; i < rule->ors->size(); i++) {
-                mountcloud::Rule* andRule = rule->ors->at(i);
-                QStandardItem* andRuleItem = ruleToItem(andRule);
-                ruleitem->appendRow(andRuleItem);
-            }
-        }
-        else {
-            ruleitem->setText(QStringLiteral("unknown"));
-        }
-    }
+    //        for (int i = 0; i < rule->ors->size(); i++) {
+    //            mountcloud::Rule* andRule = rule->ors->at(i);
+    //            QStandardItem* andRuleItem = ruleToItem(andRule);
+    //            ruleitem->appendRow(andRuleItem);
+    //        }
+    //    }
+    //    else {
+    //        ruleitem->setText(QStringLiteral("unknown"));
+    //    }
+    //}
     return ruleitem;
 }
 
@@ -1101,32 +1101,32 @@ mountcloud::Rule* FireDogEditor::itemToRule(QStandardItem* item) {
 
     mountcloud::Rule* result = new mountcloud::Rule();
 
-    if (isOperation) {
-		int childCount = item->rowCount();
-		for (int i = 0; i < childCount; i++) {
-            QStandardItem* childItem = item->child(i);
-            mountcloud::Rule*  childRule = itemToRule(childItem);
-            if (childRule==NULL) {
-                delete result;
-                return NULL;
-            }
-            if(text=="$and"){
-                if (result->ands == NULL) {
-                    result->ands = new std::vector<mountcloud::Rule*>();
-                }
-                result->ands->push_back(childRule);
-            }
-            else {
-				if (result->ors == NULL) {
-					result->ors = new std::vector<mountcloud::Rule*>();
-				}
-				result->ors->push_back(childRule);
-            }
-		}
-	}
-    else {
-        result->id = text.toStdString();
-    }
+ //   if (isOperation) {
+	//	int childCount = item->rowCount();
+	//	for (int i = 0; i < childCount; i++) {
+ //           QStandardItem* childItem = item->child(i);
+ //           mountcloud::Rule*  childRule = itemToRule(childItem);
+ //           if (childRule==NULL) {
+ //               delete result;
+ //               return NULL;
+ //           }
+ //           if(text=="$and"){
+ //               if (result->ands == NULL) {
+ //                   result->ands = new std::vector<mountcloud::Rule*>();
+ //               }
+ //               result->ands->push_back(childRule);
+ //           }
+ //           else {
+	//			if (result->ors == NULL) {
+	//				result->ors = new std::vector<mountcloud::Rule*>();
+	//			}
+	//			result->ors->push_back(childRule);
+ //           }
+	//	}
+	//}
+ //   else {
+ //       result->id = text.toStdString();
+ //   }
 
     return result;
 
