@@ -4,18 +4,14 @@
 #include <vector>
 #include <stdlib.h>
 #include "errorcode.h"
+#include "featurelibrary.h"
+#include "matcher.h"
 
 /// <summary>
 /// fire dog main header
 /// </summary>
 
 namespace firedog {
-
-	class FeatureLibrary;
-
-	class MatcherDataSource;
-
-	class Matcher;
 
 	class FireDog {
 	public:

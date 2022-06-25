@@ -26,7 +26,7 @@ void ParseThread::run() {
 	QString featureLibraryJson = file.readAll();
 
 	int errorCode = 0;
-	FeatureLibrary* library = FeatureLibrary::createByJson(featureLibraryJson.toStdString(),&errorCode);
+	FeatureLibrary* library = FeatureLibrary::createByYaml(featureLibraryJson.toStdString(),&errorCode);
 
 	int resultCode = PARSE_SUCCESS;
 	//有异常的话

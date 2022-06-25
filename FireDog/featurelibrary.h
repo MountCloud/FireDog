@@ -4,6 +4,10 @@
 #include <string>
 #include <vector>
 
+#include "config.h"
+#include "json/json-schema/json-schema.hpp"
+#include "rule/rule.h"
+
 #include "json/json.hpp"
 #include "errorcode.h"
 
@@ -12,7 +16,6 @@
 
 #define FEATURE_TYPE_HEX_STR	"hex"
 #define FEATURE_TYPE_TEXT_STR	"text"
-
 
 static const char* FIREDOG_FEATURE_LIBRARAY_JSON_SCHEMA = R"(
     {
@@ -89,15 +92,16 @@ static const char* FIREDOG_FEATURE_LIBRARAY_JSON_SCHEMA = R"(
     }
 )";
 
-namespace mountcloud {
-	class Rule;
-}
+namespace c4 { 
+	namespace yml {
+		class NodeRef;
+    }
+};
 
 /// <summary>
 /// Feature Library h
 /// </summary>
 namespace firedog {
-
 
 	class Feature {
 	public:
@@ -143,6 +147,7 @@ namespace firedog {
 		/// create by json
 		/// </summary>
 		static FeatureLibrary* createByJson(std::string json, int* errorcode);
+        static FeatureLibrary* createByYaml(std::string yaml, int* errorcode);
 
 		/// <summary>
 		/// library version
@@ -165,8 +170,11 @@ namespace firedog {
 		~FeatureLibrary();
 
 	private:
-		static std::vector<mountcloud::Rule*> parseRules(nlohmann::json rulejson);
-        static mountcloud::Rule* parseRule(nlohmann::json rulejson);
+		static std::vector<mountcloud::Rule*> parseRulesByJson(nlohmann::json rulejson);
+        static mountcloud::Rule* parseRuleByJson(nlohmann::json rulejson);
+
+        static std::vector<mountcloud::Rule*> parseRulesByYaml(c4::yml::NodeRef node);
+		static mountcloud::Rule* parseRuleByYaml(c4::yml::NodeRef node);
         /// <summary>
         /// rule to json object
         /// </summary>

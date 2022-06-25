@@ -1,10 +1,5 @@
 #include "matcher.h"
 
-#include "featurelibrary.h"
-#include "stringutil.h"
-#include "rule/rule.h"
-#include "converter.h"
-
 using namespace mountcloud;
 using namespace firedog;
 using namespace std;
@@ -418,7 +413,6 @@ std::vector<MatcherResult*>* Matcher::checkMatcherFeatureMap(AvlMap<char, Matche
 		MatcherData* iterMbd = mbditer->mapped_value;
 		//这里我在想是不是以后可以用多种模式控制，如果是fast模式直接return匹配到的特征？
 		if (iterMbd->features != NULL) {
-			result = new std::vector<MatcherResult*>();
 			for (int i = 0; i < iterMbd->features->size(); i++) {
 				MatcherFeature* mf = iterMbd->features->at(i);
 				int featureId = mf->featureId;
@@ -435,13 +429,16 @@ std::vector<MatcherResult*>* Matcher::checkMatcherFeatureMap(AvlMap<char, Matche
 					ruleData = featureRuleData->at(featureId);
 				}
 
-				//ruleData->set(featureKey, true);
+				ruleData->hit(featureKey);
 
 				featureRuleData->operator[](featureId) = ruleData;
 
 				FeatureLibraryItem* fitem = dataSource->getFeatureLibraryItem(featureId);
 				Rule* rule = fitem->rule;
 				if (rule != NULL && rule->check(ruleData)) {
+					if (result==NULL) {
+						result = new std::vector<MatcherResult*>();
+					}
 					MatcherResult* mr = new MatcherResult();
 					mr->featureId = featureId;
 					mr->author = fitem->author;

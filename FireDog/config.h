@@ -3,9 +3,9 @@
 
 
 //main version
-#define FIREDOG_VERSION "1.3.0"
+#define FIREDOG_VERSION "1.3.1"
 
 //feature library version
-#define FIREDOG_FEATURE_LIBRARY_VERSION "1.2.0"
+#define FIREDOG_FEATURE_LIBRARY_VERSION "1.2.1"
 
 #endif

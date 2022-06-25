@@ -7,21 +7,17 @@
 #include <unordered_map>
 
 #include "map/avlmap.h"
+#include "featurelibrary.h"
+#include "stringutil.h"
+#include "rule/rule.h"
+#include "converter.h"
 
 /// <summary>
 /// fire dog matcher
 /// </summary>
 
-namespace mountcloud {
-	class RuleData;
-}
 
 namespace firedog {
-	
-	class FeatureLibrary;
-	class FeatureLibraryItem;
-
-	class Hex;
 
 	class MatcherFeature {
 	public:

@@ -26,6 +26,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)matcher.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)rule\rule.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)stringutil.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)yaml\yaml.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)converter.cpp" />

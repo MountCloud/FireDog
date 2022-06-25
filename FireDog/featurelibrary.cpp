@@ -1,10 +1,5 @@
 #include "featurelibrary.h"
 
-#include "config.h"
-#include "json/json-schema/json-schema.hpp"
-
-#include "rule/rule.h"
-
 using namespace nlohmann;
 using nlohmann::json_schema::json_validator;
 
@@ -12,6 +7,10 @@ using namespace mountcloud;
 using namespace firedog;
 using namespace std;
 
+#define RYML_SINGLE_HDR_DEFINE_NOW
+#include "yaml/yaml.hpp"
+
+#include "stringutil.h"
 
 FeatureLibrary::FeatureLibrary() {
 	items = new std::vector<FeatureLibraryItem*>();
@@ -89,7 +88,7 @@ FeatureLibrary* FeatureLibrary::createByJson(string json, int* errorcode) {
 				//先看规则
 				nlohmann::json rulejson = item["rule"];
 
-				vector<Rule*> rules = parseRules(rulejson);
+				vector<Rule*> rules = parseRulesByJson(rulejson);
 				if (rules.size()==0) {
 					continue;
 				}
@@ -141,18 +140,112 @@ FeatureLibrary* FeatureLibrary::createByJson(string json, int* errorcode) {
 	return result;
 }
 
-vector<Rule*> FeatureLibrary::parseRules(nlohmann::json rulejson) {
-	vector<Rule*> rules;
+FeatureLibrary* FeatureLibrary::createByYaml(std::string yaml, int* errorcode) {
 
-	auto eachlogicchild = [](nlohmann::json childjson, LogicRule* logicRule) {
-		for (int i = 0; i < childjson.size(); i++) {
-			nlohmann::json cj = childjson[i];
-			vector<Rule*> rules = parseRules(cj);
-			if (rules.size() > 0) {
-				logicRule->addRules(rules);
+	FeatureLibrary* result = NULL;
+
+	ryml::Tree tree;
+
+	bool parseStatus = false;
+	try {
+		tree = ryml::parse_in_place(ryml::to_substr(yaml));
+		parseStatus = true;
+	}
+	catch (std::runtime_error const&) {
+		parseStatus = false;
+
+	}
+	auto rootref = tree.rootref();
+	if (!parseStatus || !rootref.has_child("version") || !rootref.has_child("items")) {
+		*errorcode = FL_CONTENT_FORMATE_ERROR;
+		return result;
+	}
+
+	//get version
+	string version;
+	tree["version"] >> version;
+
+	//check version
+	if (version != FIREDOG_FEATURE_LIBRARY_VERSION) {
+		*errorcode = FL_CONTENT_VERSION_ERROR;
+	}
+
+	result = new FeatureLibrary();
+
+	result->version = version;
+
+	auto items = tree["items"];
+
+	if (items.is_seq()) {
+		int itemscount = items.num_children();
+		for (int i = 0; i < itemscount; i++) {
+			auto item = items[i];
+			if (item.is_map()
+				&& item.has_child("author")
+				&& item.has_child("name")
+				&& item.has_child("describe")
+				&& item.has_child("features") && item["features"].is_seq()
+				&& item.has_child("rules") && item["rules"].is_seq()) {
+
+				//先看规则
+				c4::yml::NodeRef rulesYml = item["rules"];
+
+				vector<Rule*> rules = parseRulesByYaml(rulesYml);
+				if (rules.size() == 0) {
+					continue;
+				}
+
+				Rule* rule = NULL;
+				if (rules.size() == 1) {
+					rule = rules.at(0);
+				}
+				else {
+					AndRule* andRule = new AndRule();
+					andRule->addRules(rules);
+				}
+
+				FeatureLibraryItem* fitem = new FeatureLibraryItem();
+				item["author"] >> fitem->author;
+				item["name"] >> fitem->name;
+				item["describe"] >> fitem->describe;
+				fitem->rule = rule;
+
+				auto features = item["features"];
+				int featurescount = features.num_children();
+				for (int y = 0; y < featurescount; y++) {
+					auto feature = features[y];
+					if (feature.has_child("key")
+						&& (feature.has_child("hex")
+							|| feature.has_child("text"))) {
+						string fkey;
+						feature["key"] >> fkey;
+						string fhex = "";
+						string ftext = "";
+						if (feature.has_child("hex")) {
+							feature["hex"] >> fhex;
+						}
+
+						if (feature.has_child("text")) {
+							feature["text"] >> ftext;
+						}
+
+						Feature* feature = new Feature();
+						feature->key = fkey;
+						feature->hex = fhex;
+						feature->text = ftext;
+						fitem->features->push_back(feature);
+					}
+				}
+				result->items->push_back(fitem);
 			}
 		}
-	};
+	}
+	return result;
+}
+
+vector<Rule*> FeatureLibrary::parseRulesByJson(nlohmann::json rulejson) {
+	vector<Rule*> rules;
+
 	if (rulejson.is_string()) {
 		string id = rulejson;
 		CountRule* countRule = new CountRule(id);
@@ -161,20 +254,22 @@ vector<Rule*> FeatureLibrary::parseRules(nlohmann::json rulejson) {
 		for (auto ruleiter = rulejson.begin(); ruleiter != rulejson.end(); ruleiter++) {
 			std::string key = ruleiter.key();
 			nlohmann::json childrulejson = rulejson[key];
-			if (key == "$and") {
-				AndRule* andRule = new AndRule();
-				eachlogicchild(childrulejson, andRule);
-				rules.push_back(andRule);
-			}
-			else if(key == "$or") {
-				OrRule* orRule = new OrRule();
-				eachlogicchild(childrulejson, orRule);
-				rules.push_back(orRule);
-			}
-			else if (key == "$not") {
-				NotRule* notRule = new NotRule();
-				eachlogicchild(childrulejson, notRule);
-				rules.push_back(notRule);
+			if (key == "$and" || key == "$or" || key == "$not") {
+				LogicRule* logicRule = NULL;
+				vector<Rule*> childRules = parseRulesByJson(childrulejson);
+				if (childRules.size()>0) {
+					if (key == "$and") {
+						logicRule = new AndRule();
+					}
+					if (key == "$or") {
+						logicRule = new OrRule();
+					}
+					if (key == "$not") {
+						logicRule = new NotRule();
+					}
+					logicRule->addRules(childRules);
+					rules.push_back(logicRule);
+				}
 			}
 			else if (key == "$int") {
 				if (childrulejson.is_number()) {
@@ -184,9 +279,13 @@ vector<Rule*> FeatureLibrary::parseRules(nlohmann::json rulejson) {
 				}
 			}
 			else if (key == "$count") {
-				if (childrulejson.is_array()) {
-					vector<string> ids;
-					long num = 1L;
+				vector<string> ids;
+				long num = 1L;
+
+				if (childrulejson.is_string()) {
+					string id = childrulejson;
+					ids.push_back(id);
+				}else if (childrulejson.is_array()) {
 					int idslen = childrulejson.size();
 					for (int i = 0; i < idslen; i++) {
 						nlohmann::json crj = childrulejson[i];
@@ -201,22 +300,25 @@ vector<Rule*> FeatureLibrary::parseRules(nlohmann::json rulejson) {
 							}
 						}
 					}
-					if (ids.size() > 0) {
-						CountRule* countRule = new CountRule(ids);
-						countRule->setCritical(num);
-						rules.push_back(countRule);
-					}
+				}
+
+				if (ids.size() > 0) {
+					CountRule* countRule = new CountRule(ids);
+					countRule->setCritical(num);
+					rules.push_back(countRule);
 				}
 			}
 			else if(key == "$lt"|| key == "$le" || key == "$gt" || key == "$ge") {
-				if (!childrulejson.is_array()&&childrulejson.size()==2) {
-					Rule* compareRule = NULL;
-					nlohmann::json num1json = childrulejson[0];
-					nlohmann::json num2json = childrulejson[1];
-					Rule* num1Rule = parseRule(num1json);
-					Rule* num2Rule = parseRule(num2json);
-					if (num1Rule!=NULL&&num1Rule->getBaseType() == RULE_BASE_TYPE_NUMBER
-						&&num2Rule!=NULL&&num2Rule->getBaseType() == RULE_BASE_TYPE_NUMBER) {
+				Rule* compareRule = NULL;
+
+				vector<Rule*> childRules = parseRulesByJson(childrulejson);
+
+				if (childRules.size()==2) {
+
+					Rule* num1Rule = childRules[0];
+					Rule* num2Rule = childRules[1];
+					if (num1Rule != NULL && num1Rule->getBaseType() == RULE_BASE_TYPE_NUMBER
+						&& num2Rule != NULL && num2Rule->getBaseType() == RULE_BASE_TYPE_NUMBER) {
 						if (key == "$lt") {
 							compareRule = new LtRule((NumberRule*)num1Rule, (NumberRule*)num2Rule);
 						}
@@ -233,6 +335,7 @@ vector<Rule*> FeatureLibrary::parseRules(nlohmann::json rulejson) {
 					if (compareRule != NULL) {
 						rules.push_back(compareRule);
 					}
+
 				}
 			}
 		}
@@ -240,10 +343,10 @@ vector<Rule*> FeatureLibrary::parseRules(nlohmann::json rulejson) {
 	return rules;
 }
 
-Rule* FeatureLibrary::parseRule(nlohmann::json rulejson) {
+Rule* FeatureLibrary::parseRuleByJson(nlohmann::json rulejson) {
 	Rule* rule = NULL;
 
-	vector<Rule*> rules = parseRules(rulejson);
+	vector<Rule*> rules = parseRulesByJson(rulejson);
 	if (rules.size()>0) {
 		rule = rules.at(0);
 	}
@@ -360,6 +463,122 @@ nlohmann::json FeatureLibrary::ruleToJson(mountcloud::Rule* rule,bool* state) {
 	//	*state = false;
 	//}
 	return jsonRule;
+}
+
+std::vector<mountcloud::Rule*> FeatureLibrary::parseRulesByYaml(c4::yml::NodeRef node) {
+	std::vector<mountcloud::Rule*> rules;
+	if (node.is_seq()) {
+		int count = node.num_children();
+		for (int i = 0; i < count; i++) {
+			std::vector<mountcloud::Rule*> crules = parseRulesByYaml(node[i]);
+			if (crules.size() > 0) {
+				rules.insert(rules.end(), crules.begin(), crules.end());
+			}
+		}
+	}
+	else if(node.is_map()){
+		c4::yml::Tree* tree = node.tree();
+		int nodeid = node.id();
+		for (size_t child_id = tree->first_child(nodeid); child_id != ryml::NONE; child_id = tree->next_sibling(child_id)) {
+			auto key = tree->key(child_id);
+			auto childrule = node[key];
+			if (key == "$and" || key == "$or" || key == "$not") {
+				LogicRule* logicRule = NULL;
+				vector<Rule*> childRules = parseRulesByYaml(childrule);
+				if (childRules.size() > 0) {
+					if (key == "$and") {
+						logicRule = new AndRule();
+					}
+					if (key == "$or") {
+						logicRule = new OrRule();
+					}
+					if (key == "$not") {
+						logicRule = new NotRule();
+					}
+					logicRule->addRules(childRules);
+					rules.push_back(logicRule);
+				}
+			}
+			else if (key == "$int") {
+				if (childrule.is_keyval()) {
+					long num = 0L;
+					string numstr;
+					childrule >> numstr;
+					if (StringUtil::isNumber(numstr)) {
+						num = atoi(numstr.c_str());
+						IntRule* intRule = new IntRule(num);
+						rules.push_back(intRule);
+					}
+				}
+			}
+			else if (key == "$count") {
+				vector<string> ids;
+				long num = 1L;
+
+				if (childrule.is_keyval()) {
+					string id;
+					childrule >> id;
+					ids.push_back(id);
+				}
+				else if (childrule.is_seq()) {
+					int idslen = childrule.num_children();
+					for (int i = 0; i < idslen; i++) {
+						auto crj = childrule[i];
+						string id;
+						crj >> id;
+						ids.push_back(id);
+					}
+				}
+
+				if (ids.size() > 0) {
+					CountRule* countRule = new CountRule(ids);
+					countRule->setCritical(num);
+					rules.push_back(countRule);
+				}
+			}
+			else if (key == "$lt" || key == "$le" || key == "$gt" || key == "$ge") {
+				Rule* compareRule = NULL;
+
+				vector<Rule*> childRules = parseRulesByYaml(childrule);
+
+				if (childRules.size() == 2) {
+
+					Rule* num1Rule = childRules[0];
+					Rule* num2Rule = childRules[1];
+					if (num1Rule != NULL && num1Rule->getBaseType() == RULE_BASE_TYPE_NUMBER
+						&& num2Rule != NULL && num2Rule->getBaseType() == RULE_BASE_TYPE_NUMBER) {
+						if (key == "$lt") {
+							compareRule = new LtRule((NumberRule*)num1Rule, (NumberRule*)num2Rule);
+						}
+						if (key == "$le") {
+							compareRule = new LeRule((NumberRule*)num1Rule, (NumberRule*)num2Rule);
+						}
+						if (key == "$gt") {
+							compareRule = new GtRule((NumberRule*)num1Rule, (NumberRule*)num2Rule);
+						}
+						if (key == "$ge") {
+							compareRule = new GeRule((NumberRule*)num1Rule, (NumberRule*)num2Rule);
+						}
+					}
+					if (compareRule != NULL) {
+						rules.push_back(compareRule);
+					}
+
+				}
+			}
+
+		}
+			
+	}
+	return rules;
+}
+
+mountcloud::Rule* FeatureLibrary::parseRuleByYaml(c4::yml::NodeRef node) {
+	vector<Rule*> rules = parseRulesByYaml(node);
+	if (rules.size() > 0) {
+		return rules[0];
+	}
+	return NULL;
 }
 
 FeatureLibraryItem::~FeatureLibraryItem() {

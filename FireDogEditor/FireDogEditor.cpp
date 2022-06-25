@@ -740,6 +740,81 @@ void FireDogEditor::slots_selectFeatureTableEvent(const QModelIndex& current, co
 
 QStandardItem* FireDogEditor::ruleToItem(mountcloud::Rule* rule) {
     QStandardItem* ruleitem = new QStandardItem();
+
+    if (rule->getBaseType() == RULE_BASE_TYPE_ALL) {
+        ruleitem->setText(QStringLiteral("$all"));
+        mountcloud::AllRule* allRule = (mountcloud::AllRule*) rule;
+        std::vector<std::string> ids = allRule->getIds();
+        for (int i = 0; i < ids.size(); i++) {
+            QStandardItem* idsItem = new QStandardItem();
+            idsItem->setText(QString(ids[i].c_str()));
+            ruleitem->appendRow(idsItem);
+        }
+	}
+	else if(rule->getBaseType() == RULE_BASE_TYPE_LOGIC) {
+		mountcloud::LogicRule* logicRule = (mountcloud::LogicRule*)rule;
+
+		if (logicRule->getType() == RULE_TYPE_LOGIC_AND) {
+			ruleitem->setText(QStringLiteral("$and"));
+		}
+		else if (logicRule->getType() == RULE_TYPE_LOGIC_OR) {
+			ruleitem->setText(QStringLiteral("$or"));
+		}
+		else if (logicRule->getType() == RULE_TYPE_LOGIC_NOT) {
+			ruleitem->setText(QStringLiteral("$not"));
+		}
+
+        for (int i = 0; i < logicRule->getRules()->size(); i++) {
+            mountcloud::Rule* crule = logicRule->getRules()->at(i);
+            QStandardItem* citem = ruleToItem(crule);
+            ruleitem->appendRow(citem);
+        }
+
+	}
+    else if (rule->getType() == RULE_TYPE_NUMBER_INT) {
+        mountcloud::IntRule* intRule = (mountcloud::IntRule*)rule;
+
+		ruleitem->setText(QStringLiteral("$int"));
+        QStandardItem* citem = new QStandardItem();
+        citem->setText(QString::number(intRule->getNum()));
+        ruleitem->appendRow(citem);
+    }
+	else if (rule->getType() == RULE_TYPE_NUMBER_COUNT) {
+		mountcloud::CountRule* countRule = (mountcloud::CountRule*)rule;
+
+        ruleitem->setText(QStringLiteral("$count"));
+        for (int i = 0; i < countRule->getIds().size(); i++) {
+			QStandardItem* idsItem = new QStandardItem();
+			idsItem->setText(QString(countRule->getIds()[i].c_str()));
+			ruleitem->appendRow(idsItem);
+        }
+    }
+    else if (rule->getBaseType() == RULE_BASE_TYPE_COMPARE) {
+
+		if (rule->getType() == RULE_TYPE_COMPARE_LT) {
+			ruleitem->setText(QStringLiteral("$lt"));
+		}
+		else if (rule->getType() == RULE_TYPE_COMPARE_LE) {
+			ruleitem->setText(QStringLiteral("$le"));
+		}
+		else if (rule->getType() == RULE_TYPE_COMPARE_GT) {
+			ruleitem->setText(QStringLiteral("$gt"));
+		}
+		else if (rule->getType() == RULE_TYPE_COMPARE_GE) {
+			ruleitem->setText(QStringLiteral("$ge"));
+		}
+
+        mountcloud::CompareRule* compareRule = (mountcloud::CompareRule*)rule;
+        mountcloud::NumberRule* num1rule = compareRule->getNum1();
+        mountcloud::NumberRule* num2rule = compareRule->getNum2();
+
+        QStandardItem* c1item = ruleToItem(num1rule);
+        QStandardItem* c2item = ruleToItem(num2rule);
+
+        ruleitem->appendRow(c1item);
+        ruleitem->appendRow(c2item);
+    }
+
     //if (!rule->id.empty()) {
     //    ruleitem->setText(QString(rule->id.c_str()));
     //}

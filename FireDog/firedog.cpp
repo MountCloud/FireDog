@@ -1,6 +1,4 @@
 #include "firedog.h"
-#include "featurelibrary.h"
-#include "matcher.h"
 
 using namespace firedog;
 

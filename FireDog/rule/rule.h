@@ -62,6 +62,7 @@ namespace mountcloud {
 		AllRule(std::vector<std::string> ids);
 		void addId(std::string id);
 		bool check(RuleData* data) override;
+		std::vector<std::string> getIds();
 	private:
 		std::vector<std::string> ids;
 	};
@@ -74,6 +75,7 @@ namespace mountcloud {
 		~LogicRule();
 		void addRule(Rule* rule);
 		void addRules(std::vector<Rule*> rules);
+		std::vector<Rule*>* getRules();
 	protected:
 		std::vector<Rule*>* rules = NULL;
 	};
@@ -109,6 +111,7 @@ namespace mountcloud {
 		IntRule(long num);
 		bool check(RuleData* data) override;
 		long getNumber(RuleData* data) override;
+		long getNum();
 	private:
 		long num = 0;
 	};
@@ -127,6 +130,8 @@ namespace mountcloud {
 		bool check(RuleData* data) override;
 
 		void setCritical(long critical);
+
+		std::vector<std::string> getIds();
 	private:
 		long critical = 1;
 		std::vector<std::string> ids;
@@ -136,6 +141,8 @@ namespace mountcloud {
 	class CompareRule :public Rule {
 	public:
 		CompareRule(NumberRule* num1, NumberRule* num2);
+		NumberRule* getNum1();
+		NumberRule* getNum2();
 	protected:
 		NumberRule* num1 = NULL;
 		NumberRule* num2 = NULL;

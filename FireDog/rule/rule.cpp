@@ -70,6 +70,10 @@ bool AllRule::check(RuleData* data) {
 	return true;
 }
 
+std::vector<std::string> AllRule::getIds() {
+	return this->ids;
+}
+
 LogicRule::LogicRule() {
 	rules = new std::vector<Rule*>();
 	baseType = RULE_BASE_TYPE_LOGIC;
@@ -97,6 +101,10 @@ void LogicRule::addRule(Rule* rule) {
 
 void LogicRule::addRules(std::vector<Rule*> rules) {
 	this->rules->insert(this->rules->end(), rules.begin(), rules.end());
+}
+
+std::vector<Rule*>* LogicRule::getRules() {
+	return this->rules;
 }
 
 bool AndRule::check(RuleData* data) {
@@ -157,6 +165,10 @@ IntRule::IntRule(long num) {
 	type = RULE_TYPE_NUMBER_INT;
 }
 
+long IntRule::getNum() {
+	return num;
+}
+
 bool IntRule::check(RuleData* data) {
 	return true;
 }
@@ -214,6 +226,9 @@ bool CountRule::check(RuleData* data) {
 	return false;
 }
 
+std::vector<std::string> CountRule::getIds() {
+	return this->ids;
+}
 
 CompareRule::CompareRule(NumberRule* num1, NumberRule* num2) {
 	this->num1 = num1;
@@ -223,6 +238,14 @@ CompareRule::CompareRule(NumberRule* num1, NumberRule* num2) {
 
 LtRule::LtRule(NumberRule* num1, NumberRule* num2) : CompareRule(num1, num2) {
 	type = RULE_TYPE_COMPARE_LT;
+}
+
+NumberRule* CompareRule::getNum1() {
+	return this->num1;
+}
+
+NumberRule* CompareRule::getNum2() {
+	return this->num2;
 }
 
 bool LtRule::check(RuleData* data) {

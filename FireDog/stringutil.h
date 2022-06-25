@@ -13,14 +13,12 @@
 class StringUtil {
 public:
 	static std::string ltrim(std::string str) {
-		std::string::iterator p = find_if(str.begin(), str.end(), not1(std::ptr_fun<int, int>(isspace)));
-		str.erase(str.begin(), p);
+		str.erase(0, str.find_first_not_of(" "));
 		return str;
 	};
 
 	static std::string rtrim(std::string str) {
-		std::string::reverse_iterator p = find_if(str.rbegin(), str.rend(), not1(std::ptr_fun<int, int>(isspace)));
-		str.erase(p.base(), str.end());
+		str.erase(str.find_last_not_of(" ")+1);
 		return str;
 	};
 
@@ -98,6 +96,22 @@ public:
 			char chr = (char)(int)strtol(byte.c_str(), NULL, 16);
 			results->push_back(chr);
 		}
+	}
+
+	static bool isNumber(std::string str) {
+		for (int i = 0; i < str.size(); i++)
+		{
+			int tmp = (int)str[i];
+			if (tmp >= 48 && tmp <= 57)
+			{
+				continue;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 };
 

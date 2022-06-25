@@ -13,6 +13,9 @@
     <Filter Include="rule">
       <UniqueIdentifier>{e756ca74-1d30-4cf7-a5df-4a73f2ab6d0d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="yaml">
+      <UniqueIdentifier>{c8dfd22c-da71-4c8c-801d-42eb85ecaa96}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)errorcode.h" />
@@ -36,6 +39,9 @@
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)rule\rule.h">
       <Filter>rule</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)yaml\yaml.hpp">
+      <Filter>yaml</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

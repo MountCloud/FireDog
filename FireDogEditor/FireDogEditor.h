@@ -17,7 +17,7 @@
 
 #include "Qss/Qss.h"
 
-#define FIREDOG_EDITOR_VERSION "v1.0"
+#define FIREDOG_EDITOR_VERSION "v2.1 DEV"
 #define EXIT_CODE_REBOOT -123456789
 
 //∆•≈‰π‹º“
