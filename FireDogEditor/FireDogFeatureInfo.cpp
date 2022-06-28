@@ -159,7 +159,6 @@ void FireDogFeatureInfo::slots_cancel() {
     this->hide();
 }
 
-
 FireDogFeatureInfo::~FireDogFeatureInfo()
 {
     delete ui;

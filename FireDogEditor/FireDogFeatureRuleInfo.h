@@ -21,12 +21,13 @@ public:
     explicit FireDogFeatureRuleInfo(QWidget *parent = nullptr);
     ~FireDogFeatureRuleInfo();
 
-    bool updateRule(QString* rule,bool isRoot);
+    bool updateRule(QString* rule,QVector<QString>* childs,QString parent);
 
 private slots:
     void slots_radioClick();
     void slots_saveClick();
     void slots_cancelClick();
+    void currentIndexChanged(const QString text);
 
 private:
     Ui::FireDogFeatureRuleInfo *ui;
@@ -36,6 +37,7 @@ private:
     bool isOk = false;
 
     void init();
+    void setDefaultValue();
 
 };
 

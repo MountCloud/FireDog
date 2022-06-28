@@ -139,7 +139,7 @@ bool OrRule::check(RuleData* data) {
 }
 
 NotRule::NotRule() {
-	baseType = RULE_TYPE_LOGIC_NOT;
+	type = RULE_TYPE_LOGIC_NOT;
 }
 
 bool NotRule::check(RuleData* data) {

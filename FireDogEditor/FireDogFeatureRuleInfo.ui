@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>310</width>
-    <height>190</height>
+    <width>373</width>
+    <height>378</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -19,121 +19,11 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QLabel" name="labelType">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>72</width>
-     <height>15</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Type</string>
-   </property>
-  </widget>
-  <widget class="QRadioButton" name="radioButtonAnd">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>35</y>
-     <width>61</width>
-     <height>19</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>$and</string>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QRadioButton" name="radioButtonOr">
-   <property name="geometry">
-    <rect>
-     <x>80</x>
-     <y>35</y>
-     <width>61</width>
-     <height>19</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>$or</string>
-   </property>
-  </widget>
-  <widget class="QRadioButton" name="radioButtonKey">
-   <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>35</y>
-     <width>61</width>
-     <height>19</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Key</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="labelKey">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>80</y>
-     <width>72</width>
-     <height>15</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Key</string>
-   </property>
-  </widget>
-  <widget class="Line" name="line">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>60</y>
-     <width>311</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="lineEditKey">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>105</y>
-     <width>291</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="placeholderText">
-    <string>0-9a-zA-Z</string>
-   </property>
-  </widget>
-  <widget class="Line" name="line_2">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>130</y>
-     <width>311</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-  </widget>
   <widget class="QPushButton" name="pushButtonSave">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>150</y>
+     <y>340</y>
      <width>93</width>
      <height>28</height>
     </rect>
@@ -145,14 +35,511 @@
   <widget class="QPushButton" name="pushButtonCancel">
    <property name="geometry">
     <rect>
-     <x>210</x>
-     <y>150</y>
+     <x>270</x>
+     <y>340</y>
      <width>93</width>
      <height>28</height>
     </rect>
    </property>
    <property name="text">
     <string>Cancel</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBoxType">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>351</width>
+     <height>145</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Type</string>
+   </property>
+   <widget class="QRadioButton" name="radioButtonInt">
+    <property name="geometry">
+     <rect>
+      <x>235</x>
+      <y>71</y>
+      <width>59</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>$int</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButtonOr">
+    <property name="geometry">
+     <rect>
+      <x>123</x>
+      <y>26</y>
+      <width>51</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>$or</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButtonCount">
+    <property name="geometry">
+     <rect>
+      <x>123</x>
+      <y>71</y>
+      <width>75</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>$count</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButtonAnd">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>26</y>
+      <width>59</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>$and</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButtonAll">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>71</y>
+      <width>59</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>$all</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButtonNot">
+    <property name="geometry">
+     <rect>
+      <x>235</x>
+      <y>26</y>
+      <width>59</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>$not</string>
+    </property>
+   </widget>
+   <widget class="Line" name="line">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>331</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="Line" name="line_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>90</y>
+      <width>331</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButtonLt">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>111</y>
+      <width>51</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>$lt</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButtonLe">
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>111</y>
+      <width>51</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>$le</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButtonGt">
+    <property name="geometry">
+     <rect>
+      <x>179</x>
+      <y>111</y>
+      <width>51</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>$gt</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButtonGe">
+    <property name="geometry">
+     <rect>
+      <x>263</x>
+      <y>111</y>
+      <width>51</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>$ge</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBoxRuleInfo">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>180</y>
+     <width>351</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>RuleInfo</string>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="leftMargin">
+     <number>11</number>
+    </property>
+    <property name="topMargin">
+     <number>11</number>
+    </property>
+    <property name="rightMargin">
+     <number>11</number>
+    </property>
+    <property name="bottomMargin">
+     <number>1</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="QStackedWidget" name="stackedWidgetRuleInfo">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="pageKey">
+       <widget class="QLineEdit" name="lineEditKey">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>20</y>
+          <width>261</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="placeholderText">
+         <string>0-9a-zA-Z,</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="labelKey">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>20</y>
+          <width>31</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Key</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="labelKeyTips">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>70</y>
+          <width>311</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color:rgb(99, 99, 99);</string>
+        </property>
+        <property name="text">
+         <string>Separate multiple ids with commas (,).</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="pageInt">
+       <widget class="QLabel" name="labelInt">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>20</y>
+          <width>31</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Int</string>
+        </property>
+       </widget>
+       <widget class="QSpinBox" name="spinBoxInt">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>20</y>
+          <width>271</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="value">
+         <number>1</number>
+        </property>
+       </widget>
+       <widget class="QLabel" name="labelNumTips">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>70</y>
+          <width>311</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color:rgb(99, 99, 99);</string>
+        </property>
+        <property name="text">
+         <string>Only numbers are allowed.</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="pageCompage">
+       <widget class="Line" name="line_2">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>30</y>
+          <width>301</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+       <widget class="QLabel" name="labelNum1">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>41</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Num1</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="labelNum2">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>50</y>
+          <width>41</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Num2</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="comboBoxNum1Type">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>10</y>
+          <width>91</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="currentIndex">
+         <number>-1</number>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="comboBoxNum2Type">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>50</y>
+          <width>91</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="currentIndex">
+         <number>-1</number>
+        </property>
+       </widget>
+       <widget class="QLabel" name="labelCompageTips">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>80</y>
+          <width>311</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color:rgb(99, 99, 99);</string>
+        </property>
+        <property name="text">
+         <string>Separate multiple ids with commas (,).</string>
+        </property>
+       </widget>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>150</x>
+          <y>10</y>
+          <width>161</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLineEdit" name="lineEditNum1Count">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <property name="readOnly">
+            <bool>false</bool>
+           </property>
+           <property name="placeholderText">
+            <string>0-9a-zA-Z,</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spinBoxNum1Int">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="value">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>150</x>
+          <y>50</y>
+          <width>161</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLineEdit" name="lineEditNum2Count">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="readOnly">
+            <bool>false</bool>
+           </property>
+           <property name="placeholderText">
+            <string>0-9a-zA-Z,</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spinBoxNum2Int">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="Line" name="line_4">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>320</y>
+     <width>351</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="Line" name="line_5">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>160</y>
+     <width>351</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
    </property>
   </widget>
  </widget>

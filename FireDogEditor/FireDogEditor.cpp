@@ -669,20 +669,31 @@ void FireDogEditor::slots_featureInfoRuleTreeOpenMenu(QPoint pos) {
     QModelIndex currIndex = ui.treeViewLibraryInfoRules->currentIndex();;
 	int curRow = currIndex.row(); //选中行
 
-    bool isKey = false;
-    if (curRow != -1) {
-        QStandardItem* item = this->featureLibraryInfoRuleTreeModel->itemFromIndex(currIndex);
-        QString text = item->text();
-        if (text != "$and" && text != "$or") {
-            isKey = true;
+	bool isLogic = false;
+    bool isCompareChild = false;
+	if (curRow != -1) {
+		QStandardItem* item = this->featureLibraryInfoRuleTreeModel->itemFromIndex(currIndex);
+		QString text = item->text();
+		if (text == "$and" || text == "$or" || text == "$not") {
+            isLogic = true;
+        }
+        else if(text.startsWith("$count")||text.startsWith("$int")) {
+            QStandardItem* pitem = item->parent();
+            if (pitem != NULL) {
+                QString ptext = pitem->text();
+                if (ptext == "$lt"||ptext == "$le" || ptext == "$gt" || ptext == "$ge") {
+                    isCompareChild = true;
+                }
+
+            }
         }
     }
 
-    if (isKey || (this->featureLibraryInfoRuleTreeModel->rowCount() != 0 && curRow == -1)) {
-        this->featureLibraryInfoRuleTreeMenuAddAction->setEnabled(false);
+    if (isLogic || (this->featureLibraryInfoRuleTreeModel->rowCount() == 0 && curRow == -1)) {
+        this->featureLibraryInfoRuleTreeMenuAddAction->setEnabled(true);
     }
     else {
-        this->featureLibraryInfoRuleTreeMenuAddAction->setEnabled(true);
+        this->featureLibraryInfoRuleTreeMenuAddAction->setEnabled(false);
     }
     
   
@@ -694,6 +705,13 @@ void FireDogEditor::slots_featureInfoRuleTreeOpenMenu(QPoint pos) {
 		featureLibraryInfoRuleTreeMenuEditAction->setEnabled(true);
 		featureLibraryInfoRuleTreeMenuDelAction->setEnabled(true);
 	}
+
+	if (isCompareChild) {
+		featureLibraryInfoRuleTreeMenuDelAction->setEnabled(false);
+    }
+    else {
+		featureLibraryInfoRuleTreeMenuDelAction->setEnabled(true);
+    }
 
 	auto index = ui.treeViewLibraryInfoRules->indexAt(pos);
     featureLibraryInfoRuleTreeMenu->exec(QCursor::pos()); // 菜单出现的位置为当前鼠标的位置
@@ -740,16 +758,16 @@ void FireDogEditor::slots_selectFeatureTableEvent(const QModelIndex& current, co
 
 QStandardItem* FireDogEditor::ruleToItem(mountcloud::Rule* rule) {
     QStandardItem* ruleitem = new QStandardItem();
-
-    if (rule->getBaseType() == RULE_BASE_TYPE_ALL) {
-        ruleitem->setText(QStringLiteral("$all"));
-        mountcloud::AllRule* allRule = (mountcloud::AllRule*) rule;
-        std::vector<std::string> ids = allRule->getIds();
-        for (int i = 0; i < ids.size(); i++) {
-            QStandardItem* idsItem = new QStandardItem();
-            idsItem->setText(QString(ids[i].c_str()));
-            ruleitem->appendRow(idsItem);
-        }
+	if (rule->getBaseType() == RULE_BASE_TYPE_ALL) {
+		mountcloud::AllRule* allRule = (mountcloud::AllRule*)rule;
+		QString allText = "$all:";
+		for (int i = 0; i < allRule->getIds().size(); i++) {
+            allText += QString::fromStdString(allRule->getIds().at(i));
+			if (i != allRule->getIds().size() - 1) {
+                allText += ",";
+			}
+		}
+		ruleitem->setText(allText);
 	}
 	else if(rule->getBaseType() == RULE_BASE_TYPE_LOGIC) {
 		mountcloud::LogicRule* logicRule = (mountcloud::LogicRule*)rule;
@@ -773,21 +791,21 @@ QStandardItem* FireDogEditor::ruleToItem(mountcloud::Rule* rule) {
 	}
     else if (rule->getType() == RULE_TYPE_NUMBER_INT) {
         mountcloud::IntRule* intRule = (mountcloud::IntRule*)rule;
-
-		ruleitem->setText(QStringLiteral("$int"));
-        QStandardItem* citem = new QStandardItem();
-        citem->setText(QString::number(intRule->getNum()));
-        ruleitem->appendRow(citem);
+        QString intText = "$int:";
+        intText += QString::number(intRule->getNum());
+		ruleitem->setText(intText);
     }
 	else if (rule->getType() == RULE_TYPE_NUMBER_COUNT) {
 		mountcloud::CountRule* countRule = (mountcloud::CountRule*)rule;
 
-        ruleitem->setText(QStringLiteral("$count"));
+        QString countText = "$count:";
         for (int i = 0; i < countRule->getIds().size(); i++) {
-			QStandardItem* idsItem = new QStandardItem();
-			idsItem->setText(QString(countRule->getIds()[i].c_str()));
-			ruleitem->appendRow(idsItem);
-        }
+            countText += QString::fromStdString(countRule->getIds().at(i));
+            if (i!= countRule->getIds().size() - 1) {
+                countText += ",";
+            }
+		}
+		ruleitem->setText(countText);
     }
     else if (rule->getBaseType() == RULE_BASE_TYPE_COMPARE) {
 
@@ -971,15 +989,20 @@ void FireDogEditor::clearInfoContent(bool isFeatureAdd) {
 }
 
 void FireDogEditor::slots_featureLibraryInfoRuleMenuAddEvent() {
+	QModelIndex currIndex = ui.treeViewLibraryInfoRules->currentIndex();;
+	int curRow = currIndex.row(); //选中行
 
-    bool ruleIsEmpty = this->featureLibraryInfoRuleTreeModel->rowCount() == 0;
-    bool isRoot = false;
-    if (ruleIsEmpty) {
-        isRoot = true;
+	bool ruleIsEmpty = this->featureLibraryInfoRuleTreeModel->rowCount() == 0;
+
+	QVector<QString> childs;
+	QString parent;
+    if (curRow != -1) {
+        QStandardItem* selectItem = this->featureLibraryInfoRuleTreeModel->itemFromIndex(currIndex);
+        parent = selectItem->text();
     }
 
     QString rule;
-    bool isOk = this->fireDogFeatureRuleInfoView->updateRule(&rule, isRoot);
+    bool isOk = this->fireDogFeatureRuleInfoView->updateRule(&rule, &childs, parent);
 	if (isOk) {
 		QStandardItem* ruleitem = new QStandardItem(rule);
         //如果是空的
@@ -987,7 +1010,6 @@ void FireDogEditor::slots_featureLibraryInfoRuleMenuAddEvent() {
             featureLibraryInfoRuleTreeModel->appendRow(ruleitem);
         }
         else {
-			QModelIndex currIndex = ui.treeViewLibraryInfoRules->currentIndex();;
             QStandardItem* selectItem = this->featureLibraryInfoRuleTreeModel->itemFromIndex(currIndex);
             selectItem->appendRow(ruleitem);
 		}
@@ -1005,8 +1027,22 @@ void FireDogEditor::slots_featureLibraryInfoRuleMenuEditEvent() {
     
     bool isRoot = selectItem->parent() == NULL;
 
+    QVector<QString> childs;
+    QString parent;
     QString rule = selectItem->text();
-    bool isOk = this->fireDogFeatureRuleInfoView->updateRule(&rule, isRoot);
+
+    QStandardItem* selectItemParent = selectItem->parent();
+    if (selectItemParent!=NULL) {
+        parent = selectItemParent->text();
+    }
+
+    int count = selectItem->rowCount();
+    for (int i = 0; i < count; i++) {
+        QStandardItem* childItem = selectItem->child(i);
+        childs.push_back(childItem->text());
+    }
+
+    bool isOk = this->fireDogFeatureRuleInfoView->updateRule(&rule, &childs, parent);
     if (isOk) {
         selectItem->setText(rule);
     }

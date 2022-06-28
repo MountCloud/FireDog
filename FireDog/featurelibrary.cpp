@@ -151,7 +151,7 @@ FeatureLibrary* FeatureLibrary::createByYaml(std::string yaml, int* errorcode) {
 		tree = ryml::parse_in_place(ryml::to_substr(yaml));
 		parseStatus = true;
 	}
-	catch (std::runtime_error const&) {
+	catch (...) {
 		parseStatus = false;
 
 	}
@@ -482,7 +482,30 @@ std::vector<mountcloud::Rule*> FeatureLibrary::parseRulesByYaml(c4::yml::NodeRef
 		for (size_t child_id = tree->first_child(nodeid); child_id != ryml::NONE; child_id = tree->next_sibling(child_id)) {
 			auto key = tree->key(child_id);
 			auto childrule = node[key];
-			if (key == "$and" || key == "$or" || key == "$not") {
+			if (key == "$all") {
+				vector<string> ids;
+				long num = 1L;
+
+				if (childrule.is_keyval()) {
+					string id;
+					childrule >> id;
+					ids.push_back(id);
+				}
+				else if (childrule.is_seq()) {
+					int idslen = childrule.num_children();
+					for (int i = 0; i < idslen; i++) {
+						auto crj = childrule[i];
+						string id;
+						crj >> id;
+						ids.push_back(id);
+					}
+				}
+
+				if (ids.size() > 0) {
+					AllRule* allRule = new AllRule(ids);
+					rules.push_back(allRule);
+				}
+			}else if (key == "$and" || key == "$or" || key == "$not") {
 				LogicRule* logicRule = NULL;
 				vector<Rule*> childRules = parseRulesByYaml(childrule);
 				if (childRules.size() > 0) {
@@ -526,7 +549,12 @@ std::vector<mountcloud::Rule*> FeatureLibrary::parseRulesByYaml(c4::yml::NodeRef
 						auto crj = childrule[i];
 						string id;
 						crj >> id;
-						ids.push_back(id);
+						if (StringUtil::isNumber(id)&&i==idslen-1) {
+							num = atoi(id.c_str());
+						}
+						else {
+							ids.push_back(id);
+						}
 					}
 				}
 
