@@ -68,7 +68,7 @@ private:
 	int state;
 	MatchWork* nowWork = NULL;
 
-	bool match(QByteArray byteArray);
+	void match(QByteArray byteArray);
 
 signals:
 	void nextWork(MatchWorkThread* misson, int* state);

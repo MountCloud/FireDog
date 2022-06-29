@@ -127,6 +127,9 @@
 
   "feature-rule-window-title":"Feature Rule Editor",
   "feature-rule-info-type":"Type",
+  "feature-rule-info-ruleinfo":"RuleInfo",
+  "feature-rule-info-keytips":"Separate multiple ids with commas (,).",
+  "feature-rule-info-numtips":"Only numbers are allowed.",
   "feature-rule-info-key":"Key",
   "feature-rule-info-save":"Save",
   "feature-rule-info-cancel":"Cancel",

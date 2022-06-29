@@ -68,9 +68,9 @@ void MatchWorkThread::run() {
 				while (true)
 				{
 					QByteArray bytes = file.read(WORK_READ_FILE_LENGTH);
-					bool matchState = match(bytes);
+					 match(bytes);
 					//匹配到了或者文件读完了
-					if (bytes.size() < WORK_READ_FILE_LENGTH || matchState) {
+					if (bytes.size() < WORK_READ_FILE_LENGTH) {
 						break;
 					}
 				}
@@ -99,12 +99,41 @@ void MatchWorkThread::run() {
 					QByteArray bytes = file.read(WORK_READ_FILE_LENGTH);
 					readlength = readlength + len;
 
-					bool matchState = match(bytes);
+					match(bytes);
 					//匹配到了或者文件读完了
-					if (bytes.size() < WORK_READ_FILE_LENGTH || matchState) {
+					if (bytes.size() < WORK_READ_FILE_LENGTH) {
 						break;
 					}
 				}
+			}
+			vector<MatcherResult*>* result = this->nowWork->matcher->check();
+			if (result != NULL) {
+
+				int sourceId = this->nowWork->sourceId;
+				int workType = this->nowWork->workType;
+				QString workContent = this->nowWork->content;
+
+				for (int i = 0; i < result->size(); i++) {
+
+					MatcherResult* mr = result->at(i);
+
+					HitFeature hf;
+					hf.sourceId = sourceId;
+					hf.featureId = mr->featureId;
+					hf.workType = workType;
+					hf.content = workContent;
+					hf.name = QString::fromStdString(mr->name);
+					hf.author = QString::fromStdString(mr->author);
+					hf.describe = QString::fromStdString(mr->describe);
+
+					emit hit(hf);
+
+					delete mr;
+					mr = NULL;
+				}
+
+				delete result;
+				result = NULL;
 			}
 		}
 		
@@ -116,43 +145,13 @@ void MatchWorkThread::run() {
 	emit workSuccess(this->id);
 }
 
-bool MatchWorkThread::match(QByteArray byteArray) {
+void MatchWorkThread::match(QByteArray byteArray) {
 	Matcher* matcher = this->nowWork->matcher;
 	bool matchstate = false;
 	for (int i = 0; i < byteArray.size(); i++) {
 		char byte = byteArray.at(i);
-		vector<MatcherResult*>* result = matcher->matchByte(byte);
-		if (result != NULL) {
-
-			int sourceId = this->nowWork->sourceId;
-			int workType = this->nowWork->workType;
-			QString workContent = this->nowWork->content;
-
-			for (int i = 0; i < result->size(); i++) {
-
-				MatcherResult* mr = result->at(i);
-
-				HitFeature hf;
-				hf.sourceId = sourceId;
-				hf.featureId = mr->featureId;
-				hf.workType = workType;
-				hf.content = workContent;
-				hf.name = QString::fromStdString(mr->name);
-				hf.author = QString::fromStdString(mr->author);
-				hf.describe = QString::fromStdString(mr->describe);
-
-				emit hit(hf);
-
-				delete mr;
-				mr = NULL;
-			}
-			
-			delete result;
-			result = NULL;
-			matchstate =  true;
-		}
+		matcher->matchByte(byte);
 	}
-	return matchstate;
 }
 
 int MatchWorkThread::getState() {

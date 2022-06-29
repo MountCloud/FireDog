@@ -19,10 +19,13 @@ HEADERS += ../FireDog/config.h \
     ../FireDog/matcher.h \
     ../FireDog/rule/rule.h \
     ../FireDog/stringutil.h \
+    ../FireDog/yaml/yaml.hpp \
+    ./resource.h \
     ./FireDogEditor.h \
     ./FireDogFeatureInfo.h \
     ./FireDogFeatureRuleInfo.h \
     ./FireDogSwitchLanguage.h \
+    ./FireDogAbout.h \
     ./bigdatatableitem.h \
     ./loadingdialog.h \
     ./hexeditor.h \
@@ -32,9 +35,7 @@ HEADERS += ../FireDog/config.h \
     ./partutil.h \
     ./matchthread.h \
     ./gui18n.h \
-    ./gui18nutil.h \
-    ./FireDogAbout.h \
-    ./resource.h
+    ./gui18nutil.h
 SOURCES += ../FireDog/converter.cpp \
     ../FireDog/featurelibrary.cpp \
     ../FireDog/firedog.cpp \
@@ -45,6 +46,7 @@ SOURCES += ../FireDog/converter.cpp \
     ../FireDog/json/json-schema/string-format-check.cpp \
     ../FireDog/matcher.cpp \
     ../FireDog/rule/rule.cpp \
+    ./FireDogAbout.cpp \
     ./FireDogFeatureInfo.cpp \
     ./FireDogFeatureRuleInfo.cpp \
     ./FireDogSwitchLanguage.cpp \
@@ -59,8 +61,7 @@ SOURCES += ../FireDog/converter.cpp \
     ./partutil.cpp \
     ./matchthread.cpp \
     ./gui18n.cpp \
-    ./gui18nutil.cpp \
-    ./FireDogAbout.cpp
+    ./gui18nutil.cpp
 FORMS += ./FireDogEditor.ui \
     ./FireDogFeatureInfo.ui \
     ./FireDogFeatureRuleInfo.ui \

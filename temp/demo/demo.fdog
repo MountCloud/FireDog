@@ -1,0 +1,28 @@
+version: 1.2.1
+items:
+  - name: test
+    author: mountcloud
+    describe: test new rule engine.
+    features:
+      - key: key1
+        text: a
+      - key: key2
+        text: b
+      - key: key3
+        text: c
+      - key: key4
+        text: d
+    rules:
+      - $and:
+          - $all:
+              - key1
+              - key2
+          - $and:
+              - $all:
+                  - key3
+              - $all:
+                  - key4
+          - $ge:
+              - $count:
+                  - key1
+              - $int: 3

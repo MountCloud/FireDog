@@ -144,10 +144,9 @@ namespace firedog {
 	class FeatureLibrary {
 	public:
 		/// <summary>
-		/// create by json
+		/// create by yml
 		/// </summary>
-		static FeatureLibrary* createByJson(std::string json, int* errorcode);
-        static FeatureLibrary* createByYaml(std::string yaml, int* errorcode);
+		static FeatureLibrary* createByYaml(std::string yaml, int* errorcode);
 
 		/// <summary>
 		/// library version
@@ -161,26 +160,20 @@ namespace firedog {
 		std::vector<FeatureLibraryItem*>* items = NULL;
 
         /// <summary>
-        /// to json
+        /// to yml
         /// </summary>
         /// <returns></returns>
-        std::string toJson(int* state);
+        std::string toYaml(int* state);
 
 		FeatureLibrary();
 		~FeatureLibrary();
 
 	private:
-		static std::vector<mountcloud::Rule*> parseRulesByJson(nlohmann::json rulejson);
-        static mountcloud::Rule* parseRuleByJson(nlohmann::json rulejson);
-
         static std::vector<mountcloud::Rule*> parseRulesByYaml(c4::yml::NodeRef node);
 		static mountcloud::Rule* parseRuleByYaml(c4::yml::NodeRef node);
-        /// <summary>
-        /// rule to json object
-        /// </summary>
-        /// <param name="rule"></param>
-        /// <returns></returns>
-        nlohmann::json ruleToJson(mountcloud::Rule* rule,bool* state);
+
+        void ruleToYaml(c4::yml::NodeRef& parentNode, mountcloud::Rule* rule);
+       
 	};
 
 

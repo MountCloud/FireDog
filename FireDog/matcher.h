@@ -90,8 +90,10 @@ namespace firedog {
 		Matcher(MatcherDataSource* dataSource);
 		~Matcher();
 
-		std::vector <MatcherResult*>* matchBytes(const char* bytes, int length);
-		std::vector <MatcherResult*>* matchByte(const char byte);
+		void matchBytes(const char* bytes, int length);
+		void matchByte(const char byte);
+
+		std::vector <MatcherResult*>* check();
 	private:
 		/// <summary>
 		/// data source,
@@ -109,8 +111,8 @@ namespace firedog {
 		std::unordered_map<int, mountcloud::RuleData*>* featureRuleData = NULL;
 
 
-		std::vector<MatcherResult*>* checkMatcherFeature(MatcherData* mbd, char byte, std::vector<MatcherData*>* tempMatchBytesCache);
-		std::vector<MatcherResult*>* checkMatcherFeatureMap(AvlMap<char, MatcherData*>* map,char byte, std::vector<MatcherData*>* tempMatchBytesCache);
+		void matcherFeature(MatcherData* mbd, char byte, std::vector<MatcherData*>* tempMatchBytesCache);
+		void matcherFeatureMap(AvlMap<char, MatcherData*>* map,char byte, std::vector<MatcherData*>* tempMatchBytesCache);
 	};
 
 }

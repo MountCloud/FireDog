@@ -127,6 +127,9 @@
 
   "feature-rule-window-title":"特征规则编辑器",
   "feature-rule-info-type":"类型",
+  "feature-rule-info-ruleinfo":"规则详情",
+  "feature-rule-info-keytips":"多个id之间用英文“,”逗号分隔。",
+  "feature-rule-info-numtips":"只能使用数字。",
   "feature-rule-info-key":"Key",
   "feature-rule-info-save":"保存",
   "feature-rule-info-cancel":"取消",

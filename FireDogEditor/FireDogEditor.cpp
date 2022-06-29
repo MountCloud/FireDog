@@ -15,6 +15,8 @@
 #include "gui18n.h"
 #include "gui18nutil.h"
 
+#include "stringutil.h"
+
 using namespace firedog;
 
 //构造函数
@@ -43,6 +45,9 @@ FireDogEditor::FireDogEditor(QWidget *parent)
 
 //初始化
 void FireDogEditor::init() {
+
+	QIcon iconFile(":/FireDogEditor/resources/icon.ico");
+	this->setWindowIcon(iconFile);
 
     QFile qss(":/qss/css/qss.css");
     if (qss.open(QIODevice::ReadOnly)) {
@@ -409,14 +414,14 @@ void FireDogEditor::slots_saveFile() {
 	QFile file(this->openFilePath);
 
 	int state = -1;
-	std::string json = this->featureLibrary->toJson(&state);
+	std::string ymlstr = this->featureLibrary->toYaml(&state);
 
 	if (state != NO_ERROR) {
 		QssMessageBox::warn("Save fail,Feature library convert to json fail!.", this, "Warn");
 		return;
 	}
 
-	QString jsonstr = QString::fromUtf8(QByteArray::fromRawData(json.c_str(), json.size()));
+	QString jsonstr = QString::fromUtf8(QByteArray::fromRawData(ymlstr.c_str(), ymlstr.size()));
 
 	if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
 	{
@@ -457,7 +462,7 @@ void FireDogEditor::slots_saveToFile() {
         }
 
         int state = -1;
-        std::string json = this->featureLibrary->toJson(&state);
+        std::string ymlstr = this->featureLibrary->toYaml(&state);
 
         if (state != NO_ERROR) {
 			QString titleStr = Gui18n::GetInstance()->GetConfig("text-message-box-title-warning", "Warning");
@@ -466,7 +471,7 @@ void FireDogEditor::slots_saveToFile() {
 			return;
         }
 
-        QString jsonstr = QString::fromUtf8(QByteArray::fromRawData(json.c_str(), json.size()));
+        QString jsonstr = QString::fromUtf8(QByteArray::fromRawData(ymlstr.c_str(), ymlstr.size()));
 
 		if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
 		{
@@ -1005,6 +1010,14 @@ void FireDogEditor::slots_featureLibraryInfoRuleMenuAddEvent() {
     bool isOk = this->fireDogFeatureRuleInfoView->updateRule(&rule, &childs, parent);
 	if (isOk) {
 		QStandardItem* ruleitem = new QStandardItem(rule);
+        if (rule=="$lt"||rule=="$le"||rule=="$gt"||rule=="$ge") {
+            for (int i=0;i<childs.size();i++)
+            {
+                QString childStr = childs.at(i);
+                QStandardItem* childitem = new QStandardItem(childStr);
+                ruleitem->appendRow(childitem);
+            }
+        }
         //如果是空的
         if (ruleIsEmpty) {
             featureLibraryInfoRuleTreeModel->appendRow(ruleitem);
@@ -1018,6 +1031,7 @@ void FireDogEditor::slots_featureLibraryInfoRuleMenuAddEvent() {
 
 		QModelIndex index = this->featureLibraryInfoRuleTreeModel->indexFromItem(ruleitem);
         ui.treeViewLibraryInfoRules->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+		ui.treeViewLibraryInfoRules->expand(index);
     }
 }
 
@@ -1044,7 +1058,24 @@ void FireDogEditor::slots_featureLibraryInfoRuleMenuEditEvent() {
 
     bool isOk = this->fireDogFeatureRuleInfoView->updateRule(&rule, &childs, parent);
     if (isOk) {
+
+        bool resultIsCmp = false;
+		if (rule == "$lt" || rule == "$le" || rule == "$gt" || rule == "$ge") {
+            resultIsCmp = true;
+		}
+
         selectItem->setText(rule);
+
+        if (resultIsCmp) {
+            selectItem->removeRows(0, selectItem->rowCount());
+			for (int i = 0; i < childs.size(); i++)
+			{
+				QString childStr = childs.at(i);
+				QStandardItem* childitem = new QStandardItem(childStr);
+				selectItem->appendRow(childitem);
+			}
+            ui.treeViewLibraryInfoRules->expand(selectItem->index());
+        }
     }
 }
 
@@ -1192,7 +1223,7 @@ mountcloud::Rule* FireDogEditor::itemToRule(QStandardItem* item) {
         goto fail;
     }
 
-    bool isOperation = text == "$and" || text == "$or";
+    bool isOperation = text == "$and" || text == "$or" || text == "$not";
 
     //根规则只能是逻辑表达式
     if (item->parent()==NULL) {
@@ -1210,34 +1241,96 @@ mountcloud::Rule* FireDogEditor::itemToRule(QStandardItem* item) {
         }
     }
 
-    mountcloud::Rule* result = new mountcloud::Rule();
+    mountcloud::Rule* result = NULL;
 
- //   if (isOperation) {
-	//	int childCount = item->rowCount();
-	//	for (int i = 0; i < childCount; i++) {
- //           QStandardItem* childItem = item->child(i);
- //           mountcloud::Rule*  childRule = itemToRule(childItem);
- //           if (childRule==NULL) {
- //               delete result;
- //               return NULL;
- //           }
- //           if(text=="$and"){
- //               if (result->ands == NULL) {
- //                   result->ands = new std::vector<mountcloud::Rule*>();
- //               }
- //               result->ands->push_back(childRule);
- //           }
- //           else {
-	//			if (result->ors == NULL) {
-	//				result->ors = new std::vector<mountcloud::Rule*>();
-	//			}
-	//			result->ors->push_back(childRule);
- //           }
-	//	}
-	//}
- //   else {
- //       result->id = text.toStdString();
- //   }
+
+	if (text == "$and" || text == "$or" || text == "$not") {
+		mountcloud::LogicRule* logicRule = NULL;
+		if (text == "$and") {
+			logicRule = new mountcloud::AndRule();
+		}
+		else if (text == "$or") {
+			logicRule = new mountcloud::OrRule();
+		}
+		else {
+			logicRule = new mountcloud::NotRule();
+		}
+		int childCount = item->rowCount();
+		for (int i = 0; i < childCount; i++) {
+			QStandardItem* childItem = item->child(i);
+			mountcloud::Rule* cr = itemToRule(childItem);
+			if (cr != NULL) {
+				logicRule->addRule(cr);
+			}
+		}
+		result = logicRule;
+	}
+	else if (text.startsWith("$all")) {
+		QString infostr = text.mid(text.indexOf(":") + 1);
+		QStringList idsQList = infostr.split(",");
+		if (idsQList.size() > 0) {
+			std::vector<std::string> ids;
+			for (int i = 0; i < idsQList.size(); i++) {
+				QString id = idsQList.at(i);
+				ids.push_back(id.toStdString());
+			}
+			mountcloud::AllRule* allRule = new mountcloud::AllRule(ids);
+			result = allRule;
+		}
+	}
+	else if (text.startsWith("$count")) {
+		QString infostr = text.mid(text.indexOf(":") + 1);
+		QStringList idsQList = infostr.split(",");
+		if (idsQList.size() > 0) {
+			std::vector<std::string> ids;
+			for (int i = 0; i < idsQList.size(); i++) {
+				QString id = idsQList.at(i);
+				ids.push_back(id.toStdString());
+			}
+			mountcloud::CountRule* countRule = new mountcloud::CountRule(ids);
+			result = countRule;
+		}
+	}
+	else if (text.startsWith("$int")) {
+		QString infostr = text.mid(text.indexOf(":") + 1);
+		std::string numstr = infostr.toStdString();
+		if (StringUtil::isNumber(numstr)) {
+			int num = atoi(numstr.c_str());
+			mountcloud::IntRule* intRule = new mountcloud::IntRule(num);
+			result = intRule;
+		}
+	}
+	else if (text == "$lt" || text == "$le" || text == "$gt" || text == "$ge") {
+
+		int childCount = item->rowCount();
+		if (childCount == 2) {
+			mountcloud::Rule* num1 = itemToRule(item->child(0));
+			mountcloud::Rule* num2 = itemToRule(item->child(1));
+
+			if (num1 != NULL && num1->getBaseType() == RULE_BASE_TYPE_NUMBER
+				&& num2 != NULL && num2->getBaseType() == RULE_BASE_TYPE_NUMBER) {
+
+				mountcloud::NumberRule* numRule1 = (mountcloud::NumberRule*)num1;
+				mountcloud::NumberRule* numRule2 = (mountcloud::NumberRule*)num2;
+
+				mountcloud::CompareRule* compareRule = NULL;
+				if (text == "$lt") {
+					compareRule = new mountcloud::LtRule(numRule1, numRule2);
+				}
+				else if (text == "$le") {
+					compareRule = new mountcloud::LeRule(numRule1, numRule2);
+				}
+				else if (text == "$gt") {
+					compareRule = new mountcloud::GtRule(numRule1, numRule2);
+				}
+				else if (text == "$ge") {
+					compareRule = new mountcloud::GeRule(numRule1, numRule2);
+				}
+
+				result = compareRule;
+			}
+		}
+	}
 
     return result;
 

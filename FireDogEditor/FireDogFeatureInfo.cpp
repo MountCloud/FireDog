@@ -18,8 +18,6 @@ FireDogFeatureInfo::FireDogFeatureInfo(QWidget *parent) :
 
 
 void FireDogFeatureInfo::init() {
-
-
 	QRegExp hexregx(FEATURE_FORMATE_REG_HEX);
     this->hexValidator = new QRegExpValidator(hexregx, ui->lineEditContent);
 

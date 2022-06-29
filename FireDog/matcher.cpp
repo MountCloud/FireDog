@@ -271,28 +271,14 @@ Matcher::~Matcher() {
 }
 
 
-std::vector <MatcherResult*>* Matcher::matchBytes(const char* bytes, int length) {
-
-	std::vector <MatcherResult*>* result = NULL;
-
+void Matcher::matchBytes(const char* bytes, int length) {
 	for (int i = 0; i < length; i++) {
 		char byte = bytes[i];
-		std::vector <MatcherResult*>* tempResult = this->matchByte(byte);
-		if (tempResult != NULL) {
-			//匹配到了
-			if (result == NULL) {
-				result = new std::vector<MatcherResult*>();
-			}
-			result->insert(result->end(), tempResult->begin(), tempResult->end());
-			//删掉vector的指针
-			delete tempResult;
-		}
+		this->matchByte(byte);
 	}
-	return result;
 }
 
-std::vector <MatcherResult*>* Matcher::matchByte(const char byte) {
-	std::vector <MatcherResult*>* result = NULL;
+void Matcher::matchByte(const char byte) {
 	if (matchCache == NULL) {
 		matchCache = new std::vector<MatcherData*>();
 	}
@@ -304,16 +290,8 @@ std::vector <MatcherResult*>* Matcher::matchByte(const char byte) {
 			MatcherData* mbd = matchCache->at(i);
 
 			//校验完整字节
-			std::vector <MatcherResult*>* tempResult = checkMatcherFeature(mbd, byte, tempMatchBytesCache);
-			if (tempResult !=NULL) {
-				//匹配到了
-				if (result==NULL) {
-					result = new std::vector<MatcherResult*>();
-				}
-				result->insert(result->end(), tempResult->begin(), tempResult->end());
-				//删掉vector的指针
-				delete tempResult;
-			}
+			matcherFeature(mbd, byte, tempMatchBytesCache);
+
 		}
 		this->matchCache->clear();
 		delete this->matchCache;
@@ -322,90 +300,52 @@ std::vector <MatcherResult*>* Matcher::matchByte(const char byte) {
 
 	//step2:find by feature library 然后从特征库中拉取
 	//校验完整字节
-	std::vector <MatcherResult*>* tempResult = checkMatcherFeature(this->dataSource->getData(), byte, this->matchCache);
-	if (tempResult != NULL) {
-		//匹配到了
-		if (result == NULL) {
-			result = new std::vector<MatcherResult*>();
+	matcherFeature(this->dataSource->getData(), byte, this->matchCache);
+}
+
+std::vector <MatcherResult*>* Matcher::check() {
+	std::vector <MatcherResult*>* result = NULL;
+
+	for (std::unordered_map<int, mountcloud::RuleData*>::iterator iter = featureRuleData->begin(); iter != featureRuleData->end(); iter++) {
+		int featureId = iter->first;
+		mountcloud::RuleData* ruleData = iter->second;
+		FeatureLibraryItem* fitem = dataSource->getFeatureLibraryItem(featureId);
+		Rule* rule = fitem->rule;
+		if (rule != NULL && rule->check(ruleData)) {
+			if (result == NULL) {
+				result = new std::vector<MatcherResult*>();
+			}
+			MatcherResult* mr = new MatcherResult();
+			mr->featureId = featureId;
+			mr->author = fitem->author;
+			mr->name = fitem->name;
+			mr->describe = fitem->describe;
+			result->push_back(mr);
 		}
-		result->insert(result->end(), tempResult->begin(), tempResult->end());
-		//删掉vector的指针
-		delete tempResult;
 	}
 
 	return result;
 }
 
-std::vector <MatcherResult*>* Matcher::checkMatcherFeature(MatcherData* mbd, char byte, std::vector<MatcherData*>* tempMatchBytesCache) {
-	std::vector <MatcherResult*>* result = NULL;
+void Matcher::matcherFeature(MatcherData* mbd, char byte, std::vector<MatcherData*>* tempMatchBytesCache) {
 	//高位
 	const char highPos = StringUtil::byteHigh(byte);
 	//低位
 	const char lowPos = StringUtil::byteLow(byte);
 	//校验完整字节
-	result = checkMatcherFeatureMap(mbd->fullData, byte, tempMatchBytesCache);
-	if (result != NULL) {
-		return result;
-	}
+	matcherFeatureMap(mbd->fullData, byte, tempMatchBytesCache);
+
 	//校验高位
-	result = checkMatcherFeatureMap(mbd->highPosData, highPos, tempMatchBytesCache);
-	if (result != NULL) {
-		return result;
-	}
+	matcherFeatureMap(mbd->highPosData, highPos, tempMatchBytesCache);
+
 	//校验低位
-	result = checkMatcherFeatureMap(mbd->lowPosData, lowPos, tempMatchBytesCache);
-	if (result != NULL) {
-		return result;
-	}
+	matcherFeatureMap(mbd->lowPosData, lowPos, tempMatchBytesCache);
 
-	//校验any
-	//if (mbd->anyData != NULL) {
-	//	//any 匹配到了
-	//	if (mbd->anyData->features != NULL) {
-	//		result = new std::vector<MatcherResult*>();
-	//		for (int i = 0; i < mbd->anyData->features->size(); i++) {
-	//			MatcherFeature* mf = mbd->anyData->features->at(i);
-	//			int featureId = mf->featureId;
-	//			string featureKey = mf->featureKey;
-
-	//			RuleData* ruleData = NULL;
-	//			if (featureRuleData == NULL) {
-	//				featureRuleData = new unordered_map<int, mountcloud::RuleData*>();
-	//			}
-	//			if (featureRuleData->find(featureId) == featureRuleData->end()) {
-	//				ruleData = new RuleData();
-	//			}
-	//			else {
-	//				ruleData = featureRuleData->at(featureId);
-	//			}
-
-	//			ruleData->set(featureKey, true);
-
-	//			FeatureLibraryItem* fitem = dataSource->getFeatureLibraryItem(featureId);
-	//			Rule* rule = fitem->rule;
-	//			if (rule != NULL && rule->check(ruleData)) {
-	//				MatcherResult* mr = new MatcherResult();
-	//				mr->featureId = featureId;
-	//				mr->author = fitem->author;
-	//				mr->name = fitem->name;
-	//				mr->describe = fitem->describe;
-	//				result->push_back(mr);
-	//			}
-	//		}
-	//	}
-	//	else {
-	//		//any没有匹配到
-	//		tempMatchBytesCache->push_back(mbd->anyData);
-	//	}
-	//}
-
-	return result;
 }
 
-std::vector<MatcherResult*>* Matcher::checkMatcherFeatureMap(AvlMap<char, MatcherData*>* map, char byte, std::vector<MatcherData*>* tempMatchBytesCache) {
-	std::vector<MatcherResult*>* result = NULL;
+void Matcher::matcherFeatureMap(AvlMap<char, MatcherData*>* map, char byte, std::vector<MatcherData*>* tempMatchBytesCache) {
 	if (map==NULL) {
-		return result;
+		return;
 	}
 
 	AvlMap<char, MatcherData*>::Iterator mbditer = map->find(byte);
@@ -433,24 +373,10 @@ std::vector<MatcherResult*>* Matcher::checkMatcherFeatureMap(AvlMap<char, Matche
 
 				featureRuleData->operator[](featureId) = ruleData;
 
-				FeatureLibraryItem* fitem = dataSource->getFeatureLibraryItem(featureId);
-				Rule* rule = fitem->rule;
-				if (rule != NULL && rule->check(ruleData)) {
-					if (result==NULL) {
-						result = new std::vector<MatcherResult*>();
-					}
-					MatcherResult* mr = new MatcherResult();
-					mr->featureId = featureId;
-					mr->author = fitem->author;
-					mr->name = fitem->name;
-					mr->describe = fitem->describe;
-					result->push_back(mr);
-				}
 			}
 		}
 		tempMatchBytesCache->push_back(iterMbd);
 	}
-	return result;
 }
 
 MatcherData* MatcherDataSource::getData() {

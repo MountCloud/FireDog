@@ -118,6 +118,9 @@ bool AndRule::check(RuleData* data) {
 		}
 		return true;
 	}
+	else {
+		return true;
+	}
 	return true;
 }
 
@@ -135,7 +138,10 @@ bool OrRule::check(RuleData* data) {
 			}
 		}
 	}
-	return true;
+	else {
+		return true;
+	}
+	return false;
 }
 
 NotRule::NotRule() {
@@ -153,7 +159,10 @@ bool NotRule::check(RuleData* data) {
 		}
 		return true;
 	}
-	return true;
+	else {
+		return true;
+	}
+	return false;
 }
 
 NumberRule::NumberRule() {

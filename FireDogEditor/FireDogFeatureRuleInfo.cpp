@@ -25,6 +25,13 @@ void FireDogFeatureRuleInfo::init() {
 	this->keyValidator = new QRegExpValidator(keyregx, ui->lineEditKey);
 	ui->lineEditKey->setValidator(keyValidator);
 
+	this->num1KeyValidator = new QRegExpValidator(keyregx, ui->lineEditNum1Count);
+	ui->lineEditNum1Count->setValidator(num1KeyValidator);
+
+	this->num2KeyValidator = new QRegExpValidator(keyregx, ui->lineEditNum2Count);
+	ui->lineEditNum2Count->setValidator(num2KeyValidator);
+
+
 	ui->comboBoxNum1Type->addItem("$count");
 	ui->comboBoxNum1Type->addItem("$int");
 	ui->spinBoxNum1Int->setVisible(false);
@@ -54,7 +61,14 @@ void FireDogFeatureRuleInfo::init() {
 	connect(ui->comboBoxNum2Type, SIGNAL(currentIndexChanged(QString)), this, SLOT(currentIndexChanged(QString)));
 
     //i18n
-	//Gui18nUtil::SetText(ui->labelType, "feature-rule-info-type");
+	Gui18nUtil::SetText(ui->groupBoxType, "feature-rule-info-type");
+	Gui18nUtil::SetText(ui->groupBoxRuleInfo, "feature-rule-info-ruleinfo");
+
+	Gui18nUtil::SetText(ui->labelKeyTips, "feature-rule-info-keytips");
+	Gui18nUtil::SetText(ui->labelCompageTips, "feature-rule-info-keytips");
+
+	Gui18nUtil::SetText(ui->labelNumTips, "feature-rule-info-numtips");
+
 	Gui18nUtil::SetText(ui->labelKey, "feature-rule-info-key");
 	Gui18nUtil::SetText(ui->pushButtonSave, "feature-rule-info-save");
 	Gui18nUtil::SetText(ui->pushButtonCancel, "feature-rule-info-cancel");
@@ -107,14 +121,26 @@ void FireDogFeatureRuleInfo::slots_radioClick() {
 void FireDogFeatureRuleInfo::slots_saveClick() {
     this->isOk = true;
 
-	//if (ui->radioButtonKey->isChecked()){
- //       if (ui->lineEditKey->text().isEmpty()) {
-	//		QString titleStr = Gui18n::GetInstance()->GetConfig("text-message-box-title-warning", "Warning");
-	//		QString messageStr = Gui18n::GetInstance()->GetConfig("feature-rule-please-enter-key", "Please enter [Key].");
-	//		QssMessageBox::warn(messageStr, this, titleStr);
- //           return;
- //       }
-	//}
+	//这个函数主要是校验
+	if (ui->radioButtonAll->isChecked() || ui->radioButtonCount->isChecked()) {
+		if (ui->lineEditKey->text().isEmpty()) {
+			QString titleStr = Gui18n::GetInstance()->GetConfig("text-message-box-title-warning", "Warning");
+			QString messageStr = Gui18n::GetInstance()->GetConfig("feature-rule-please-enter-key", "Please enter [Key].");
+			QssMessageBox::warn(messageStr, this, titleStr);
+			return;
+		}
+	}
+	
+	if (ui->radioButtonLt->isChecked() || ui->radioButtonLe->isChecked() ||
+		ui->radioButtonGt->isChecked() || ui->radioButtonGe->isChecked()) {
+		if ((ui->comboBoxNum1Type->currentText() == "$count" && ui->lineEditNum1Count->text().isEmpty())
+			|| (ui->comboBoxNum2Type->currentText() == "$count" && ui->lineEditNum2Count->text().isEmpty())) {
+			QString titleStr = Gui18n::GetInstance()->GetConfig("text-message-box-title-warning", "Warning");
+			QString messageStr = Gui18n::GetInstance()->GetConfig("feature-rule-please-enter-key", "Please enter [Key].");
+			QssMessageBox::warn(messageStr, this, titleStr);
+			return;
+		}
+	}
 
     this->hide();
 }
@@ -128,18 +154,36 @@ bool FireDogFeatureRuleInfo::updateRule(QString* rule, QVector<QString>* childs,
     this->isOk = false;
 	setDefaultValue();
 
- //   if (isRoot) {
- //       //ui->radioButtonKey->setEnabled(false);
- //   }
-	//else {
-	//	//ui->radioButtonKey->setEnabled(true);
- //   }
 
 	auto getRuleInfoByStr = [](QString& rulestr) {
 		int index = rulestr.lastIndexOf(":"); 
 		QString infostr = rulestr.mid(index+1);
 		return infostr;
 	};
+
+	//根据父节点启用禁用状态
+	if (parent.isEmpty()) {
+		ui->radioButtonAll->setEnabled(false);
+		ui->radioButtonCount->setEnabled(false);
+		ui->radioButtonInt->setEnabled(false);
+
+		ui->radioButtonLt->setEnabled(false);
+		ui->radioButtonLe->setEnabled(false);
+		ui->radioButtonGt->setEnabled(false);
+		ui->radioButtonGe->setEnabled(false);
+	}
+	else if (parent == "$lt" || parent == "$le" || parent == "$gt" || parent == "$ge") {
+		ui->radioButtonAnd->setEnabled(false);
+		ui->radioButtonOr->setEnabled(false);
+		ui->radioButtonNot->setEnabled(false);
+
+		ui->radioButtonAll->setEnabled(false);
+
+		ui->radioButtonLt->setEnabled(false);
+		ui->radioButtonLe->setEnabled(false);
+		ui->radioButtonGt->setEnabled(false);
+		ui->radioButtonGe->setEnabled(false);
+	}
 
 	if (!rule->isEmpty()) {
 		if (*rule == "$and") {
@@ -174,7 +218,7 @@ bool FireDogFeatureRuleInfo::updateRule(QString* rule, QVector<QString>* childs,
 		else if (*rule == "$ge") {
 			ui->radioButtonGe->setChecked(true);
 		}
-
+		
 		//设置默认值
 		if (rule->startsWith("$all") || rule->startsWith("$count")) {
 			QString infostr = getRuleInfoByStr(*rule);
@@ -186,6 +230,14 @@ bool FireDogFeatureRuleInfo::updateRule(QString* rule, QVector<QString>* childs,
 			ui->spinBoxInt->setValue(intval);
 		}
 		else if (*rule == "$lt" || *rule == "$le" || *rule == "$gt" || *rule == "$ge") {
+			ui->radioButtonAnd->setEnabled(false);
+			ui->radioButtonOr->setEnabled(false);
+			ui->radioButtonNot->setEnabled(false);
+
+			ui->radioButtonAll->setEnabled(false);
+			ui->radioButtonCount->setEnabled(false);
+			ui->radioButtonInt->setEnabled(false);
+
 			QString num1 = childs->at(0);
 			QString num2 = childs->at(1);
 
@@ -221,18 +273,87 @@ bool FireDogFeatureRuleInfo::updateRule(QString* rule, QVector<QString>* childs,
     this->exec();
 
     if (this->isOk) {
+
 		if (ui->radioButtonAnd->isChecked()) {
-            rule->clear();
-            rule->append("$and");
-        }
+			rule->clear();
+			rule->append("$and");
+		}
 		else if (ui->radioButtonOr->isChecked()) {
 			rule->clear();
 			rule->append("$or");
-        }
+		}
+		else if (ui->radioButtonNot->isChecked()) {
+			rule->clear();
+			rule->append("$not");
+		}
+		/////////////////////////////////////////////
+		else if (ui->radioButtonAll->isChecked()) {
+			rule->clear();
+			rule->append("$all:");
+			rule->append(ui->lineEditKey->text());
+		}
+		else if (ui->radioButtonCount->isChecked()) {
+			rule->clear();
+			rule->append("$count:");
+			rule->append(ui->lineEditKey->text());
+		}
+		else if (ui->radioButtonInt->isChecked()) {
+			rule->clear();
+			rule->append("$int:");
+			rule->append(QString::number(ui->spinBoxInt->value()));
+		}
+		/////////////////////////////////////////////
+		else if(ui->radioButtonLt->isChecked() || ui->radioButtonLe->isChecked() || ui->radioButtonGt->isChecked() || ui->radioButtonGe->isChecked()){
+			rule->clear();
+			if (ui->radioButtonLt->isChecked()) {
+				rule->append("$lt");
+			}
+			else if (ui->radioButtonLe->isChecked()) {
+				rule->append("$le");
+			}
+			else if (ui->radioButtonGt->isChecked()) {
+				rule->append("$gt");
+			}
+			else if (ui->radioButtonGe->isChecked()) {
+				rule->append("$ge");
+			}
+			childs->clear();
+			QString num1Str = "";
+			if (ui->comboBoxNum1Type->currentText()=="$count") {
+				num1Str.append("$count:");
+				num1Str.append(ui->lineEditNum1Count->text());
+			}
+			else {
+				num1Str.append("$int1:");
+				num1Str.append(QString::number(ui->spinBoxNum1Int->value()));
+			}
+
+			QString num2Str = "";
+			if (ui->comboBoxNum2Type->currentText() == "$count") {
+				num2Str.append("$count:");
+				num2Str.append(ui->lineEditNum2Count->text());
+			}
+			else {
+				num2Str.append("$int1:");
+				num2Str.append(QString::number(ui->spinBoxNum2Int->value()));
+			}
+
+			childs->push_back(num1Str);
+			childs->push_back(num2Str);
+		}
+
+		/*if (ui->radioButtonAnd->isChecked()) {
+			rule->clear();
+			rule->append("$and");
+		}
+		else if (ui->radioButtonOr->isChecked()) {
+			rule->clear();
+			rule->append("$or");
+		}
 		else {
 			rule->clear();
 			rule->append(ui->lineEditKey->text());
-		}
+		}*/
     }
 
     return this->isOk;
@@ -278,6 +399,19 @@ void FireDogFeatureRuleInfo::setDefaultValue() {
 	ui->spinBoxNum2Int->setValue(1);
 
 	ui->stackedWidgetRuleInfo->setCurrentIndex(0);
+
+	ui->radioButtonAnd->setEnabled(true);
+	ui->radioButtonOr->setEnabled(true);
+	ui->radioButtonNot->setEnabled(true);
+
+	ui->radioButtonAll->setEnabled(true);
+	ui->radioButtonCount->setEnabled(true);
+	ui->radioButtonInt->setEnabled(true);
+
+	ui->radioButtonLt->setEnabled(true);
+	ui->radioButtonLe->setEnabled(true);
+	ui->radioButtonGt->setEnabled(true);
+	ui->radioButtonGe->setEnabled(true);
 
 	slots_radioClick();
 }

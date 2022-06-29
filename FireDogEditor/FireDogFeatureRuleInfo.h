@@ -7,7 +7,7 @@
 #include "Qss/Qss.h"
 
 
-#define FEATURE_RULE_FORMATE_REG_KEY "[0-9a-zA-Z]{0,}"
+#define FEATURE_RULE_FORMATE_REG_KEY "[0-9a-zA-Z,]{0,}"
 
 namespace Ui {
 class FireDogFeatureRuleInfo;
@@ -33,6 +33,8 @@ private:
     Ui::FireDogFeatureRuleInfo *ui;
 
 	QValidator* keyValidator = NULL;
+	QValidator* num1KeyValidator = NULL;
+	QValidator* num2KeyValidator = NULL;
 
     bool isOk = false;
 

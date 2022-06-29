@@ -2,5 +2,6 @@
     <qresource prefix="/FireDogEditor">
         <file>resources/loading.gif</file>
         <file>resources/loading-new-backgroud.png</file>
+        <file>resources/icon.ico</file>
     </qresource>
 </RCC>

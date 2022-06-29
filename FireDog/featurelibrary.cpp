@@ -26,120 +26,6 @@ FeatureLibrary::~FeatureLibrary() {
 	}
 }
 
-FeatureLibrary* FeatureLibrary::createByJson(string json, int* errorcode) {
-	FeatureLibrary* result = NULL;
-	nlohmann::json root;
-	bool parseStatus = false;
-	try {
-		root = json::parse(json);
-		parseStatus = true;
-	}
-	catch (nlohmann::detail::parse_error er) {
-		parseStatus = false;
-
-	}
-	if (!parseStatus || !root.is_object()|| !root.contains("version") || !root.contains("items")) {
-		*errorcode = FL_CONTENT_FORMATE_ERROR;
-		return result;
-	}
-
-	bool validstate = false;
-	auto schema = json::parse(FIREDOG_FEATURE_LIBRARAY_JSON_SCHEMA);
-
-	json_validator validator; // create validator
-	validator.set_root_schema(schema);
-	try {
-		validator.validate(root);
-		validstate = true;
-	}
-	catch (const std::exception& e) {
-		validstate = false;
-	}
-	
-	if (!validstate) {
-		*errorcode = FL_CONTENT_FORMATE_ERROR;
-		return result;
-	}
-	
-	//get version
-	string version = root["version"];
-
-	//check version
-	if (version != FIREDOG_FEATURE_LIBRARY_VERSION) {
-		*errorcode = FL_CONTENT_VERSION_ERROR;
-	}
-
-	result = new FeatureLibrary();
-
-	result->version = version;
-
-	nlohmann::json items = root["items"];
-
-	if (items.is_array()) {
-		for (int i = 0; i < items.size(); i++) {
-			nlohmann::json item = items[i];
-			if (item.is_object()
-				&& item.contains("author") && item["author"].is_string()
-				&& item.contains("name") && item["name"].is_string()
-				&& item.contains("describe") && item["describe"].is_string()
-				&& item.contains("features") && item["features"].is_array() && item["features"].size() > 0
-				&& item.contains("rule") && item["rule"].is_object()) {
-				
-				//先看规则
-				nlohmann::json rulejson = item["rule"];
-
-				vector<Rule*> rules = parseRulesByJson(rulejson);
-				if (rules.size()==0) {
-					continue;
-				}
-
-				Rule* rule = NULL;
-				if (rules.size()==1) {
-					rule = rules.at(0);
-				}
-				else {
-					AndRule* andRule = new AndRule();
-					andRule->addRules(rules);
-				}
-
-				FeatureLibraryItem* fitem = new FeatureLibraryItem();
-				fitem->author = item["author"];
-				fitem->name = item["name"];
-				fitem->describe = item["describe"];
-				fitem->rule = rule;
-
-				nlohmann::json features = item["features"];
-				for (int y = 0; y < features.size(); y++) {
-					nlohmann::json feature = features[y];
-					if (feature.contains("key") && feature["key"].is_string()
-						&& (feature.contains("hex") && feature["hex"].is_string()
-							|| feature.contains("text") && feature["text"].is_string())) {
-						string fkey = feature["key"];
-						string fhex = "";
-						string ftext = "";
-						if (feature.contains("hex")) {
-							fhex = feature["hex"];
-						}
-
-						if (feature.contains("text")) {
-							ftext = feature["text"];
-						}
-
-						Feature* feature = new Feature();
-						feature->key = fkey;
-						feature->hex = fhex;
-						feature->text = ftext;
-						fitem->features->push_back(feature);
-					}
-				}
-				result->items->push_back(fitem);
-			}
-		}
-	}
-
-	return result;
-}
-
 FeatureLibrary* FeatureLibrary::createByYaml(std::string yaml, int* errorcode) {
 
 	FeatureLibrary* result = NULL;
@@ -243,226 +129,139 @@ FeatureLibrary* FeatureLibrary::createByYaml(std::string yaml, int* errorcode) {
 	return result;
 }
 
-vector<Rule*> FeatureLibrary::parseRulesByJson(nlohmann::json rulejson) {
-	vector<Rule*> rules;
-
-	if (rulejson.is_string()) {
-		string id = rulejson;
-		CountRule* countRule = new CountRule(id);
-		rules.push_back(countRule);
-	}else if (rulejson.is_object()&&!rulejson.is_array()) {
-		for (auto ruleiter = rulejson.begin(); ruleiter != rulejson.end(); ruleiter++) {
-			std::string key = ruleiter.key();
-			nlohmann::json childrulejson = rulejson[key];
-			if (key == "$and" || key == "$or" || key == "$not") {
-				LogicRule* logicRule = NULL;
-				vector<Rule*> childRules = parseRulesByJson(childrulejson);
-				if (childRules.size()>0) {
-					if (key == "$and") {
-						logicRule = new AndRule();
-					}
-					if (key == "$or") {
-						logicRule = new OrRule();
-					}
-					if (key == "$not") {
-						logicRule = new NotRule();
-					}
-					logicRule->addRules(childRules);
-					rules.push_back(logicRule);
-				}
-			}
-			else if (key == "$int") {
-				if (childrulejson.is_number()) {
-					long num = childrulejson;
-					IntRule* intRule = new IntRule(childrulejson);
-					rules.push_back(intRule);
-				}
-			}
-			else if (key == "$count") {
-				vector<string> ids;
-				long num = 1L;
-
-				if (childrulejson.is_string()) {
-					string id = childrulejson;
-					ids.push_back(id);
-				}else if (childrulejson.is_array()) {
-					int idslen = childrulejson.size();
-					for (int i = 0; i < idslen; i++) {
-						nlohmann::json crj = childrulejson[i];
-						if (crj.is_string()) {
-							string id = crj;
-							ids.push_back(id);
-						}
-						else if (i == idslen - 1 && crj.is_number()) {
-							long tempnum = crj;
-							if (tempnum > 1) {
-								num = tempnum;
-							}
-						}
-					}
-				}
-
-				if (ids.size() > 0) {
-					CountRule* countRule = new CountRule(ids);
-					countRule->setCritical(num);
-					rules.push_back(countRule);
-				}
-			}
-			else if(key == "$lt"|| key == "$le" || key == "$gt" || key == "$ge") {
-				Rule* compareRule = NULL;
-
-				vector<Rule*> childRules = parseRulesByJson(childrulejson);
-
-				if (childRules.size()==2) {
-
-					Rule* num1Rule = childRules[0];
-					Rule* num2Rule = childRules[1];
-					if (num1Rule != NULL && num1Rule->getBaseType() == RULE_BASE_TYPE_NUMBER
-						&& num2Rule != NULL && num2Rule->getBaseType() == RULE_BASE_TYPE_NUMBER) {
-						if (key == "$lt") {
-							compareRule = new LtRule((NumberRule*)num1Rule, (NumberRule*)num2Rule);
-						}
-						if (key == "$le") {
-							compareRule = new LeRule((NumberRule*)num1Rule, (NumberRule*)num2Rule);
-						}
-						if (key == "$gt") {
-							compareRule = new GtRule((NumberRule*)num1Rule, (NumberRule*)num2Rule);
-						}
-						if (key == "$ge") {
-							compareRule = new GeRule((NumberRule*)num1Rule, (NumberRule*)num2Rule);
-						}
-					}
-					if (compareRule != NULL) {
-						rules.push_back(compareRule);
-					}
-
-				}
-			}
-		}
-	}
-	return rules;
-}
-
-Rule* FeatureLibrary::parseRuleByJson(nlohmann::json rulejson) {
-	Rule* rule = NULL;
-
-	vector<Rule*> rules = parseRulesByJson(rulejson);
-	if (rules.size()>0) {
-		rule = rules.at(0);
-	}
-
-	return rule;
-}
-
 FeatureLibraryItem::FeatureLibraryItem() {
 	features = new vector<Feature*>();
 }
 
-std::string FeatureLibrary::toJson(int* state){
-	json jsonFeatureLibrary;
-	jsonFeatureLibrary["version"] = FIREDOG_FEATURE_LIBRARY_VERSION;
+std::string FeatureLibrary::toYaml(int* state) {
+	string ymlstr;
+	ryml::Tree tree;
+	try {
+		c4::yml::NodeRef root = tree.rootref();
+		root |= ryml::MAP;
+		root["version"] << string(FIREDOG_FEATURE_LIBRARY_VERSION);
+		if (items != NULL) {
+			root["items"] |= ryml::SEQ;
+			for (int i = 0; i < items->size(); i++) {
+				FeatureLibraryItem* item = items->at(i);
+				root["items"][i] |= ryml::MAP;
+				root["items"][i]["name"] << item->name;
+				root["items"][i]["author"] << item->author;
+				root["items"][i]["describe"] << item->describe;
 
-	if (items!=NULL) {
-		std::vector<json> jsonItems;
-		for (int i = 0; i < items->size(); i++) {
-			json jsonItem;
-
-			FeatureLibraryItem* item = items->at(i);
-
-			jsonItem["name"] = item->name;
-			jsonItem["describe"] = item->describe;
-			jsonItem["author"] = item->author;
-
-			std::vector<json> jsonFeatures;
-			if (item->features != NULL && item->features->size() > 0) {
-				for (int y = 0; y < item->features->size(); y++) {
-					Feature* feature = item->features->at(y);
-					json jsonFeature;
-					jsonFeature["key"] = feature->key;
-					if (!feature->hex.empty()) {
-						jsonFeature["hex"] = feature->hex;
+				if (item->features != NULL && item->features->size() > 0) {
+					root["items"][i]["features"] |= ryml::SEQ;;
+					for (int y = 0; y < item->features->size(); y++) {
+						Feature* feature = item->features->at(y);
+						root["items"][i]["features"][y] |= ryml::MAP;
+						root["items"][i]["features"][y]["key"] << feature->key;
+						if (!feature->hex.empty()) {
+							root["items"][i]["features"][y]["hex"] << feature->hex;
+						}
+						else {
+							root["items"][i]["features"][y]["text"] << feature->text;
+						}
 					}
-					else {
-						jsonFeature["text"] = feature->text;
-					}
-					jsonFeatures.push_back(jsonFeature);
 				}
+				root["items"][i]["rules"] |= ryml::SEQ;
+				root["items"][i]["rules"][0] |= ryml::MAP;
+				c4::yml::NodeRef ymlrules = root["items"][i]["rules"][0];
+				ruleToYaml(ymlrules, item->rule);
 			}
-			else {
-				*state = FL_CONTENT_EXIST_EMPTY_FEATURES_FAIL;
-				return "";
-			}
-			jsonItem["features"] = jsonFeatures;
-
-			bool ruleState = false;
-			json ruleJson = ruleToJson(item->rule,&ruleState);
-
-			if (!ruleState) {
-				*state = FL_CONTENT_EXIST_RULE_FORMATE_FAIL;
-				return "";
-			}
-
-			jsonItem["rule"] = ruleJson;
-			jsonItems.push_back(jsonItem);
 		}
-		jsonFeatureLibrary["items"] = jsonItems;
+		*state = 0;
 	}
-	else {
-		*state = FL_CONTENT_ITEMS_IS_EMPTY;
-		return "";
+	catch (...) {
+		*state = -1;
 	}
-	std::string json = jsonFeatureLibrary.dump(4);
-	*state = NO_ERROR;
-	return json;
+
+	if (*state == 0) {
+		ymlstr = ryml::emitrs<std::string>(tree);
+	}
+
+	return ymlstr;
 }
 
-nlohmann::json FeatureLibrary::ruleToJson(mountcloud::Rule* rule,bool* state) {
-	json jsonRule;
-	//if (rule != NULL) {
-	//	if (!rule->id.empty()) {
-	//		jsonRule = rule->id;
-	//		*state = true;
-	//	}
-	//	else if(rule->ands!=NULL&&rule->ands->size()>0){
-	//		vector<json> andsjson;
-	//		for (int i = 0; i < rule->ands->size(); i++) {
-	//			mountcloud::Rule* andRule = rule->ands->at(i);
-	//			bool andRuleState = false;
+void FeatureLibrary::ruleToYaml(c4::yml::NodeRef& parentNode, mountcloud::Rule* rule) {
+	if (rule->getType() == RULE_BASE_TYPE_ALL) {
+		AllRule* allRule = (AllRule*)rule;
+		if (allRule->getIds().size() > 0) {
+			parentNode["$all"] |= ryml::SEQ;
+			for (int i = 0; i < allRule->getIds().size(); i++) {
+				parentNode["$all"][i] << allRule->getIds().at(i);
+			}
+		}
+	}
+	//------------------------------------------------
+	else if (rule->getBaseType() == RULE_BASE_TYPE_LOGIC) {
+		c4::yml::NodeRef logicNode;
+		if (rule->getType() == RULE_TYPE_LOGIC_AND) {
+			parentNode["$and"] |= ryml::SEQ;
+			logicNode = parentNode["$and"];
+		}
+		else if (rule->getType() == RULE_TYPE_LOGIC_OR) {
+			parentNode["$or"] |= ryml::SEQ;
+			logicNode = parentNode["$or"];
+		}
+		else if (rule->getType() == RULE_TYPE_LOGIC_NOT) {
+			parentNode["$not"] |= ryml::SEQ;
+			logicNode = parentNode["$not"];
+		}
 
-	//			json andJson = ruleToJson(andRule, &andRuleState);
-	//			if (!andRuleState) {
-	//				*state = false;
-	//				return jsonRule;
-	//			}
-	//			andsjson.push_back(andJson);
-	//		}
-	//		*state = true;
-	//		jsonRule["$and"] = andsjson;
-	//	}
-	//	else if(rule->ors!=NULL&&rule->ors->size()>0){
-	//		vector<json> orsjson;
-	//		for (int i = 0; i < rule->ors->size(); i++) {
-	//			mountcloud::Rule* orRule = rule->ors->at(i);
-	//			bool orRuleState = false;
+		LogicRule* logicRule = (LogicRule*)rule;
 
-	//			json orJson = ruleToJson(orRule, &orRuleState);
-	//			if (!orRuleState) {
-	//				*state = false;
-	//				return jsonRule;
-	//			}
-	//			orsjson.push_back(orJson);
-	//		}
-	//		*state = true;
-	//		jsonRule["$or"] = orsjson;
-	//	}
-	//	else {
-	//		*state = false;
-	//	}
-	//}
-	//else {
-	//	*state = false;
-	//}
-	return jsonRule;
+		for (int i = 0; i < logicRule->getRules()->size(); i++) {
+			Rule* tlr = logicRule->getRules()->at(i);
+			logicNode[i] |= ryml::MAP;
+			c4::yml::NodeRef logicChildNode = logicNode[i];
+			ruleToYaml(logicChildNode, tlr);
+		}
+	}
+	//------------------------------------------------
+	else if (rule->getType() == RULE_TYPE_NUMBER_INT) {
+		IntRule* intRule = (IntRule*)rule;
+		parentNode["$int"] << intRule->getNum();
+	}
+	else if (rule->getType() == RULE_TYPE_NUMBER_COUNT) {
+		CountRule* countRule = (CountRule*)rule;
+		parentNode["$count"] |= ryml::SEQ;
+		for (int i = 0; i < countRule->getIds().size(); i++) {
+			parentNode["$count"][i] << countRule->getIds().at(i);
+		}
+	}
+	//------------------------------------------------
+	else if (rule->getBaseType() == RULE_BASE_TYPE_COMPARE) {
+		c4::yml::NodeRef compaerNode;
+		if (rule->getType() == RULE_TYPE_COMPARE_LT) {
+			parentNode["$lt"] |= ryml::SEQ;
+			compaerNode = parentNode["$lt"];
+		}
+		else if (rule->getType() == RULE_TYPE_COMPARE_LE) {
+			parentNode["$lt"] |= ryml::SEQ;
+			compaerNode = parentNode["$lt"];
+		}
+		else if (rule->getType() == RULE_TYPE_COMPARE_GT) {
+			parentNode["$gt"] |= ryml::SEQ;
+			compaerNode = parentNode["$gt"];
+		}
+		else if (rule->getType() == RULE_TYPE_COMPARE_GE) {
+			parentNode["$ge"] |= ryml::SEQ;
+			compaerNode = parentNode["$ge"];
+		}
+		CompareRule* compareRule = (CompareRule*)rule;
+
+
+		compaerNode[0] |= ryml::MAP;
+		compaerNode[1] |= ryml::MAP;
+
+		c4::yml::NodeRef num1Node = compaerNode[0];
+		c4::yml::NodeRef num2Node = compaerNode[1];
+
+		ruleToYaml(num1Node, compareRule->getNum1());
+		ruleToYaml(num2Node, compareRule->getNum2());
+
+	}
+	
 }
 
 std::vector<mountcloud::Rule*> FeatureLibrary::parseRulesByYaml(c4::yml::NodeRef node) {
