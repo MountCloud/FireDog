@@ -306,6 +306,10 @@ void Matcher::matchByte(const char byte) {
 std::vector <MatcherResult*>* Matcher::check() {
 	std::vector <MatcherResult*>* result = NULL;
 
+	if (featureRuleData == NULL) {
+		return result;
+	}
+	
 	for (std::unordered_map<int, mountcloud::RuleData*>::iterator iter = featureRuleData->begin(); iter != featureRuleData->end(); iter++) {
 		int featureId = iter->first;
 		mountcloud::RuleData* ruleData = iter->second;
