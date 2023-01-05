@@ -78,6 +78,20 @@ $ge: *comparison rule*, greater than or equal to comparison, use two *number rul
 
 # 更新日志 Update log
 
+# v1.3.3
+
+```
+FireDog Version: v1.3.3
+FireDog Editor Version: v2.2
+Feature Libraray Version: v1.2.1
+
+1：修复检测结果为空时报错问题。
+2：优化yaml组件，让yaml组件支持gcc 4.8版本（centos7默认），增强引擎的跨平台编译能力。
+
+1: Fix the error reporting that the detection result is empty. 
+2: Optimize the yaml component, let the yaml component support gcc 4.8 version (centos7 default), and enhance the cross-platform compilation ability of the engine.
+```
+
 # v1.3.1
 
 ```
