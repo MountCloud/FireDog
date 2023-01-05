@@ -1,3 +1,5 @@
+#pragma warning (disable: 4996)
+
 #include "featurelibrary.h"
 
 using namespace nlohmann;
